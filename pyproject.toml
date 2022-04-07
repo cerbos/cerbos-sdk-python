@@ -6,13 +6,27 @@ authors = [
     {name = "Cerbos Developers", email = "help+python@cerbos.dev"},
 ]
 license-expression = "Apache-2.0"
-dependencies = []
-requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.27.1",
+    "dataclasses-json>=0.5.7",
+    "requests-toolbelt>=0.9.1",
+]
+requires-python = ">=3.8"
 
 [project.urls]
 Homepage = "https://cerbos.dev"
 
+[project.optional-dependencies]
 [tool.pdm]
+[tool.pdm.dev-dependencies]
+lint = [
+    "black>=22.3.0",
+    "pylint>=2.13.5",
+    "isort>=5.10.1",
+    "mypy>=0.942",
+    "types-requests>=2.27.16",
+]
+tools = []
 
 [build-system]
 requires = ["pdm-pep517>=0.12.0"]
@@ -20,32 +34,21 @@ build-backend = "pdm.pep517.api"
 
 [tool.pyprojectx]
 pdm = "pdm==1.13.6"
-
-# commonly used tools
-#black = "black"
-#isort = "isort"
-#pylint = "pylint"
-#pre-commit = "pre-commit"
-#jupyter = ["jupyter", "."]
+black = "black"
+pylint = "pylint"
+mypy = "mypy"
 
 [tool.pyprojectx.aliases]
 install = "pdm install"
 run = "pdm run"
 outdated = "pdm update --outdated"
 test = "pdm run pytest"
+black = "black cerbos tests"
+pylint = "pylint cerbos tests"
+mypy = "mypy cerbos tests"
 
-# example aliases
-#clean = "rm -rf .venv .pytest_cache dist"
-#clean-all = "pw@ clean && rm -rf .pyprojectx"
-#black = "black src tests"
-#isort = "isort src tests"
-#check-pylint = "pylint src tests"
-#check-black = "black src tests --check"
-#check = "pw@ check-black && pw@ check-pylint && pw@ test"
-#build = "pw@ install && pw@ check && pw@ pdm build"
-#notebook = "jupyter notebook -y"
+[tool.pyright]
+extraPaths = ["__pypackages__/3.10/lib/"]
 
-[tool.pyprojectx.os.win.aliases]
-# example os specific aliases
-#clean = "rmdir /s/q .venv .pytest_cache dist"
-#clean-all = "pw@ clean & rmdir /s/q .pyprojectx"
+[tool.mypy]
+python_version = "3.8"

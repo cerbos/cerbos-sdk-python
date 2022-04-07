@@ -1,0 +1,51 @@
+[project]
+name = "cerbos-sdk-python"
+version = "0.1.0"
+description = "SDK for working with Cerbos: an open core, language-agnostic, scalable authorization solution"
+authors = [
+    {name = "Cerbos Developers", email = "help+python@cerbos.dev"},
+]
+license-expression = "Apache-2.0"
+dependencies = []
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://cerbos.dev"
+
+[tool.pdm]
+
+[build-system]
+requires = ["pdm-pep517>=0.12.0"]
+build-backend = "pdm.pep517.api"
+
+[tool.pyprojectx]
+pdm = "pdm==1.13.6"
+
+# commonly used tools
+#black = "black"
+#isort = "isort"
+#pylint = "pylint"
+#pre-commit = "pre-commit"
+#jupyter = ["jupyter", "."]
+
+[tool.pyprojectx.aliases]
+install = "pdm install"
+run = "pdm run"
+outdated = "pdm update --outdated"
+test = "pdm run pytest"
+
+# example aliases
+#clean = "rm -rf .venv .pytest_cache dist"
+#clean-all = "pw@ clean && rm -rf .pyprojectx"
+#black = "black src tests"
+#isort = "isort src tests"
+#check-pylint = "pylint src tests"
+#check-black = "black src tests --check"
+#check = "pw@ check-black && pw@ check-pylint && pw@ test"
+#build = "pw@ install && pw@ check && pw@ pdm build"
+#notebook = "jupyter notebook -y"
+
+[tool.pyprojectx.os.win.aliases]
+# example os specific aliases
+#clean = "rmdir /s/q .venv .pytest_cache dist"
+#clean-all = "pw@ clean & rmdir /s/q .pyprojectx"

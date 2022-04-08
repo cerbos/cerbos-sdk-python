@@ -1,6 +1,5 @@
 [project]
-name = "cerbos-sdk-python"
-version = "0.1.0"
+name = "cerbos"
 description = "SDK for working with Cerbos: an open core, language-agnostic, scalable authorization solution"
 authors = [
     {name = "Cerbos Developers", email = "help+python@cerbos.dev"},
@@ -10,23 +9,28 @@ dependencies = [
     "requests>=2.27.1",
     "dataclasses-json>=0.5.7",
     "requests-toolbelt>=0.9.1",
+    "testcontainers>=3.5.3",
+    "importlib>=1.0.4",
 ]
 requires-python = ">=3.8"
+dynamic = ["version"]
+
+
 
 [project.urls]
 Homepage = "https://cerbos.dev"
 
 [project.optional-dependencies]
+
 [tool.pdm]
+version = {use_scm = true}
+
 [tool.pdm.dev-dependencies]
 lint = [
     "black>=22.3.0",
-    "pylint>=2.13.5",
-    "isort>=5.10.1",
-    "mypy>=0.942",
-    "types-requests>=2.27.16",
-]
-tools = []
+    "isort>=5.10.1"]
+test = [
+    "pytest>=7.1.1"]
 
 [build-system]
 requires = ["pdm-pep517>=0.12.0"]
@@ -35,20 +39,23 @@ build-backend = "pdm.pep517.api"
 [tool.pyprojectx]
 pdm = "pdm==1.13.6"
 black = "black"
-pylint = "pylint"
-mypy = "mypy"
+isort = "isort"
 
 [tool.pyprojectx.aliases]
 install = "pdm install"
 run = "pdm run"
 outdated = "pdm update --outdated"
-test = "pdm run pytest"
+test = "pdm run pytest tests"
+isort = "isort cerbos tests"
 black = "black cerbos tests"
-pylint = "pylint cerbos tests"
-mypy = "mypy cerbos tests"
+format = "pw@isort && pw@black"
 
 [tool.pyright]
 extraPaths = ["__pypackages__/3.10/lib/"]
 
-[tool.mypy]
-python_version = "3.8"
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "INFO"
+
+[tool.isort]
+profile = 'black'

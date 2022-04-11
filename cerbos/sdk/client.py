@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import ssl
 import uuid
 from typing import Optional
 
-import requests
-from requests.packages.urllib3.util.retry import Retry
-from requests_toolbelt import sessions, user_agent
-from requests_toolbelt.utils import dump
+import httpx
+from requests_toolbelt import user_agent
 
 import cerbos
 from cerbos.sdk.model import *
-from cerbos.sdk.util import TimeoutAdapter
+
+TLSVerify = str | bool | ssl.SSLContext
 
 
 class CerbosClient:
@@ -21,12 +21,11 @@ class CerbosClient:
     Args:
         host (str): The full address of the Cerbos API server (PDP)
         timeout_secs (float): Request timeout in seconds (default is 2)
-        retry_strategy (Retry): A urllib3 Retry object defining how to retry requests (default is None)
-        tls_verify (bool|str): If False, disables server certificate verification. If a path is passed it is used as the CA certificate
+        tls_verify (bool|str|SSLContext): If False, disables server certificate verification. If a path is passed it is used as the CA certificate
         playground_instance (str): Optional Cerbos Playground ID if testing against a Playground playground_instance
         raise_on_error (bool): Raise an exception on unsuccessful requests (default is False)
-        debug (bool): Log requests and responses (default is False)
-        logger (logging.Logger): Logger to use for debug output (default is None)
+        debug (bool): Log request and response
+        logger (Logger): Logger to use for logging
 
     Example:
         with CerbosClient("http://localhost:3592") as cerbos:
@@ -38,55 +37,81 @@ class CerbosClient:
                 do_thing()
     """
 
-    _http: sessions.BaseUrlSession
+    _http: httpx.Client
     _logger: logging.Logger
+    _raise_on_error: bool
 
     def __init__(
         self,
         host: str,
         *,
         timeout_secs: float = 2.0,
-        retry_strategy: Optional[Retry] = None,
-        tls_verify: Optional[Any] = None,
+        tls_verify: TLSVerify = True,
         playground_instance: Optional[str] = None,
         raise_on_error: bool = False,
         debug: bool = False,
-        logger: Optional[logging.Logger] = None
+        logger: logging.Logger = logging.getLogger(__name__)
     ):
-        self._logger = logging.getLogger(__name__) if logger is None else logger
-        http = sessions.BaseUrlSession(base_url=host)
-
-        adapter = (
-            TimeoutAdapter(timeout_secs=timeout_secs)
-            if retry_strategy is None
-            else TimeoutAdapter(timeout=timeout_secs, max_retries=retry_strategy)
-        )
-        http.mount("http://", adapter)
-        http.mount("https://", adapter)
+        self._logger = logger
+        self._raise_on_error = raise_on_error
 
         ua = user_agent("cerbos-python", cerbos.__version__)
-        http.headers.update({"User-Agent": ua})
+        headers = {"User-Agent": ua}
 
         if playground_instance is not None:
-            http.headers.update({"playground-instance": playground_instance})
+            headers.update({"playground-instance": playground_instance})
 
-        if tls_verify is not None:
-            http.verify = tls_verify
-
+        event_hooks = { "response": [] }
         if debug:
-            http.hooks["response"].append(
-                lambda response, *args, **kwargs: self._logger.debug(
-                    dump.dump_all(response).decode("utf-8")
-                )
-            )
+            event_hooks["response"].append(lambda response: self._log_response(response))
 
-        # This must go last to let the other hooks execute
         if raise_on_error:
-            http.hooks["response"].append(
-                lambda response, *args, **kwargs: response.raise_for_status()
-            )
+            event_hooks["response"].append(lambda response: response.raise_for_status())
 
-        self._http = http
+        self._http = httpx.Client(
+            base_url=host,
+            headers=headers,
+            timeout=timeout_secs,
+            verify=tls_verify,
+            event_hooks=event_hooks,
+        )
+
+    def _log_response(self, response: httpx.Response):
+        req_prefix = "< "
+        res_prefix = "> "
+        request = response.request
+        output = []
+
+        response.read()
+
+        output.append(f"{req_prefix}{request.method} {request.url}")
+
+        for name, value in request.headers.items():
+            output.append(f"{req_prefix}{name}: {value}")
+
+        output.append(req_prefix)
+
+        if isinstance(request.content, (str, bytes)):
+            output.append(f"{req_prefix}{request.content}")
+        else:
+            output.append("<< Request body is not a string-like type >>")
+
+        output.append("")
+
+        output.append(
+            f"{res_prefix}{response.status_code} {response.reason_phrase}"
+        )
+
+        for name, value in response.headers.items():
+            output.append(f"{res_prefix}{name}: {value}")
+
+        output.append(res_prefix)
+
+        output.append(f"{res_prefix}{response.text}")
+
+        msg = "\n".join(output)
+        self._logger.debug(msg)
+
 
     def __enter__(self):
         return self
@@ -117,8 +142,11 @@ class CerbosClient:
             resources=resources.resources,
             aux_data=aux_data,
         )
-        resp = self._http.post("/api/check/resources", data=req.to_json())
-        if resp.status_code != requests.codes.ok:
+        resp = self._http.post("/api/check/resources", json=req.to_dict())
+        if resp.is_error:
+            if self._raise_on_error:
+                raise CerbosRequestException(APIError.from_dict(resp.json()))
+
             return CheckResourcesResponse(
                 request_id=req_id,
                 status_code=resp.status_code,
@@ -159,7 +187,7 @@ class CerbosClient:
         params = None if svc is None else {"service": svc}
         try:
             resp = self._http.get("/_cerbos/health", params=params)
-            return resp.status_code == requests.codes.ok
+            return resp.is_success
         except Exception:
             return False
 

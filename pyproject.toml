@@ -6,12 +6,11 @@ authors = [
 ]
 license-expression = "Apache-2.0"
 dependencies = [
-    "requests>=2.27.1",
     "dataclasses-json>=0.5.7",
     "requests-toolbelt>=0.9.1",
     "testcontainers>=3.5.3",
     "importlib>=1.0.4",
-]
+    "httpx[http2]>=0.22.0"]
 requires-python = ">=3.8"
 dynamic = ["version"]
 
@@ -55,7 +54,7 @@ extraPaths = ["__pypackages__/3.10/lib/"]
 
 [tool.pytest.ini_options]
 log_cli = true
-log_cli_level = "INFO"
+log_cli_level = "DEBUG"
 
 [tool.isort]
 profile = 'black'

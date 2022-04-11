@@ -14,7 +14,7 @@ from cerbos.sdk.container import CerbosContainer
 def cerbos_client():
     policy_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "store")
 
-    container = CerbosContainer(image="ghcr.io/cerbos/cerbos:0.16.0-prerelease-amd64")
+    container = CerbosContainer(image="ghcr.io/cerbos/cerbos:dev")
     container.with_volume_mapping(policy_dir, "/policies")
     container.start()
 

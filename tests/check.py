@@ -10,7 +10,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     logging.captureWarnings(True)
 
-    with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
+    with CerbosClient("https://localhost:3592", playground_instance="XXY", debug=True, tls_verify=False) as c:
         p = Principal(
             "john",
             roles={"employee"},

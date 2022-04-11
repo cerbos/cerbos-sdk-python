@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 
-import requests
+import httpx
 from dataclasses_json import LetterCase, dataclass_json
 
 
@@ -120,11 +120,11 @@ class CheckResourcesResult:
 class CheckResourcesResponse:
     request_id: str
     results: Optional[List[CheckResourcesResult]] = None
-    status_code: int = requests.codes.ok
+    status_code: int = httpx.codes.OK
     status_msg: Optional[APIError] = None
 
     def failed(self) -> bool:
-        return self.status_code != requests.codes.ok
+        return self.status_code != httpx.codes.OK
 
     def raise_if_failed(self) -> "CheckResourcesResponse":
         if not self.failed():

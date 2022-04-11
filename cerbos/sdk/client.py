@@ -50,7 +50,7 @@ class CerbosClient:
         playground_instance: Optional[str] = None,
         raise_on_error: bool = False,
         debug: bool = False,
-        logger: logging.Logger = logging.getLogger(__name__)
+        logger: logging.Logger = logging.getLogger(__name__),
     ):
         self._logger = logger
         self._raise_on_error = raise_on_error
@@ -61,9 +61,11 @@ class CerbosClient:
         if playground_instance is not None:
             headers.update({"playground-instance": playground_instance})
 
-        event_hooks = { "response": [] }
+        event_hooks = {"response": []}
         if debug:
-            event_hooks["response"].append(lambda response: self._log_response(response))
+            event_hooks["response"].append(
+                lambda response: self._log_response(response)
+            )
 
         if raise_on_error:
             event_hooks["response"].append(lambda response: response.raise_for_status())
@@ -98,9 +100,7 @@ class CerbosClient:
 
         output.append("")
 
-        output.append(
-            f"{res_prefix}{response.status_code} {response.reason_phrase}"
-        )
+        output.append(f"{res_prefix}{response.status_code} {response.reason_phrase}")
 
         for name, value in response.headers.items():
             output.append(f"{res_prefix}{name}: {value}")
@@ -111,7 +111,6 @@ class CerbosClient:
 
         msg = "\n".join(output)
         self._logger.debug(msg)
-
 
     def __enter__(self):
         return self
@@ -154,6 +153,51 @@ class CerbosClient:
             )
 
         return CheckResourcesResponse.from_dict(resp.json())
+
+    def plan_resources(
+        self,
+        action: str,
+        principal: Principal,
+        resource: ResourceDesc,
+        request_id: Optional[str] = None,
+        aux_data: Optional[AuxData] = None,
+    ) -> PlanResourcesResponse:
+        """Create a query plan for performing the given action on resources of the given kind
+
+        Args:
+            action (str): Action to perform
+            principal (Principal): principal who is performing the action
+            resource (ResourceDesc): information about the resource kind
+            request_id (None|str): request ID for the request (default None)
+            aux_data (None|AuxData): auxiliary data for the request
+        """
+
+        req_id = _get_request_id(request_id)
+        req = PlanResourcesRequest(
+            request_id=req_id,
+            action=action,
+            principal=principal,
+            resource=resource,
+            aux_data=aux_data,
+        )
+
+        print(f"{req =} {req.to_dict() =}")
+
+        resp = self._http.post("/api/x/plan/resources", json=req.to_dict())
+        if resp.is_error:
+            if self._raise_on_error:
+                raise CerbosRequestException(APIError.from_dict(resp.json()))
+
+            return PlanResourcesResponse(
+                request_id=req_id,
+                status_code=resp.status_code,
+                status_msg=APIError.from_dict(resp.json()),
+                action=action,
+                resource_kind=resource.kind,
+                policy_version=resource.policy_version,
+            )
+
+        return PlanResourcesResponse.from_dict(resp.json())
 
     def is_allowed(
         self,
@@ -241,6 +285,30 @@ class PrincipalContext:
             resources=resources,
             request_id=request_id,
             aux_data=self._aux_data,
+        )
+
+    def plan_resources(
+        self,
+        action: str,
+        resource: ResourceDesc,
+        request_id: Optional[str] = None,
+        aux_data: Optional[AuxData] = None,
+    ) -> PlanResourcesResponse:
+        """Create a query plan for performing the given action on resources of the given kind
+
+        Args:
+            action (str): Action to perform
+            resource (ResourceDesc): information about the resource kind
+            request_id (None|str): request ID for the request (default None)
+            aux_data (None|AuxData): auxiliary data for the request
+        """
+
+        return self._client.plan_resources(
+            action=action,
+            principal=self._principal,
+            resource=resource,
+            request_id=request_id,
+            aux_data=aux_data,
         )
 
     def is_allowed(

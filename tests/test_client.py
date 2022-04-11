@@ -127,6 +127,109 @@ class TestCerbosClient:
         with pytest.raises(CerbosRequestException):
             have.raise_if_failed()
 
+    def test_plan_resources(self, cerbos_client: CerbosClient):
+        p = Principal(
+            "maggie",
+            roles={"manager"},
+            policy_version="20210210",
+            attr={
+                "department": "marketing",
+                "geography": "GB",
+                "managed_geographies": "GB",
+                "team": "design",
+            },
+        )
+
+        r = ResourceDesc("leave_request", policy_version="20210210")
+
+        have = cerbos_client.plan_resources("approve", p, r)
+        assert have.failed() == False
+        assert have.resource_kind == "leave_request"
+        assert have.policy_version == "20210210"
+        assert have.filter.kind == PlanResourcesFilterKind.CONDITIONAL
+        assert have.filter.condition is not None
+
+
+class TestPrincipalContext:
+    def test_is_allowed(self, principal_ctx: PrincipalContext):
+        r = Resource(
+            "XX125",
+            "leave_request",
+            policy_version="20210210",
+            attr={
+                "id": "XX125",
+                "department": "marketing",
+                "geography": "GB",
+                "team": "design",
+                "owner": "john",
+            },
+        )
+
+        have = principal_ctx.is_allowed("view:public", r)
+        assert have == True
+
+    def test_check_resources(self, principal_ctx: PrincipalContext):
+        resources = [
+            ResourceAction(
+                resource=Resource(
+                    "XX125",
+                    "leave_request",
+                    policy_version="20210210",
+                    attr={
+                        "id": "XX125",
+                        "department": "marketing",
+                        "geography": "GB",
+                        "team": "design",
+                        "owner": "john",
+                    },
+                ),
+                actions={"view:public", "approve"},
+            ),
+            ResourceAction(
+                resource=Resource(
+                    "XX225",
+                    "leave_request",
+                    policy_version="20210210",
+                    attr={
+                        "id": "XX225",
+                        "department": "marketing",
+                        "geography": "GB",
+                        "team": "design",
+                        "owner": "alice",
+                        "status": "PENDING_APPROVAL",
+                    },
+                ),
+                actions={"view:private", "approve"},
+            ),
+        ]
+
+        have = principal_ctx.check_resources(ResourceList(resources))
+        assert have.failed() == False
+
+        xx125 = have.get_resource(
+            "XX125", predicate=lambda r: r.policy_version == "20210210"
+        )
+        assert xx125 is not None
+        assert xx125.is_allowed("view:public") == True
+        assert xx125.is_allowed("approve") == False
+
+        xx225 = have.get_resource("XX225")
+        assert xx225 is not None
+        assert xx225.is_allowed("view:public") == False
+        assert xx225.is_allowed("approve") == False
+
+        zz225 = have.get_resource("ZZ225")
+        assert zz225 is None
+
+    def test_plan_resources(self, principal_ctx: PrincipalContext):
+        r = ResourceDesc("leave_request", policy_version="20210210")
+
+        have = principal_ctx.plan_resources("view:public", r)
+        assert have.failed() == False
+        assert have.resource_kind == "leave_request"
+        assert have.policy_version == "20210210"
+        assert have.filter.kind == PlanResourcesFilterKind.CONDITIONAL
+
 
 @pytest.fixture
 def principal_ctx(cerbos_client):

@@ -3,9 +3,10 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 import httpx
+from _pytest.mark.expression import expression
 from dataclasses_json import LetterCase, dataclass_json
 
 
@@ -142,6 +143,93 @@ class CheckResourcesResponse:
             (r for r in self.results if r.resource.id == id and predicate(r.resource)),
             None,
         )
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class ResourceDesc:
+    kind: str
+    attr: Dict[str, Any] = field(default_factory=dict)
+    policy_version: str = "default"
+    scope: str = ""
+
+    def add_attr(self, name: str, value: Any) -> "ResourceDesc":
+        self.attr[name] = value
+        return self
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesRequest:
+    request_id: str
+    action: str
+    principal: Principal
+    resource: ResourceDesc
+    aux_data: Optional[AuxData] = None
+
+
+Operand = Union[
+    "PlanResourcesValue", "PlanResourcesVariable", "PlanResourcesExpression"
+]
+
+
+class PlanResourcesFilterKind(str, Enum):
+    ALWAYS_ALLOWED = "KIND_ALWAYS_ALLOWED"
+    ALWAYS_DENIED = "KIND_ALWAYS_DENIED"
+    CONDITIONAL = "KIND_CONDITIONAL"
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesValue:
+    value: Any
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesVariable:
+    variable: str
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesExpressionDef:
+    operator: str
+    operands: List[Operand]
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesExpression:
+    expression: PlanResourcesExpressionDef
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesFilter:
+    kind: PlanResourcesFilterKind
+    condition: Optional[Operand] = None
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesResponse:
+    request_id: str
+    action: str
+    resource_kind: str
+    policy_version: str
+    filter: Optional[PlanResourcesFilter] = None
+    status_code: int = httpx.codes.OK
+    status_msg: Optional[APIError] = None
+
+    def failed(self) -> bool:
+        return self.status_code != httpx.codes.OK
+
+    def raise_if_failed(self) -> "PlanResourcesResponse":
+        if not self.failed():
+            return self
+
+        raise CerbosRequestException(self.status_msg)
 
 
 class CerbosRequestException(Exception):

@@ -54,7 +54,7 @@ extraPaths = ["__pypackages__/3.10/lib/"]
 
 [tool.pytest.ini_options]
 log_cli = true
-log_cli_level = "DEBUG"
+log_cli_level = "INFO"
 
 [tool.isort]
 profile = 'black'

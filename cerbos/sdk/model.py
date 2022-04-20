@@ -6,7 +6,6 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 import httpx
-from _pytest.mark.expression import expression
 from dataclasses_json import LetterCase, dataclass_json
 
 

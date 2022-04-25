@@ -1,10 +1,17 @@
 [project]
 name = "cerbos"
 description = "SDK for working with Cerbos: an open core, language-agnostic, scalable authorization solution"
+readme = "README.md"
 authors = [
-    {name = "Cerbos Developers", email = "help+python@cerbos.dev"},
+    {name = "Cerbos Developers", email = "sdk+python@cerbos.dev"},
 ]
 license-expression = "Apache-2.0"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+]
 dependencies = [
     "dataclasses-json>=0.5.7",
     "requests-toolbelt>=0.9.1",
@@ -36,9 +43,10 @@ requires = ["pdm-pep517>=0.12.0"]
 build-backend = "pdm.pep517.api"
 
 [tool.pyprojectx]
-pdm = "pdm==1.13.6"
+pdm = "pdm"
 black = "black"
 isort = "isort"
+twine = "twine"
 
 [tool.pyprojectx.aliases]
 install = "pdm install"
@@ -48,6 +56,7 @@ test = "pdm run pytest tests"
 isort = "isort cerbos tests"
 black = "black cerbos tests"
 format = "pw@isort && pw@black"
+test_upload = "twine upload -r testpypi dist/*"
 
 [tool.pyright]
 extraPaths = ["__pypackages__/3.10/lib/"]

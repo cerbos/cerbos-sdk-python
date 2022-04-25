@@ -1,5 +1,6 @@
 .pyprojectx/
 __pypackages__/
 __pycache__/
+dist/
 
 *.pyc

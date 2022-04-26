@@ -1,0 +1,41 @@
+---
+name: Pull Request
+on:
+  pull_request:
+    branches:
+      - main
+      - 'v*'
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ./__pypackages__
+          key: ${{ runner.os }}-python-${{ hashFiles('**/pdm.lock') }}
+
+      - name: Format
+        run: ./pw format
+
+      - name: Check repo status
+        run: |-
+          REPO_STATUS="$(git status --porcelain)"
+          if [[ ! -z $REPO_STATUS ]]; then
+            echo "::error::Uncommitted changes detected"
+            echo "$REPO_STATUS"
+            exit 1
+          fi
+
+      - name: Test
+        run: ./pw test
+

@@ -4,7 +4,7 @@
 import logging
 import ssl
 import uuid
-from typing import Optional
+from typing import Optional,Union
 
 import httpx
 from requests_toolbelt import user_agent
@@ -12,7 +12,7 @@ from requests_toolbelt import user_agent
 import cerbos
 from cerbos.sdk.model import *
 
-TLSVerify = str | bool | ssl.SSLContext
+TLSVerify = Union[str,bool,ssl.SSLContext]
 
 
 class CerbosClient:

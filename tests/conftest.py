@@ -16,6 +16,7 @@ def cerbos_client():
 
     container = CerbosContainer(image="ghcr.io/cerbos/cerbos:dev")
     container.with_volume_mapping(policy_dir, "/policies")
+    container.with_env("CERBOS_NO_TELEMETRY", "1")
     container.start()
 
     container.wait_until_ready()

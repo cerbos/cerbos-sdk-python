@@ -145,7 +145,7 @@ requires_python = ">=3.6"
 summary = "The next generation HTTP client."
 dependencies = [
     "h2<5,>=3",
-    "httpx",
+    "httpx>=0.22.0",
 ]
 
 [[package]]
@@ -280,8 +280,7 @@ dependencies = [
 
 [[package]]
 name = "rfc3986"
-version = "2.0.0"
-requires_python = ">=3.7"
+version = "1.5.0"
 summary = "Validating URI References per RFC 3986"
 
 [[package]]
@@ -291,7 +290,7 @@ extras = ["idna2008"]
 summary = "Validating URI References per RFC 3986"
 dependencies = [
     "idna",
-    "rfc3986",
+    "rfc3986<2,>=1.3",
 ]
 
 [[package]]
@@ -520,10 +519,6 @@ content_hash = "sha256:fd15beb7a199ef745c11b695233befa250760e6481274bf8ee35fd142
 "requests-toolbelt 0.9.1" = [
     {file = "requests_toolbelt-0.9.1-py2.py3-none-any.whl", hash = "sha256:380606e1d10dc85c3bd47bf5a6095f815ec007be7a8b69c878507068df059e6f"},
     {file = "requests-toolbelt-0.9.1.tar.gz", hash = "sha256:968089d4584ad4ad7c171454f0a5c6dac23971e9472521ea3b6d49d610aa6fc0"},
-]
-"rfc3986 2.0.0" = [
-    {file = "rfc3986-2.0.0-py2.py3-none-any.whl", hash = "sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd"},
-    {file = "rfc3986-2.0.0.tar.gz", hash = "sha256:97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c"},
 ]
 "rfc3986 1.5.0" = [
     {file = "rfc3986-1.5.0-py2.py3-none-any.whl", hash = "sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97"},

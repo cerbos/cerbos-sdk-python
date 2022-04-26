@@ -10,11 +10,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Install Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.x
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -23,6 +18,9 @@ jobs:
           path: |
             ./__pypackages__
           key: ${{ runner.os }}-python-${{ hashFiles('**/pdm.lock') }}
+
+      - name: Install dependencies
+        run: ./pw pdm install -G :all
 
       - name: Format
         run: ./pw format
@@ -38,4 +36,3 @@ jobs:
 
       - name: Test
         run: ./pw test
-

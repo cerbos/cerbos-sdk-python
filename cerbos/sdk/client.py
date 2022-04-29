@@ -181,9 +181,7 @@ class CerbosClient:
             aux_data=aux_data,
         )
 
-        print(f"{req =} {req.to_dict() =}")
-
-        resp = self._http.post("/api/x/plan/resources", json=req.to_dict())
+        resp = self._http.post("/api/plan/resources", json=req.to_dict())
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))

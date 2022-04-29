@@ -35,7 +35,7 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
     print(c.is_allowed("view:public", p, r))
 ```
 
-Testing with [devcontainers](https://github.com/testcontainers/testcontainers-python)
+Testing with [TestContainers](https://github.com/testcontainers/testcontainers-python)
 
 ```python
 from cerbos.sdk.client import CerbosClient

@@ -16,7 +16,7 @@ pip install cerbos
 Making a request
 
 ```python
-import cerbos.sdk.model.*
+from cerbos.sdk.model import *
 from cerbos.sdk.client import CerbosClient
 
 with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:

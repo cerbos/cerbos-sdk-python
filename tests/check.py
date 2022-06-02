@@ -11,7 +11,7 @@ if __name__ == "__main__":
     logging.captureWarnings(True)
 
     with CerbosClient(
-        "https://localhost:3592",
+        "unix+https:///tmp/cerbos.sock",
         playground_instance="XXY",
         debug=True,
         tls_verify=False,

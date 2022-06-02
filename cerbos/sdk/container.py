@@ -17,4 +17,4 @@ class CerbosContainer(DockerContainer):
         return f"{protocol}://{self.get_container_host_ip()}:{self.get_exposed_port(self.HTTP_PORT)}"
 
     def wait_until_ready(self, timeout_secs: float = 30):
-        wait_for_logs(self, r"Starting HTTP server at :\d+", timeout=timeout_secs)
+        wait_for_logs(self, r"Starting HTTP server at", timeout=timeout_secs)

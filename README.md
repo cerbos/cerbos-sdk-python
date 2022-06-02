@@ -41,6 +41,15 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
     print(c.is_allowed("view:public", p, r))
 ```
 
+Connecting to a Unix domain socket
+
+Use `unix+http:///path/to/sock` for HTTP over UDS or `unix+https:///path/to/sock` for HTTPS over UDS.
+
+```python
+with CerbosClient("unix+https:///var/cerbos.sock", debug=True, tls_verify=False) as c:
+  ...
+```
+
 Testing with [TestContainers](https://github.com/testcontainers/testcontainers-python)
 
 ```python

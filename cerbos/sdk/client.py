@@ -5,6 +5,7 @@ import logging
 import ssl
 import uuid
 from typing import Optional, Union
+from urllib.parse import urlparse
 
 import httpx
 from requests_toolbelt import user_agent
@@ -70,12 +71,24 @@ class CerbosClient:
         if raise_on_error:
             event_hooks["response"].append(lambda response: response.raise_for_status())
 
+        transport = None
+        base_url = host
+
+        url = urlparse(host)
+        if url.scheme == "unix" or url.scheme == "unix+http":
+            transport = httpx.HTTPTransport(uds=url.path)
+            base_url = "http://cerbos.sock"
+        elif url.scheme == "unix+https":
+            transport = httpx.HTTPTransport(uds=url.path, verify=tls_verify)
+            base_url = "https://cerbos.sock"
+
         self._http = httpx.Client(
-            base_url=host,
+            base_url=base_url,
             headers=headers,
             timeout=timeout_secs,
             verify=tls_verify,
             event_hooks=event_hooks,
+            transport=transport,
         )
 
     def _log_response(self, response: httpx.Response):

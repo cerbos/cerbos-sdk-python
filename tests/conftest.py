@@ -29,10 +29,9 @@ def cerbos_client(request, tmp_path_factory):
         client = CerbosClient(host, debug=True)
     elif request.param == "uds":
         sock_dir = tmp_path_factory.mktemp("socket")
-        sock_dir.joinpath("http.sock").touch(mode=0o777, exist_ok=True)
         container.with_volume_mapping(sock_dir, "/socket", "rw")
         container.with_command(
-            "server --set=server.httpListenAddr=unix:///socket/http.sock"
+            "server --set=server.httpListenAddr=unix:///socket/http.sock --set=server.udsFileMode=0o777"
         )
 
         container.start()

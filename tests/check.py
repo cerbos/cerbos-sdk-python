@@ -11,7 +11,7 @@ if __name__ == "__main__":
     logging.captureWarnings(True)
 
     with CerbosClient(
-        "unix+https:///tmp/cerbos.sock",
+        "https://localhost:3592",
         playground_instance="XXY",
         debug=True,
         tls_verify=False,
@@ -35,3 +35,7 @@ if __name__ == "__main__":
             },
         )
         print(c.is_allowed("view:public", p, r))
+
+        rd = ResourceDesc("leave_request", policy_version="20210210")
+        plan = c.plan_resources("view", p, rd)
+        print(plan.filter.to_json())

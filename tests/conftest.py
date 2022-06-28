@@ -21,6 +21,7 @@ def cerbos_client(request, tmp_path_factory):
     client = None
 
     if request.param == "http":
+        container.with_command("server --set=schema.enforcement=reject")
         container.start()
         container.wait_until_ready()
 
@@ -31,7 +32,7 @@ def cerbos_client(request, tmp_path_factory):
         sock_dir = tmp_path_factory.mktemp("socket")
         container.with_volume_mapping(sock_dir, "/socket", "rw")
         container.with_command(
-            "server --set=server.httpListenAddr=unix:///socket/http.sock --set=server.udsFileMode=0o777"
+            "server --set=server.httpListenAddr=unix:///socket/http.sock --set=server.udsFileMode=0o777 --set=schema.enforcement=reject"
         )
 
         container.start()

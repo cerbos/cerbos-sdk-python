@@ -26,6 +26,8 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
         policy_version="20210210",
         attr={"department": "marketing", "geography": "GB", "team": "design"},
     )
+
+    # Check a single action on a single resource
     r = Resource(
         "XX125",
         "leave_request",
@@ -39,6 +41,11 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
         },
     )
     print(c.is_allowed("view:public", p, r))
+
+    # Get the query plan for "view" action
+    rd = ResourceDesc("leave_request", policy_version="20210210")
+    plan = c.plan_resources("view", p, rd)
+    print(plan.filter.to_json())
 ```
 
 Connecting to a Unix domain socket
@@ -67,6 +74,9 @@ with container:
     with CerbosClient(host) as c:
         ...
 ```
+
+
+See the tests available in the `tests` directory for more examples.
 
 ## Get help
 

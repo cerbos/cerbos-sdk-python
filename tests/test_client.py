@@ -148,6 +148,35 @@ class TestCerbosClient:
         assert have.policy_version == "20210210"
         assert have.filter.kind == PlanResourcesFilterKind.CONDITIONAL
         assert have.filter.condition is not None
+        assert have.validation_errors is None
+
+    def test_plan_resources_validation(self, cerbos_client: CerbosClient):
+        p = Principal(
+            "maggie",
+            roles={"manager"},
+            policy_version="20210210",
+            attr={
+                "reader": False,
+                "department": "accounting",
+                "geography": "GB",
+                "managed_geographies": "GB",
+                "team": "design",
+            },
+        )
+
+        r = ResourceDesc(
+            "leave_request",
+            policy_version="20210210",
+            attr={"department": "accounting"},
+        )
+
+        have = cerbos_client.plan_resources("approve", p, r)
+        assert have.failed() == False
+        assert have.resource_kind == "leave_request"
+        assert have.policy_version == "20210210"
+        assert have.filter.kind == PlanResourcesFilterKind.ALWAYS_DENIED
+        assert have.filter.condition is None
+        assert len(have.validation_errors) == 2
 
 
 class TestPrincipalContext:

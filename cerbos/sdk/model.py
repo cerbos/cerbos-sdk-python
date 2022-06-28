@@ -218,6 +218,7 @@ class PlanResourcesResponse:
     resource_kind: str
     policy_version: str
     filter: Optional[PlanResourcesFilter] = None
+    validation_errors: Optional[List[ValidationError]] = None
     status_code: int = httpx.codes.OK
     status_msg: Optional[APIError] = None
 

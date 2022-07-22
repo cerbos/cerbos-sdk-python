@@ -38,6 +38,13 @@ lint = [
     "isort>=5.10.1"]
 test = [
     "pytest>=7.1.1"]
+tools = [
+    "unasync>=0.5.0",
+]
+
+[tool.pdm.scripts]
+pre_build = {cmd = "python utils/gen_unasync.py"}
+pre_test = {cmd = "python utils/gen_unasync.py"}
 
 [build-system]
 requires = ["pdm-pep517>=0.12.0"]
@@ -50,10 +57,12 @@ isort = "isort"
 twine = "twine"
 
 [tool.pyprojectx.aliases]
+generate = "pdm run python utils/gen_unasync.py"
 install = "pdm install"
 run = "pdm run"
 outdated = "pdm update --outdated"
-test = "pdm run pytest tests"
+pytest = "pdm run pytest tests"
+test = "pw@generate && pw@pytest"
 isort = "isort cerbos tests"
 black = "black cerbos tests"
 format = "pw@isort && pw@black"

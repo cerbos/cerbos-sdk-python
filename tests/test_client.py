@@ -89,14 +89,14 @@ class TestPrincipalContext:
         _assert_plan_resources(have)
 
 
-class TestCerbosAsyncClient:
-    async def test_is_healthy(self, cerbos_async_client: CerbosAsyncClient):
+class TestAsyncCerbosClient:
+    async def test_is_healthy(self, cerbos_async_client: AsyncCerbosClient):
         have = await cerbos_async_client.is_healthy()
         assert have == True
 
     async def test_is_allowed(
         self,
-        cerbos_async_client: CerbosAsyncClient,
+        cerbos_async_client: AsyncCerbosClient,
         principal_john: Principal,
         resource_john_leave_req: Resource,
     ):
@@ -117,7 +117,7 @@ class TestCerbosAsyncClient:
 
     async def test_check_resources(
         self,
-        cerbos_async_client: CerbosAsyncClient,
+        cerbos_async_client: AsyncCerbosClient,
         principal_john: Principal,
         resource_list: ResourceList,
     ):
@@ -125,14 +125,14 @@ class TestCerbosAsyncClient:
         _assert_check_resources(have)
 
     async def test_check_resources_empty_resources(
-        self, cerbos_async_client: CerbosAsyncClient, principal_john: Principal
+        self, cerbos_async_client: AsyncCerbosClient, principal_john: Principal
     ):
         have = await cerbos_async_client.check_resources(principal_john, ResourceList())
         _assert_check_resources_empty_resources(have)
 
     async def test_plan_resources(
         self,
-        cerbos_async_client: CerbosAsyncClient,
+        cerbos_async_client: AsyncCerbosClient,
         principal_maggie: Principal,
         resourcedesc_leave_req: ResourceDesc,
     ):
@@ -143,7 +143,7 @@ class TestCerbosAsyncClient:
 
     async def test_plan_resources_validation(
         self,
-        cerbos_async_client: CerbosAsyncClient,
+        cerbos_async_client: AsyncCerbosClient,
         principal_maggie_invalid: Principal,
         resourcedesc_leave_req_invalid: ResourceDesc,
     ):

@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from cerbos.sdk.client import CerbosAsyncClient, CerbosClient
+from cerbos.sdk.client import AsyncCerbosClient, CerbosClient
 from cerbos.sdk.container import CerbosContainer
 from cerbos.sdk.model import *
 
@@ -30,7 +30,7 @@ def cerbos_client(request, tmp_path_factory):
 @pytest.fixture(scope="module", params=["http", "uds"])
 async def cerbos_async_client(anyio_backend, request, tmp_path_factory):
     (container, host) = start_container(request.param, tmp_path_factory)
-    client = CerbosAsyncClient(host, debug=True)
+    client = AsyncCerbosClient(host, debug=True)
     yield client
 
     await client.close()

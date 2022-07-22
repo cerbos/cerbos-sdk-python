@@ -40,6 +40,7 @@ test = [
     "pytest>=7.1.1"]
 tools = [
     "unasync>=0.5.0",
+    "setuptools>=63.2.0",
 ]
 
 [tool.pdm.scripts]

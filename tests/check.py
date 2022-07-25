@@ -3,14 +3,17 @@
 
 import logging
 
-from cerbos.sdk.client import CerbosClient
+import anyio
+
+from cerbos.sdk.client import CerbosAsyncClient
 from cerbos.sdk.model import *
 
-if __name__ == "__main__":
+
+async def main():
     logging.basicConfig(level=logging.DEBUG)
     logging.captureWarnings(True)
 
-    with CerbosClient(
+    async with CerbosAsyncClient(
         "https://localhost:3592",
         playground_instance="XXY",
         debug=True,
@@ -34,8 +37,14 @@ if __name__ == "__main__":
                 "owner": "john",
             },
         )
-        print(c.is_allowed("view:public", p, r))
+
+        allowed = await c.is_allowed("view:public", p, r)
+        print(allowed)
 
         rd = ResourceDesc("leave_request", policy_version="20210210")
-        plan = c.plan_resources("view", p, rd)
+        plan = await c.plan_resources("view", p, rd)
         print(plan.filter.to_json())
+
+
+if __name__ == "__main__":
+    anyio.run(main)

@@ -7,13 +7,13 @@ Cerbos is the open core, language-agnostic, scalable authorization solution that
 
 ## Usage
 
-This library is available from PyPI as `cerbos`.
+This library is available from PyPI as `cerbos`. It supports both async and non-async modes.
 
 ```sh
 pip install cerbos
 ```
 
-Making a request
+**Making a request**
 
 ```python
 from cerbos.sdk.model import *
@@ -40,7 +40,9 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
             "owner": "john",
         },
     )
-    print(c.is_allowed("view:public", p, r))
+
+    allowed = c.is_allowed("view:public", p, r)
+    print(allowed)
 
     # Get the query plan for "view" action
     rd = ResourceDesc("leave_request", policy_version="20210210")
@@ -48,7 +50,29 @@ with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
     print(plan.filter.to_json())
 ```
 
-Connecting to a Unix domain socket
+**Async usage**
+
+
+```python
+from cerbos.sdk.model import *
+from cerbos.sdk.client import AsyncCerbosClient
+
+async with AsyncCerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
+    ...
+
+    # Check a single action on a single resource
+    ...
+    allowed = await c.is_allowed("view:public", p, r)
+    print(allowed)
+
+    # Get the query plan for "view" action
+    ...
+    plan = await c.plan_resources("view", p, rd)
+    print(plan.filter.to_json())
+
+```
+
+**Connecting to a Unix domain socket**
 
 Use `unix+http:///path/to/sock` for HTTP over UDS or `unix+https:///path/to/sock` for HTTPS over UDS.
 
@@ -57,7 +81,7 @@ with CerbosClient("unix+https:///var/cerbos.sock", debug=True, tls_verify=False)
   ...
 ```
 
-Testing with [TestContainers](https://github.com/testcontainers/testcontainers-python)
+**Testing with [TestContainers](https://github.com/testcontainers/testcontainers-python)**
 
 ```python
 from cerbos.sdk.client import CerbosClient

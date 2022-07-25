@@ -6,7 +6,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 import httpx
-from dataclasses_json import LetterCase, dataclass_json
+from dataclasses_json import LetterCase, config, dataclass_json
 
 
 class Effect(str, Enum):
@@ -190,24 +190,48 @@ class PlanResourcesVariable:
     variable: str
 
 
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class PlanResourcesExpressionDef:
-    operator: str
-    operands: List[Operand]
+def decode_operand_list(val):
+    if not isinstance(val, list):
+        return val
+
+    return [decode_operand(op) for op in val]
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class PlanResourcesExpression:
-    expression: PlanResourcesExpressionDef
+    @dataclass_json(letter_case=LetterCase.CAMEL)
+    @dataclass
+    class Expr:
+        operator: str
+        operands: List[Operand] = field(metadata=config(decoder=decode_operand_list))
+
+    expression: Expr
+
+
+def decode_operand(val):
+    if not isinstance(val, dict):
+        return val
+
+    if "value" in val:
+        return PlanResourcesValue.from_dict(val)
+
+    if "variable" in val:
+        return PlanResourcesVariable.from_dict(val)
+
+    if "expression" in val:
+        return PlanResourcesExpression.from_dict(val)
+
+    return val
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class PlanResourcesFilter:
     kind: PlanResourcesFilterKind
-    condition: Optional[Operand] = None
+    condition: Optional[Operand] = field(
+        default=None, metadata=config(decoder=decode_operand)
+    )
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

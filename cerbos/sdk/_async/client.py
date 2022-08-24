@@ -64,12 +64,10 @@ class AsyncCerbosClient:
 
         event_hooks = {"response": []}
         if debug:
-            event_hooks["response"].append(
-                lambda response: self._log_response(response)
-            )
+            event_hooks["response"].append(self._log_response)
 
         if raise_on_error:
-            event_hooks["response"].append(lambda response: response.raise_for_status())
+            event_hooks["response"].append(self._raise_on_status)
 
         transport = None
         base_url = host
@@ -91,7 +89,16 @@ class AsyncCerbosClient:
             transport=transport,
         )
 
+    async def _raise_on_status(self, response: httpx.Response):
+        if response is None:
+            return
+
+        response.raise_for_status()
+
     async def _log_response(self, response: httpx.Response):
+        if response is None:
+            return
+
         req_prefix = "< "
         res_prefix = "> "
         request = response.request

@@ -5,7 +5,7 @@ import logging
 
 import anyio
 
-from cerbos.sdk.client import CerbosAsyncClient
+from cerbos.sdk.client import AsyncCerbosClient
 from cerbos.sdk.model import *
 
 
@@ -13,11 +13,12 @@ async def main():
     logging.basicConfig(level=logging.DEBUG)
     logging.captureWarnings(True)
 
-    async with CerbosAsyncClient(
+    async with AsyncCerbosClient(
         "https://localhost:3592",
         playground_instance="XXY",
         debug=True,
         tls_verify=False,
+        raise_on_error=True,
     ) as c:
         p = Principal(
             "john",

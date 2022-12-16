@@ -19,7 +19,7 @@ pip install cerbos
 from cerbos.sdk.model import *
 from cerbos.sdk.client import CerbosClient
 
-with CerbosClient("https://localhost:3592", debug=True, tls_verify=False) as c:
+with CerbosClient("http://localhost:3592", debug=True, tls_verify=False) as c:
     p = Principal(
         "john",
         roles={"employee"},

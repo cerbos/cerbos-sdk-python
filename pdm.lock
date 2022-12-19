@@ -301,6 +301,12 @@ requires_python = ">=3.5"
 summary = "Sniff out which async library your code is running under"
 
 [[package]]
+name = "tenacity"
+version = "8.1.0"
+requires_python = ">=3.6"
+summary = "Retry code until it succeeds"
+
+[[package]]
 name = "testcontainers"
 version = "3.6.0"
 requires_python = ">=3.6"
@@ -357,8 +363,8 @@ requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 summary = "Module for decorators, wrappers and monkey patching."
 
 [metadata]
-lock_version = "4.0"
-content_hash = "sha256:9ea88d4c806691136dda1fa1913b83378bc3040c68bb8b35ca1c61768a6307c1"
+lock_version = "4.1"
+content_hash = "sha256:45a0b5d28ded49fa25090fb46f7f680f946d09b9d608f14f9a9cfc5193f13171"
 
 [metadata.files]
 "anyio 3.6.1" = [
@@ -534,6 +540,10 @@ content_hash = "sha256:9ea88d4c806691136dda1fa1913b83378bc3040c68bb8b35ca1c61768
 "sniffio 1.2.0" = [
     {url = "https://files.pythonhosted.org/packages/52/b0/7b2e028b63d092804b6794595871f936aafa5e9322dcaaad50ebf67445b3/sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
     {url = "https://files.pythonhosted.org/packages/a6/ae/44ed7978bcb1f6337a3e2bef19c941de750d73243fc9389140d62853b686/sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
+]
+"tenacity 8.1.0" = [
+    {url = "https://files.pythonhosted.org/packages/a5/94/933ce16d18450ccf518a6da5bd51418611e8776b992070b9f40b2f9cedff/tenacity-8.1.0-py3-none-any.whl", hash = "sha256:35525cd47f82830069f0d6b73f7eb83bc5b73ee2fff0437952cedf98b27653ac"},
+    {url = "https://files.pythonhosted.org/packages/ae/9c/ce67f96abe7c7530173e746b4f16a0bc5b4fa962ea1080d80cc5757dd210/tenacity-8.1.0.tar.gz", hash = "sha256:e48c437fdf9340f5666b92cd7990e96bc5fc955e1298baf4a907e3972067a445"},
 ]
 "testcontainers 3.6.0" = [
     {url = "https://files.pythonhosted.org/packages/1f/fa/0438db73d64297d8130befb82eba382992adfd5769835b9101635d33a728/testcontainers-3.6.0-py2.py3-none-any.whl", hash = "sha256:bad427820685ad59883cc7becef0be0fdeacb0f88ef0d25c6abfa83a626bc811"},

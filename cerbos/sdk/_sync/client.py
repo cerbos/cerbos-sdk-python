@@ -9,11 +9,36 @@ from urllib.parse import urlparse
 
 import httpx
 from requests_toolbelt import user_agent
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 import cerbos
 from cerbos.sdk.model import *
 
 TLSVerify = Union[str, bool, ssl.SSLContext]
+
+
+class SyncRetryClient(httpx.Client):
+    def __init__(self, request_retries: int = 0, *args, **kwargs):
+        self._client = httpx.Client(*args, **kwargs)
+
+        fn = self._client.post
+        if request_retries:
+            # 1+n because 1 == the initial attempt
+            self._post_fn = retry(
+                stop=stop_after_attempt(1 + request_retries),
+                wait=wait_exponential(multiplier=1, min=1, max=10),
+            )(fn)
+        else:
+            self._post_fn = fn
+
+    # By coincidence, we only want to allow retries on both of the `post` use cases on the http client, and
+    # not any other methods. Therefore, we can conveniently globally wrap the `post` method.
+    # We'll need to adapt this if we want more specificity in the future.
+    def post(self, *args, **kwargs):
+        return self._post_fn(*args, **kwargs)
+
+    def __getattr__(self, attr):
+        return getattr(self._client, attr)
 
 
 class CerbosClient:
@@ -50,6 +75,8 @@ class CerbosClient:
         tls_verify: TLSVerify = True,
         playground_instance: Optional[str] = None,
         raise_on_error: bool = False,
+        request_retries: int = 0,
+        connection_retries: int = 0,
         debug: bool = False,
         logger: logging.Logger = logging.getLogger(__name__),
     ):
@@ -69,24 +96,32 @@ class CerbosClient:
         if raise_on_error:
             event_hooks["response"].append(self._raise_on_status)
 
-        transport = None
+        transport_params = {}
         base_url = host
 
         url = urlparse(host)
         if url.scheme == "unix" or url.scheme == "unix+http":
-            transport = httpx.HTTPTransport(uds=url.path)
+            transport_params["uds"] = url.path
             base_url = "http://cerbos.sock"
         elif url.scheme == "unix+https":
-            transport = httpx.HTTPTransport(uds=url.path, verify=tls_verify)
+            transport_params |= {"uds": url.path, "verify": tls_verify}
             base_url = "https://cerbos.sock"
 
-        self._http = httpx.Client(
+        if connection_retries:
+            transport_params["retries"] = connection_retries
+
+        transport = None
+        if transport_params:
+            transport = httpx.HTTPTransport(**transport_params)
+
+        self._http = SyncRetryClient(
             base_url=base_url,
             headers=headers,
             timeout=timeout_secs,
             verify=tls_verify,
             event_hooks=event_hooks,
             transport=transport,
+            request_retries=request_retries,
         )
 
     def _raise_on_status(self, response: httpx.Response):

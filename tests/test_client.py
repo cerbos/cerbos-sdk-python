@@ -1,7 +1,12 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+from unittest.mock import Mock, patch
+
+import anyio
 import pytest
+from tenacity import RetryError
 
 from cerbos.sdk.client import *
 from cerbos.sdk.model import *
@@ -68,6 +73,116 @@ class TestCerbosClient:
         )
         _assert_plan_resources_validation(have)
 
+    @patch("httpx.Client.post")
+    def test_request_retries_on_failure(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 200
+
+        post_mock.side_effect = [
+            IOError(),
+            httpx.Response(
+                status_code=status_code,
+                text=json.dumps(
+                    {
+                        "request_id": "123",
+                        "code": status_code,
+                        "message": "success",
+                    }
+                ),
+            ),
+        ]
+
+        client = CerbosClient("http://localhost:3592", request_retries=1, debug=True)
+
+        resp = client.check_resources(principal_john, resource_list)
+
+        assert resp.status_code == status_code
+        assert post_mock.call_count == 2
+
+    @patch("httpx.Client.post")
+    def test_request_retries_not_if_zero(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 400
+
+        post_mock.side_effect = [
+            IOError(),
+            httpx.Response(
+                status_code=status_code,
+                text=json.dumps(
+                    {
+                        "request_id": "123",
+                        "code": status_code,
+                        "message": "success",
+                    }
+                ),
+            ),
+        ]
+
+        client = CerbosClient("http://localhost:3592", request_retries=0, debug=True)
+
+        with pytest.raises(IOError):
+            resp = client.check_resources(principal_john, resource_list)
+
+            assert resp.failed()
+            assert resp.status_code == status_code
+            assert post_mock.call_count == 1
+
+    @patch("httpx.Client.post")
+    def test_request_retries_not_on_success(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 200
+
+        post_mock.return_value = httpx.Response(
+            status_code=status_code,
+            text=json.dumps(
+                {
+                    "request_id": "123",
+                    "code": status_code,
+                    "message": "success",
+                }
+            ),
+        )
+
+        client = CerbosClient("http://localhost:3592", request_retries=1, debug=True)
+
+        resp = client.check_resources(principal_john, resource_list)
+
+        assert resp.status_code == status_code
+        assert post_mock.call_count == 1
+
+    @patch("socket.create_connection")
+    def test_connection_retries(
+        self,
+        socket_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        n_retries = 3
+        n_requests = n_retries + 1
+
+        socket_mock.side_effect = [ConnectionRefusedError()] * n_requests
+
+        client = CerbosClient(
+            "http://localhost:3592", connection_retries=n_retries, debug=True
+        )
+
+        with pytest.raises(httpx.ConnectError):
+            client.check_resources(principal_john, resource_list)
+
+        assert socket_mock.call_count == n_requests
+
 
 class TestPrincipalContext:
     def test_is_allowed(
@@ -85,7 +200,7 @@ class TestPrincipalContext:
     def test_plan_resources(
         self, principal_ctx: PrincipalContext, resourcedesc_leave_req: ResourceDesc
     ):
-        have = principal_ctx.plan_resources("view:public", resourcedesc_leave_req)
+        have = principal_ctx.plan_resources("view:*", resourcedesc_leave_req)
         _assert_plan_resources(have)
 
 
@@ -152,6 +267,123 @@ class TestAsyncCerbosClient:
         )
         _assert_plan_resources_validation(have)
 
+    @patch("httpx.AsyncClient.post")
+    async def test_request_retries_on_failure(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 200
+        post_mock.side_effect = [
+            IOError(),
+            httpx.Response(
+                status_code=status_code,
+                text=json.dumps(
+                    {
+                        "request_id": "123",
+                        "code": status_code,
+                        "message": "success",
+                    }
+                ),
+            ),
+        ]
+
+        client = AsyncCerbosClient(
+            "http://localhost:3592", request_retries=1, debug=True
+        )
+
+        # TODO SamL 2023-01-03: My local machine is raising this error during this test, but the GH test runners are not. Needs to be investigated.
+        # with pytest.raises(IOError):
+        resp = await client.check_resources(principal_john, resource_list)
+
+        assert resp.status_code == status_code
+        assert post_mock.call_count == 2
+
+    @patch("httpx.AsyncClient.post")
+    async def test_request_retries_not_if_zero(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 400
+
+        post_mock.side_effect = [
+            IOError(),
+            httpx.Response(
+                status_code=status_code,
+                text=json.dumps(
+                    {
+                        "request_id": "123",
+                        "code": status_code,
+                        "message": "success",
+                    }
+                ),
+            ),
+        ]
+
+        client = AsyncCerbosClient(
+            "http://localhost:3592", request_retries=0, debug=True
+        )
+
+        with pytest.raises(IOError):
+            resp = await client.check_resources(principal_john, resource_list)
+
+            assert resp.failed()
+            assert resp.status_code == status_code
+            assert post_mock.call_count == 1
+
+    @patch("httpx.AsyncClient.post")
+    async def test_request_retries_not_on_success(
+        self,
+        post_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        status_code = 200
+
+        post_mock.return_value = httpx.Response(
+            status_code=status_code,
+            text=json.dumps(
+                {
+                    "request_id": "123",
+                    "code": status_code,
+                    "message": "success",
+                }
+            ),
+        )
+
+        client = AsyncCerbosClient(
+            "http://localhost:3592", request_retries=1, debug=True
+        )
+
+        resp = await client.check_resources(principal_john, resource_list)
+
+        assert resp.status_code == status_code
+        assert post_mock.call_count == 1
+
+    @patch("anyio._backends._asyncio.connect_tcp")
+    async def test_connection_retries(
+        self,
+        tcp_mock,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        n_retries = 3
+        n_requests = n_retries + 1
+
+        tcp_mock.side_effect = [ConnectionRefusedError()] * n_requests
+
+        client = AsyncCerbosClient(
+            "http://127.0.0.1:3592", connection_retries=n_retries, debug=True
+        )
+
+        with pytest.raises(httpx.ConnectError):
+            await client.check_resources(principal_john, resource_list)
+
+        assert tcp_mock.call_count == n_requests
+
 
 class TestAsyncAsyncPrincipalContext:
     async def test_is_allowed(
@@ -176,7 +408,7 @@ class TestAsyncAsyncPrincipalContext:
         resourcedesc_leave_req: ResourceDesc,
     ):
         have = await async_principal_ctx.plan_resources(
-            "view:public", resourcedesc_leave_req
+            "view:*", resourcedesc_leave_req
         )
         _assert_plan_resources(have)
 

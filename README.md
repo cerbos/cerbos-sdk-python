@@ -83,6 +83,8 @@ with CerbosClient("unix+https:///var/cerbos.sock", debug=True, tls_verify=False)
 
 **Testing with [TestContainers](https://github.com/testcontainers/testcontainers-python)**
 
+NOTE: Requires `cerbos[testcontainers]` dependency to be installed.
+
 ```python
 from cerbos.sdk.client import CerbosClient
 from cerbos.sdk.container import CerbosContainer

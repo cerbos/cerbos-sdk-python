@@ -15,7 +15,6 @@ classifiers = [
 dependencies = [
     "dataclasses-json>=0.5.7",
     "requests-toolbelt>=0.9.1",
-    "testcontainers>=3.5.3",
     "httpx[http2]>=0.22.0",
     "anyio>=3.6.1",
     "tenacity>=8.1.0",
@@ -29,6 +28,9 @@ dynamic = ["version"]
 Homepage = "https://cerbos.dev"
 
 [project.optional-dependencies]
+testcontainers = [
+    "testcontainers>=3.5.3",
+]
 
 [tool.pdm]
 version = {use_scm = true}
@@ -38,7 +40,8 @@ lint = [
     "black>=22.3.0",
     "isort>=5.10.1"]
 test = [
-    "pytest>=7.1.1"]
+    "pytest>=7.3.1",
+]
 tools = [
     "unasync>=0.5.0",
     "setuptools>=63.2.0",

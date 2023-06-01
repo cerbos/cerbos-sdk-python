@@ -96,6 +96,13 @@ class ValidationError:
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
+class OutputEntry:
+    src: str
+    val: Any
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
 class APIError:
     code: int
     message: str
@@ -107,6 +114,7 @@ class CheckResourcesResult:
     resource: Resource
     actions: Dict[str, Effect]
     validation_errors: Optional[List[ValidationError]] = None
+    outputs: Optional[List[OutputEntry]] = None
 
     def is_allowed(self, action: str) -> bool:
         if action in self.actions:

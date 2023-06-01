@@ -5,3 +5,5 @@ dist/
 
 *.pyc
 .pdm-python
+
+.python-version

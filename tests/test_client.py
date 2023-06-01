@@ -73,6 +73,15 @@ class TestCerbosClient:
         )
         _assert_plan_resources_validation(have)
 
+    def test_check_resources_with_output(
+        self,
+        cerbos_client: CerbosClient,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        have = cerbos_client.check_resources(principal_john, resource_list)
+        _assert_check_resources_with_output(have)
+
     @patch("httpx.Client.post")
     def test_request_retries_on_failure(
         self,
@@ -197,6 +206,16 @@ class TestPrincipalContext:
         have = principal_ctx.check_resources(resource_list)
         _assert_check_resources(have)
 
+    def test_check_resources_with_output(
+        self,
+        cerbos_client: CerbosClient,
+        principal_donald: Principal,
+        resource_list: ResourceList,
+    ):
+        principal_ctx_override = cerbos_client.with_principal(principal_donald)
+        have = principal_ctx_override.check_resources(resource_list)
+        _assert_check_resources_principal_override_with_output(have)
+
     def test_plan_resources(
         self, principal_ctx: PrincipalContext, resourcedesc_leave_req: ResourceDesc
     ):
@@ -266,6 +285,15 @@ class TestAsyncCerbosClient:
             "approve", principal_maggie_invalid, resourcedesc_leave_req_invalid
         )
         _assert_plan_resources_validation(have)
+
+    async def test_check_resources_with_output(
+        self,
+        cerbos_async_client: AsyncCerbosClient,
+        principal_john: Principal,
+        resource_list: ResourceList,
+    ):
+        have = await cerbos_async_client.check_resources(principal_john, resource_list)
+        _assert_check_resources_with_output(have)
 
     @patch("httpx.AsyncClient.post")
     async def test_request_retries_on_failure(
@@ -402,6 +430,18 @@ class TestAsyncAsyncPrincipalContext:
         have = await async_principal_ctx.check_resources(resource_list)
         _assert_check_resources(have)
 
+    async def test_check_resources_with_output(
+        self,
+        cerbos_async_client: AsyncCerbosClient,
+        principal_donald: Principal,
+        resource_list: ResourceList,
+    ):
+        async_principal_ctx_override = cerbos_async_client.with_principal(
+            principal_donald
+        )
+        have = await async_principal_ctx_override.check_resources(resource_list)
+        _assert_check_resources_principal_override_with_output(have)
+
     async def test_plan_resources(
         self,
         async_principal_ctx: AsyncPrincipalContext,
@@ -456,6 +496,61 @@ def _assert_plan_resources_validation(have: PlanResourcesResponse):
     assert have.filter.kind == PlanResourcesFilterKind.ALWAYS_DENIED
     assert have.filter.condition is None
     assert len(have.validation_errors) == 2
+
+
+def _assert_check_resources_with_output(have: CheckResourcesResponse):
+    xx125 = have.get_resource(
+        "XX125", predicate=lambda r: r.policy_version == "20210210"
+    )
+    assert xx125 is not None
+    assert len(xx125.outputs) == 1
+    outputs = xx125.outputs[0].to_dict()
+    assert outputs == {
+        "src": "cerbos.resource.leave_request.v20210210#public-view",
+        "val": {
+            "formatted_string": "id:john",
+            "keys": "XX125",
+            "pID": "john",
+            "some_bool": True,
+            "some_list": ["foo", "bar"],
+            "something_nested": {
+                "nested_bool": False,
+                "nested_formatted_string": "id:john",
+                "nested_list": ["nest_foo", 1.01],
+                "nested_str": "foo",
+            },
+        },
+    }
+
+
+def _assert_check_resources_principal_override_with_output(have: CheckResourcesResponse):
+    xx125 = have.get_resource(
+        "XX125", predicate=lambda r: r.policy_version == "20210210"
+    )
+    assert xx125 is not None
+    assert len(xx125.outputs) == 2
+    s = next(filter(lambda x: isinstance(x.val, str), xx125.outputs))
+    d = next(filter(lambda x: isinstance(x.val, dict), xx125.outputs))
+    assert s.to_dict() == {
+        "src": "cerbos.principal.donald_duck.v20210210#dev_admin",
+        "val": "dev_record_override:donald_duck",
+    }
+    assert d.to_dict() == {
+        "src": "cerbos.resource.leave_request.v20210210#public-view",
+        "val": {
+            "formatted_string": "id:donald_duck",
+            "keys": "XX125",
+            "pID": "donald_duck",
+            "some_bool": True,
+            "some_list": ["foo", "bar"],
+            "something_nested": {
+                "nested_bool": False,
+                "nested_formatted_string": "id:donald_duck",
+                "nested_list": ["nest_foo", 1.01],
+                "nested_str": "foo",
+            },
+        },
+    }
 
 
 @pytest.fixture
@@ -553,6 +648,16 @@ def principal_maggie():
             "managed_geographies": "GB",
             "team": "design",
         },
+    )
+
+
+@pytest.fixture
+def principal_donald():
+    return Principal(
+        "donald_duck",
+        roles={"employee"},
+        policy_version="20210210",
+        attr={"department": "engineering", "geography": "GB", "team": "QA"},
     )
 
 

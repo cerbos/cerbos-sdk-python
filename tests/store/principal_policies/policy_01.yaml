@@ -14,6 +14,9 @@ principalPolicy:
               expr: variables.is_dev_record
           effect: EFFECT_ALLOW
           name: dev_admin
+          output:
+            expr: |-
+              "dev_record_override:%s".format([P.id])
 
     - resource: salary_record
       actions:

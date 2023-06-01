@@ -523,7 +523,9 @@ def _assert_check_resources_with_output(have: CheckResourcesResponse):
     }
 
 
-def _assert_check_resources_principal_override_with_output(have: CheckResourcesResponse):
+def _assert_check_resources_principal_override_with_output(
+    have: CheckResourcesResponse,
+):
     xx125 = have.get_resource(
         "XX125", predicate=lambda r: r.policy_version == "20210210"
     )

@@ -28,6 +28,9 @@ jobs:
       - name: Format
         run: ./pw format
 
+      - name: Generate changelog
+        run: ./pw changelog
+
       - name: Check repo status
         run: |-
           REPO_STATUS="$(git status --porcelain)"

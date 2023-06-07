@@ -45,6 +45,7 @@ test = [
 tools = [
     "unasync>=0.5.0",
     "setuptools>=63.2.0",
+    "commitizen>=3.2.2",
 ]
 
 [tool.pdm.scripts]
@@ -60,6 +61,7 @@ pdm = "pdm"
 black = "black"
 isort = "isort"
 twine = "twine"
+cz = "cz"
 
 [tool.pyprojectx.aliases]
 generate = "pdm run python utils/gen_unasync.py"
@@ -72,6 +74,8 @@ isort = "isort cerbos tests"
 black = "black cerbos tests"
 format = "pw@isort && pw@black"
 test_upload = "twine upload -r testpypi dist/*"
+tag_release = "pdm run cz bump --changelog --increment"
+changelog = "pdm run cz changelog"
 
 [tool.pyright]
 extraPaths = ["__pypackages__/3.10/lib/"]
@@ -82,3 +86,16 @@ log_cli_level = "INFO"
 
 [tool.isort]
 profile = 'black'
+
+[tool.commitizen]
+name = "cz_customize"
+version_provider = "scm"
+tag_format = "v$major.$minor.$patch$prerelease"
+annotated_tag = true
+update_changelog_on_bump = true
+
+[tool.commitizen.customize]
+commit_parser = "^(?P<change_type>feat|fix|enhancement|docs|chore)(\\\\(.*?\\\\))?:\\s(?P<message>.*)?"
+change_type_map = {"feat" = "Features", "fix" = "Bug fixes", "enhancement" = "Enhancements", "docs" = "Documentation", "chore" = "Chores"}
+change_type_order = ["feat", "enhancement", "fix", "docs"]
+

@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - uses: actions/cache@v3
         with:
@@ -28,12 +30,16 @@ jobs:
       - name: Format
         run: ./pw format
 
+      - name: Generate changelog
+        run: ./pw changelog
+
       - name: Check repo status
         run: |-
           REPO_STATUS="$(git status --porcelain)"
           if [[ ! -z $REPO_STATUS ]]; then
             echo "::error::Uncommitted changes detected"
             echo "$REPO_STATUS"
+            git status -vv
             exit 1
           fi
 

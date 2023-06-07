@@ -39,15 +39,18 @@ Running a REPL
 ./pw pdm run python
 ```
 
-Publishing to PyPI
+### Releases
+
+- Run `./pw tag_release PATCH` to generate the changelog and tag the release. (Replace `PATCH` with `MINOR` if you are incrementing the minor version.)
+- Push the new tag to GitHub to launch the CI release job
+
+
+#### Publishing to Test PyPI
 
 ```shell
 ./pw pdm build
 
 # Test PyPI
 ./pw twine upload -r testpypi dist/*
-
-# PyPI
-./pw twine upload dist/*
 ```
 

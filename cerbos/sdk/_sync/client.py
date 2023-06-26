@@ -1,44 +1,53 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import logging
+import os
 import ssl
 import uuid
 from typing import Optional, Union
 from urllib.parse import urlparse
 
+import grpc
 import httpx
 from requests_toolbelt import user_agent
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 import cerbos
-from cerbos.sdk.model import *
+from cerbos.request.v1.request_pb2 import (
+    CheckResourcesRequest,
+    PlanResourcesRequest,
+    ServerInfoRequest,
+)
+from cerbos.response.v1.response_pb2 import (
+    CheckResourcesResponse,
+    PlanResourcesResponse,
+    ServerInfoResponse,
+)
+from cerbos.sdk import model
+from cerbos.sdk.model import APIError, CerbosRequestException, get_resource, is_allowed
+from cerbos.svc.v1.svc_pb2_grpc import CerbosServiceStub
 
+_default_paths = ssl.get_default_verify_paths()
 TLSVerify = Union[str, bool, ssl.SSLContext]
 
 
-class SyncRetryClient(httpx.Client):
-    def __init__(self, request_retries: int = 0, *args, **kwargs):
-        self._client = httpx.Client(*args, **kwargs)
-
-        fn = self._client.post
-        if request_retries:
-            # 1+n because 1 == the initial attempt
-            self._post_fn = retry(
-                stop=stop_after_attempt(1 + request_retries),
-                wait=wait_exponential(multiplier=1, min=1, max=10),
-            )(fn)
-        else:
-            self._post_fn = fn
-
-    # By coincidence, we only want to allow retries on both of the `post` use cases on the http client, and
-    # not any other methods. Therefore, we can conveniently globally wrap the `post` method.
-    # We'll need to adapt this if we want more specificity in the future.
-    def post(self, *args, **kwargs):
-        return self._post_fn(*args, **kwargs)
-
-    def __getattr__(self, attr):
-        return getattr(self._client, attr)
+def get_cert(c: TLSVerify) -> bytes | None:
+    # TODO(saml): error handling
+    if isinstance(c, str):
+        with open(c, "rb") as f:
+            return f.read()
+    elif isinstance(c, bool):
+        filename = _default_paths.cafile
+        if cf := os.getenv("SSL_CERT_FILE"):
+            filename = cf
+        # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
+        # or the default location if not specified.
+        with open(filename, "rb") as f:
+            return f.read()
+    elif isinstance(c, TLSVerify):
+        # TODO(saml)
+        raise NotImplementedError
 
 
 class CerbosClient:
@@ -63,7 +72,7 @@ class CerbosClient:
                 do_thing()
     """
 
-    _http: httpx.Client
+    _client: CerbosServiceStub
     _logger: logging.Logger
     _raise_on_error: bool
 
@@ -72,7 +81,7 @@ class CerbosClient:
         host: str,
         *,
         timeout_secs: float = 2.0,
-        tls_verify: TLSVerify = True,
+        tls_verify: TLSVerify = False,
         playground_instance: Optional[str] = None,
         raise_on_error: bool = False,
         request_retries: int = 0,
@@ -100,12 +109,6 @@ class CerbosClient:
         base_url = host
 
         url = urlparse(host)
-        if url.scheme == "unix" or url.scheme == "unix+http":
-            transport_params["uds"] = url.path
-            base_url = "http://cerbos.sock"
-        elif url.scheme == "unix+https":
-            transport_params |= {"uds": url.path, "verify": tls_verify}
-            base_url = "https://cerbos.sock"
 
         if connection_retries:
             transport_params["retries"] = connection_retries
@@ -114,15 +117,62 @@ class CerbosClient:
         if transport_params:
             transport = httpx.HTTPTransport(**transport_params)
 
-        self._http = SyncRetryClient(
-            base_url=base_url,
-            headers=headers,
-            timeout=timeout_secs,
-            verify=tls_verify,
-            event_hooks=event_hooks,
-            transport=transport,
-            request_retries=request_retries,
+        with_tls = False
+        # Historically, this client was built on top of HTTP, and the `host` argument would have explicitly
+        # required the `http{s}://` scheme prefix. In order to maintain backwards compatibility, we still
+        # accept these addresses but manually strip the prefix prior to building the url.
+        # if url.scheme in ["http://", "https://"]:
+        if url.scheme in ["http", "https"]:
+            base_url = base_url.removeprefix(url.scheme + "://")
+            # TODO(saml) dedup
+            if url.scheme == "https":
+                with_tls = True
+        #  We previously used `unix+http{s}` to indicate HTTP over UDS
+        elif url.scheme in ["unix+http", "unix+https"]:
+            base_url = "unix:" + url.netloc + url.path
+            if url.scheme == "unix+https":
+                with_tls = True
+
+        service_config_json = json.dumps(
+            {
+                "methodConfig": [
+                    {
+                        "name": [
+                            {
+                                "service": "svc.CerbosService",
+                                "method": "CheckResources",
+                            },
+                            {"service": "svc.CerbosService", "method": "PlanResources"},
+                        ],
+                        "waitForReady": bool(
+                            connection_retries
+                        ),  # TODO(saml) rename and repurpose
+                        "timeout": f"{timeout_secs}s",
+                        "RetryPolicy": {  # capitalised by design
+                            "maxAttempts": request_retries,
+                            "initialBackoff": "1s",
+                            "maxBackoff": "10s",
+                            "backoffMultiplier": 2,  # the http retry lib had it set to 1
+                            "retryableStatusCodes": ["UNAVAILABLE"],
+                        },
+                    }
+                ]
+            }
         )
+        options = []
+        options.append(("grpc.service_config", service_config_json))
+
+        channel: grpc.Channel
+        if with_tls or tls_verify:
+            # Extract PEM-encoded root certificates as a byte string
+            cert = get_cert(tls_verify)
+            creds = grpc.ssl_channel_credentials(cert)
+            channel = grpc.secure_channel(base_url, creds, options=options)
+        else:
+            channel = grpc.insecure_channel(base_url, options=options)
+
+        self._channel = channel  # TODO(saml) this might need to go when we refactor the client instantiation with aio context manager
+        self._client = CerbosServiceStub(channel)
 
     def _raise_on_status(self, response: httpx.Response):
         if response is None:
@@ -170,15 +220,17 @@ class CerbosClient:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
-        self.close()
+    def __exit__(self, exc_type, exc_value, traceback):
+        # if exc_type is not None:
+        if isinstance(exc_value, grpc._channel._InactiveRpcError):
+            self.close()
 
     def check_resources(
         self,
-        principal: Principal,
-        resources: ResourceList,
+        principal: model.Principal,
+        resources: model.ResourceList,
         request_id: Optional[str] = None,
-        aux_data: Optional[AuxData] = None,
+        aux_data: Optional[model.AuxData] = None,
     ) -> CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -192,30 +244,41 @@ class CerbosClient:
         req_id = _get_request_id(request_id)
         req = CheckResourcesRequest(
             request_id=req_id,
-            principal=principal,
-            resources=resources.resources,
-            aux_data=aux_data,
+            principal=principal.to_proto(),
+            resources=[
+                CheckResourcesRequest.ResourceEntry(
+                    resource=r.resource.to_proto(), actions=r.actions
+                )
+                for r in resources.resources
+            ],
         )
-        resp = self._http.post("/api/check/resources", json=req.to_dict())
-        if resp.is_error:
+        if aux_data:
+            req.aux_data = aux_data.to_proto()
+
+        try:
+            return self._client.CheckResources(req)
+        except grpc.RpcError as e:
             if self._raise_on_error:
-                raise CerbosRequestException(APIError.from_dict(resp.json()))
-
-            return CheckResourcesResponse(
-                request_id=req_id,
-                status_code=resp.status_code,
-                status_msg=APIError.from_dict(resp.json()),
-            )
-
-        return CheckResourcesResponse.from_dict(resp.json())
+                # raise CerbosRequestException(APIError.from_dict(MessageToDict(e)))
+                raise CerbosRequestException(
+                    APIError(
+                        code=e.code(),
+                        message=e.details(),
+                    )
+                )
+            # raise CerbosRequestException(
+            #     request_id=req_id,
+            #     status_code=e.code(),
+            #     status_msg=APIError.from_dict(d),
+            # )
 
     def is_allowed(
         self,
         action: str,
-        principal: Principal,
-        resource: Resource,
+        principal: model.Principal,
+        resource: model.Resource,
         request_id: Optional[str] = None,
-        aux_data: Optional[AuxData] = None,
+        aux_data: Optional[model.AuxData] = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -228,20 +291,23 @@ class CerbosClient:
         """
         resp = self.check_resources(
             principal=principal,
-            resources=ResourceList().add(resource, {action}),
+            resources=model.ResourceList().add(resource, {action}),
             request_id=request_id,
             aux_data=aux_data,
         )
 
-        return resp.get_resource(resource.id).is_allowed(action)
+        if (res := get_resource(resp, resource.id, resp.results)) is not None:
+            return is_allowed(res, action)
+
+        return False
 
     def plan_resources(
         self,
         action: str,
-        principal: Principal,
-        resource: ResourceDesc,
+        principal: model.Principal,
+        resource: model.ResourceDesc,
         request_id: Optional[str] = None,
-        aux_data: Optional[AuxData] = None,
+        aux_data: Optional[model.AuxData] = None,
     ) -> PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -257,67 +323,61 @@ class CerbosClient:
         req = PlanResourcesRequest(
             request_id=req_id,
             action=action,
-            principal=principal,
-            resource=resource,
-            aux_data=aux_data,
+            principal=principal.to_proto(),
+            resource=resource.to_proto(),
         )
+        if aux_data:
+            req.aux_data = aux_data.to_proto()
 
-        resp = self._http.post("/api/plan/resources", json=req.to_dict())
-        if resp.is_error:
-            if self._raise_on_error:
-                raise CerbosRequestException(APIError.from_dict(resp.json()))
+        return self._client.PlanResources(req)
 
-            return PlanResourcesResponse(
-                request_id=req_id,
-                status_code=resp.status_code,
-                status_msg=APIError.from_dict(resp.json()),
-                action=action,
-                resource_kind=resource.kind,
-                policy_version=resource.policy_version,
-            )
+    def server_info(
+        self,
+    ) -> ServerInfoResponse:
+        """Retrieve server info for the running PDP"""
 
-        return PlanResourcesResponse.from_dict(resp.json())
+        return self._client.ServerInfo(ServerInfoRequest())
 
-    def is_healthy(self, svc: Optional[str] = None) -> bool:
+    def is_healthy(self, *args) -> bool:
         """Checks the health of the Cerbos endpoint"""
 
-        params = None if svc is None else {"service": svc}
-        try:
-            resp = self._http.get("/_cerbos/health", params=params)
-            return resp.is_success
-        except Exception:
-            return False
+        # TODO(saml) what to do here?
+        return True
 
     def with_principal(
-        self, principal: Principal, aux_data: Optional[AuxData] = None
+        self, principal: model.Principal, aux_data: Optional[model.AuxData] = None
     ) -> "PrincipalContext":
         """Fixes the principal for subsequent requests"""
 
-        return PrincipalContext(self, principal, aux_data)
+        return PrincipalContext(
+            client=self,
+            principal=principal,
+            aux_data=aux_data,
+        )
 
     def close(self):
-        self._http.close()
+        self._channel.close()
 
 
 class PrincipalContext:
     """A special Cerbos client where the principal and auxData are fixed"""
 
     _client: CerbosClient
-    _principal: Principal
-    _aux_data: Optional[AuxData]
+    _principal: model.Principal
+    _aux_data: Optional[model.AuxData]
 
     def __init__(
         self,
         client: CerbosClient,
-        principal: Principal,
-        aux_data: Optional[AuxData] = None,
+        principal: model.Principal,
+        aux_data: Optional[model.AuxData] = None,
     ):
         self._client = client
         self._principal = principal
         self._aux_data = aux_data
 
     def check_resources(
-        self, resources: ResourceList, request_id: Optional[str] = None
+        self, resources: model.ResourceList, request_id: Optional[str] = None
     ) -> CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -336,9 +396,9 @@ class PrincipalContext:
     def plan_resources(
         self,
         action: str,
-        resource: ResourceDesc,
+        resource: model.ResourceDesc,
         request_id: Optional[str] = None,
-        aux_data: Optional[AuxData] = None,
+        aux_data: Optional[model.AuxData] = None,
     ) -> PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -358,7 +418,7 @@ class PrincipalContext:
         )
 
     def is_allowed(
-        self, action: str, resource: Resource, request_id: Optional[str] = None
+        self, action: str, resource: model.Resource, request_id: Optional[str] = None
     ) -> bool:
         """Check permission for a single action
 

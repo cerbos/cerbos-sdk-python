@@ -2,14 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from unittest.mock import Mock, patch
+from unittest.mock import patch, MagicMock
 
+import grpc
 import anyio
 import pytest
 from tenacity import RetryError
+from google.protobuf.json_format import MessageToDict
 
 from cerbos.sdk.client import *
 from cerbos.sdk.model import *
+from cerbos.response.v1.response_pb2 import CheckResourcesResponse
+from cerbos.svc.v1.svc_pb2_grpc import CerbosServiceStub
 
 pytestmark = pytest.mark.anyio
 
@@ -48,8 +52,8 @@ class TestCerbosClient:
     def test_check_resources_empty_resources(
         self, cerbos_client: CerbosClient, principal_john: Principal
     ):
-        have = cerbos_client.check_resources(principal_john, ResourceList())
-        _assert_check_resources_empty_resources(have)
+        with pytest.raises(CerbosRequestException):
+            cerbos_client.check_resources(principal_john, ResourceList())
 
     def test_plan_resources(
         self,
@@ -81,116 +85,6 @@ class TestCerbosClient:
     ):
         have = cerbos_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
-
-    @patch("httpx.Client.post")
-    def test_request_retries_on_failure(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 200
-
-        post_mock.side_effect = [
-            IOError(),
-            httpx.Response(
-                status_code=status_code,
-                text=json.dumps(
-                    {
-                        "request_id": "123",
-                        "code": status_code,
-                        "message": "success",
-                    }
-                ),
-            ),
-        ]
-
-        client = CerbosClient("http://localhost:3592", request_retries=1, debug=True)
-
-        resp = client.check_resources(principal_john, resource_list)
-
-        assert resp.status_code == status_code
-        assert post_mock.call_count == 2
-
-    @patch("httpx.Client.post")
-    def test_request_retries_not_if_zero(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 400
-
-        post_mock.side_effect = [
-            IOError(),
-            httpx.Response(
-                status_code=status_code,
-                text=json.dumps(
-                    {
-                        "request_id": "123",
-                        "code": status_code,
-                        "message": "success",
-                    }
-                ),
-            ),
-        ]
-
-        client = CerbosClient("http://localhost:3592", request_retries=0, debug=True)
-
-        with pytest.raises(IOError):
-            resp = client.check_resources(principal_john, resource_list)
-
-            assert resp.failed()
-            assert resp.status_code == status_code
-            assert post_mock.call_count == 1
-
-    @patch("httpx.Client.post")
-    def test_request_retries_not_on_success(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 200
-
-        post_mock.return_value = httpx.Response(
-            status_code=status_code,
-            text=json.dumps(
-                {
-                    "request_id": "123",
-                    "code": status_code,
-                    "message": "success",
-                }
-            ),
-        )
-
-        client = CerbosClient("http://localhost:3592", request_retries=1, debug=True)
-
-        resp = client.check_resources(principal_john, resource_list)
-
-        assert resp.status_code == status_code
-        assert post_mock.call_count == 1
-
-    @patch("socket.create_connection")
-    def test_connection_retries(
-        self,
-        socket_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        n_retries = 3
-        n_requests = n_retries + 1
-
-        socket_mock.side_effect = [ConnectionRefusedError()] * n_requests
-
-        client = CerbosClient(
-            "http://localhost:3592", connection_retries=n_retries, debug=True
-        )
-
-        with pytest.raises(httpx.ConnectError):
-            client.check_resources(principal_john, resource_list)
-
-        assert socket_mock.call_count == n_requests
 
 
 class TestPrincipalContext:
@@ -261,8 +155,8 @@ class TestAsyncCerbosClient:
     async def test_check_resources_empty_resources(
         self, cerbos_async_client: AsyncCerbosClient, principal_john: Principal
     ):
-        have = await cerbos_async_client.check_resources(principal_john, ResourceList())
-        _assert_check_resources_empty_resources(have)
+        with pytest.raises(CerbosRequestException):
+            await cerbos_async_client.check_resources(principal_john, ResourceList())
 
     async def test_plan_resources(
         self,
@@ -294,123 +188,6 @@ class TestAsyncCerbosClient:
     ):
         have = await cerbos_async_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
-
-    @patch("httpx.AsyncClient.post")
-    async def test_request_retries_on_failure(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 200
-        post_mock.side_effect = [
-            IOError(),
-            httpx.Response(
-                status_code=status_code,
-                text=json.dumps(
-                    {
-                        "request_id": "123",
-                        "code": status_code,
-                        "message": "success",
-                    }
-                ),
-            ),
-        ]
-
-        client = AsyncCerbosClient(
-            "http://localhost:3592", request_retries=1, debug=True
-        )
-
-        # TODO SamL 2023-01-03: My local machine is raising this error during this test, but the GH test runners are not. Needs to be investigated.
-        # with pytest.raises(IOError):
-        resp = await client.check_resources(principal_john, resource_list)
-
-        assert resp.status_code == status_code
-        assert post_mock.call_count == 2
-
-    @patch("httpx.AsyncClient.post")
-    async def test_request_retries_not_if_zero(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 400
-
-        post_mock.side_effect = [
-            IOError(),
-            httpx.Response(
-                status_code=status_code,
-                text=json.dumps(
-                    {
-                        "request_id": "123",
-                        "code": status_code,
-                        "message": "success",
-                    }
-                ),
-            ),
-        ]
-
-        client = AsyncCerbosClient(
-            "http://localhost:3592", request_retries=0, debug=True
-        )
-
-        with pytest.raises(IOError):
-            resp = await client.check_resources(principal_john, resource_list)
-
-            assert resp.failed()
-            assert resp.status_code == status_code
-            assert post_mock.call_count == 1
-
-    @patch("httpx.AsyncClient.post")
-    async def test_request_retries_not_on_success(
-        self,
-        post_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        status_code = 200
-
-        post_mock.return_value = httpx.Response(
-            status_code=status_code,
-            text=json.dumps(
-                {
-                    "request_id": "123",
-                    "code": status_code,
-                    "message": "success",
-                }
-            ),
-        )
-
-        client = AsyncCerbosClient(
-            "http://localhost:3592", request_retries=1, debug=True
-        )
-
-        resp = await client.check_resources(principal_john, resource_list)
-
-        assert resp.status_code == status_code
-        assert post_mock.call_count == 1
-
-    @patch("anyio._backends._asyncio.connect_tcp")
-    async def test_connection_retries(
-        self,
-        tcp_mock,
-        principal_john: Principal,
-        resource_list: ResourceList,
-    ):
-        n_retries = 3
-        n_requests = n_retries + 1
-
-        tcp_mock.side_effect = [ConnectionRefusedError()] * n_requests
-
-        client = AsyncCerbosClient(
-            "http://127.0.0.1:3592", connection_retries=n_retries, debug=True
-        )
-
-        with pytest.raises(httpx.ConnectError):
-            await client.check_resources(principal_john, resource_list)
-
-        assert tcp_mock.call_count == n_requests
 
 
 class TestAsyncAsyncPrincipalContext:
@@ -453,58 +230,53 @@ class TestAsyncAsyncPrincipalContext:
         _assert_plan_resources(have)
 
 
-def _assert_check_resources(have: CheckResourcesResponse):
-    assert have.failed() == False
+def _assert_check_resources(have: response_pb2.CheckResourcesResponse):
+    # assert have.failed() == False
 
-    xx125 = have.get_resource(
-        "XX125", predicate=lambda r: r.policy_version == "20210210"
+    xx125 = get_resource(
+        have, "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert xx125.is_allowed("view:public") == True
-    assert xx125.is_allowed("approve") == False
+    assert is_allowed(xx125, "view:public") == True
+    assert is_allowed(xx125, "approve") == False
 
-    xx225 = have.get_resource("XX225")
+    xx225 = get_resource(have, "XX225")
     assert xx225 is not None
-    assert xx225.is_allowed("view:public") == False
-    assert xx225.is_allowed("approve") == False
+    assert is_allowed(xx225, "view:public") == False
+    assert is_allowed(xx225, "approve") == False
 
-    zz225 = have.get_resource("ZZ225")
+    zz225 = get_resource(have, "ZZ225")
     assert zz225 is None
 
 
-def _assert_check_resources_empty_resources(have: CheckResourcesResponse):
-    assert have.failed() == True
-    assert have.status_msg.code == 3
-
-    with pytest.raises(CerbosRequestException):
-        have.raise_if_failed()
-
-
-def _assert_plan_resources(have: PlanResourcesResponse):
-    assert have.failed() == False
+def _assert_plan_resources(have: response_pb2.PlanResourcesResponse):
+    # assert have.failed() == False
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
-    assert have.filter.kind == PlanResourcesFilterKind.CONDITIONAL
+    assert have.filter.kind == engine_pb2.PlanResourcesFilter.KIND_CONDITIONAL
     assert have.filter.condition is not None
-    assert have.validation_errors is None
+    # TODO(saml) validation_errors previously returned None, but now defaults to empty
+    assert not have.validation_errors
 
 
-def _assert_plan_resources_validation(have: PlanResourcesResponse):
-    assert have.failed() == False
+def _assert_plan_resources_validation(have: response_pb2.PlanResourcesResponse):
+    # assert have.failed() == False
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
-    assert have.filter.kind == PlanResourcesFilterKind.ALWAYS_DENIED
-    assert have.filter.condition is None
+    assert have.filter.kind == engine_pb2.PlanResourcesFilter.KIND_ALWAYS_DENIED
+    # assert have.filter.condition is None
+    # TODO(saml) how to test for empty field?
+    assert len(have.filter.condition.ListFields()) == 0
     assert len(have.validation_errors) == 2
 
 
-def _assert_check_resources_with_output(have: CheckResourcesResponse):
-    xx125 = have.get_resource(
-        "XX125", predicate=lambda r: r.policy_version == "20210210"
+def _assert_check_resources_with_output(have: response_pb2.CheckResourcesResponse):
+    xx125 = get_resource(
+        have, "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
     assert len(xx125.outputs) == 1
-    outputs = xx125.outputs[0].to_dict()
+    outputs = MessageToDict(xx125.outputs[0])
     assert outputs == {
         "src": "resource.leave_request.v20210210#public-view",
         "val": {
@@ -524,20 +296,20 @@ def _assert_check_resources_with_output(have: CheckResourcesResponse):
 
 
 def _assert_check_resources_principal_override_with_output(
-    have: CheckResourcesResponse,
+    have: response_pb2.CheckResourcesResponse,
 ):
-    xx125 = have.get_resource(
-        "XX125", predicate=lambda r: r.policy_version == "20210210"
+    xx125 = get_resource(
+        have, "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
     assert len(xx125.outputs) == 2
-    s = next(filter(lambda x: isinstance(x.val, str), xx125.outputs))
-    d = next(filter(lambda x: isinstance(x.val, dict), xx125.outputs))
-    assert s.to_dict() == {
+    s = next(filter(lambda x: x.val.HasField("string_value"), xx125.outputs))
+    d = next(filter(lambda x: x.val.HasField("struct_value"), xx125.outputs))
+    assert MessageToDict(s) == {
         "src": "principal.donald_duck.v20210210#dev_admin",
         "val": "dev_record_override:donald_duck",
     }
-    assert d.to_dict() == {
+    assert MessageToDict(d) == {
         "src": "resource.leave_request.v20210210#public-view",
         "val": {
             "formatted_string": "id:donald_duck",

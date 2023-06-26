@@ -18,23 +18,24 @@ def anyio_backend():
 
 @pytest.fixture(scope="module", params=["http", "uds"])
 def cerbos_client(request, tmp_path_factory):
-    (container, host) = start_container(request.param, tmp_path_factory)
-    client = CerbosClient(host, debug=True)
-    yield client
+    container, host = start_container(request.param, tmp_path_factory)
+    if container:
+        client = CerbosClient(host, debug=True, raise_on_error=True)
+        yield client
 
-    client.close()
-    container.stop()
+        client.close()
+        container.stop()
 
 
 @pytest.mark.anyio
 @pytest.fixture(scope="module", params=["http", "uds"])
-async def cerbos_async_client(anyio_backend, request, tmp_path_factory):
-    (container, host) = start_container(request.param, tmp_path_factory)
-    client = AsyncCerbosClient(host, debug=True)
-    yield client
+async def cerbos_async_client(request, tmp_path_factory):
+    container, host = start_container(request.param, tmp_path_factory)
+    if container:
+        client = AsyncCerbosClient(host, debug=True, raise_on_error=True)
+        yield client
 
-    await client.close()
-    container.stop()
+        container.stop()
 
 
 def start_container(listener, tmp_path_factory):
@@ -51,7 +52,7 @@ def start_container(listener, tmp_path_factory):
 
         host = container.http_host()
         logging.info(f"Cerbos Address: {host}")
-        return (container, host)
+        return container, host
     elif listener == "uds":
         sock_dir = tmp_path_factory.mktemp("socket")
         container.with_volume_mapping(sock_dir, "/socket", "rw")
@@ -63,4 +64,6 @@ def start_container(listener, tmp_path_factory):
         container.wait_until_ready()
 
         host = f"unix+http://{sock_dir}/http.sock"
-        return (container, host)
+        return container, host
+
+    return None, ""

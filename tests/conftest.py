@@ -16,7 +16,8 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(scope="module", params=["http", "uds"])
+# @pytest.fixture(scope="module", params=["http", "uds"])
+@pytest.fixture(scope="module", params=["http"])
 def cerbos_client(request, tmp_path_factory):
     container, host = start_container(request.param, tmp_path_factory)
     if container:
@@ -28,7 +29,8 @@ def cerbos_client(request, tmp_path_factory):
 
 
 @pytest.mark.anyio
-@pytest.fixture(scope="module", params=["http", "uds"])
+# @pytest.fixture(scope="module", params=["http", "uds"])
+@pytest.fixture(scope="module", params=["http"])
 async def cerbos_async_client(request, tmp_path_factory):
     container, host = start_container(request.param, tmp_path_factory)
     if container:

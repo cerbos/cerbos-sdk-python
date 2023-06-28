@@ -13,18 +13,9 @@ import grpc
 import httpx
 from requests_toolbelt import user_agent
 
-from cerbos.request.v1.request_pb2 import (
-    CheckResourcesRequest,
-    PlanResourcesRequest,
-    ServerInfoRequest,
-)
-from cerbos.response.v1.response_pb2 import (
-    CheckResourcesResponse,
-    PlanResourcesResponse,
-    ServerInfoResponse,
-)
+from cerbos.request.v1 import request_pb2
+from cerbos.response.v1 import response_pb2
 from cerbos.sdk import model
-from cerbos.sdk.model import APIError, CerbosRequestException, get_resource, is_allowed
 from cerbos.svc.v1 import svc_pb2_grpc
 
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
@@ -233,7 +224,7 @@ class AsyncCerbosClient:
         resources: model.ResourceList,
         request_id: str | None = None,
         aux_data: model.AuxData | None = None,
-    ) -> CheckResourcesResponse:
+    ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
@@ -244,11 +235,11 @@ class AsyncCerbosClient:
         """
 
         req_id = _get_request_id(request_id)
-        req = CheckResourcesRequest(
+        req = request_pb2.CheckResourcesRequest(
             request_id=req_id,
             principal=principal.to_proto(),
             resources=[
-                CheckResourcesRequest.ResourceEntry(
+                request_pb2.CheckResourcesRequest.ResourceEntry(
                     resource=r.resource.to_proto(), actions=r.actions
                 )
                 for r in resources.resources
@@ -261,16 +252,16 @@ class AsyncCerbosClient:
             return await self._client.CheckResources(req)
         except grpc.aio.AioRpcError as e:
             if self._raise_on_error:
-                raise CerbosRequestException(
-                    APIError(
+                raise model.CerbosRequestException(
+                    model.APIError(
                         code=e.code(),
                         message=e.details(),
                     )
                 )
-            # raise CerbosRequestException(
+            # raise model.CerbosRequestException(
             #     request_id=req_id,
             #     status_code=e.code(),
-            #     status_msg=APIError.from_dict(d),
+            #     status_msg=model.APIError.from_dict(d),
             # )
 
     async def is_allowed(
@@ -298,12 +289,12 @@ class AsyncCerbosClient:
                 aux_data=aux_data,
             )
 
-            if (res := get_resource(resp, resource.id, resp.results)) is not None:
-                return is_allowed(res, action)
+            if (res := model.get_resource(resp, resource.id, resp.results)) is not None:
+                return model.is_allowed(res, action)
         except grpc.aio.AioRpcError as e:
             if self._raise_on_error:
-                raise CerbosRequestException(
-                    APIError(
+                raise model.CerbosRequestException(
+                    model.APIError(
                         code=e.code(),
                         message=e.details(),
                     )
@@ -318,7 +309,7 @@ class AsyncCerbosClient:
         resource: model.ResourceDesc,
         request_id: str | None = None,
         aux_data: model.AuxData | None = None,
-    ) -> PlanResourcesResponse:
+    ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:
@@ -330,7 +321,7 @@ class AsyncCerbosClient:
         """
 
         req_id = _get_request_id(request_id)
-        req = PlanResourcesRequest(
+        req = request_pb2.PlanResourcesRequest(
             request_id=req_id,
             action=action,
             principal=principal.to_proto(),
@@ -343,10 +334,10 @@ class AsyncCerbosClient:
 
     async def server_info(
         self,
-    ) -> ServerInfoResponse:
+    ) -> response_pb2.ServerInfoResponse:
         """Retrieve server info for the running PDP"""
 
-        return self._client.ServerInfo(ServerInfoRequest())
+        return self._client.ServerInfo(request_pb2.ServerInfoRequest())
 
     async def is_healthy(self, *args) -> bool:
         """Checks the health of the Cerbos endpoint"""
@@ -388,7 +379,7 @@ class AsyncPrincipalContext:
 
     async def check_resources(
         self, resources: model.ResourceList, request_id: str | None = None
-    ) -> CheckResourcesResponse:
+    ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
@@ -409,7 +400,7 @@ class AsyncPrincipalContext:
         resource: model.ResourceDesc,
         request_id: str | None = None,
         aux_data: model.AuxData | None = None,
-    ) -> PlanResourcesResponse:
+    ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:

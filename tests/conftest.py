@@ -20,7 +20,14 @@ def anyio_backend():
     return "asyncio"
 
 
-@pytest.fixture(scope="module", params=[("http"), ("uds")])
+_params = [("http"), ("uds")]
+
+
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=http,listener={p}" for p in _params],
+)
 def cerbos_client(request, tmp_path_factory):
     container, host = start_container("http", request.param, tmp_path_factory)
     if container:
@@ -30,7 +37,11 @@ def cerbos_client(request, tmp_path_factory):
 
 
 @pytest.mark.anyio
-@pytest.fixture(scope="module", params=[("http"), ("uds")])
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=http,listener={p}" for p in _params],
+)
 async def cerbos_async_client(anyio_backend, request, tmp_path_factory):
     container, host = start_container("http", request.param, tmp_path_factory)
     if container:
@@ -39,7 +50,11 @@ async def cerbos_async_client(anyio_backend, request, tmp_path_factory):
         container.stop()
 
 
-@pytest.fixture(scope="module", params=[("http"), ("uds")])
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=grpc,listener={p}" for p in _params],
+)
 def cerbos_grpc_client(request, tmp_path_factory):
     container, host = start_container("grpc", request.param, tmp_path_factory)
     if container:
@@ -49,7 +64,11 @@ def cerbos_grpc_client(request, tmp_path_factory):
 
 
 @pytest.mark.anyio
-@pytest.fixture(scope="module", params=[("http"), ("uds")])
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=grpc,listener={p}" for p in _params],
+)
 async def cerbos_async_grpc_client(anyio_backend, request, tmp_path_factory):
     container, host = start_container("grpc", request.param, tmp_path_factory)
     if container:
@@ -71,19 +90,18 @@ def start_container(client_type, listener, tmp_path_factory):
 
         host = container.http_host() if client_type == "http" else container.grpc_host()
     else:
+        # (07-23 saml) macOS+docker does not play nice when it comes to sharing UDS across the host and container. I've not figured out how to work around
+        # this yet so I tend to comment out `uds` in the fixture params above and rely on CI to test the full suite.
         sock_dir = tmp_path_factory.mktemp("socket")
-
-        if client_type == "http":
-            host = f"unix+http://{sock_dir}/http.sock"
-        else:
-            host = f"unix:{sock_dir}/grpc.sock"
 
         container.with_volume_mapping(sock_dir, "/socket", "rw")
         container.with_command(
-            f"server --set=server.{client_type}ListenAddr=unix:/socket/{client_type}.sock --set=server.udsFileMode=0o777 --set=schema.enforcement=reject"
+            f"server --set=server.{client_type}ListenAddr=unix:/socket/cerbos.{client_type} --set=server.udsFileMode=0o777 --set=schema.enforcement=reject"
         )
         container.start()
         container.wait_until_ready()
+
+        host = f"unix:{sock_dir}/cerbos.{client_type}"
 
     logging.info(f"Cerbos Address: {host}")
     return container, host

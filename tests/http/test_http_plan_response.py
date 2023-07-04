@@ -1,10 +1,8 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from google.protobuf.json_format import Parse
 
-from cerbos.response.v1 import response_pb2
-from cerbos.engine.v1 import engine_pb2
+from cerbos.sdk.model import *
 
 
 def test_operand_decode():
@@ -47,39 +45,36 @@ def test_operand_decode():
 }
     """
 
-    pf = Parse(data, engine_pb2.PlanResourcesFilter())
-    assert pf.kind == engine_pb2.PlanResourcesFilter.KIND_CONDITIONAL
+    pf = PlanResourcesFilter.from_json(data)
+    assert pf.kind == PlanResourcesFilterKind.CONDITIONAL
 
-    expr1: engine_pb2.PlanResourcesFilter.Expression.Operand = pf.condition
-    assert isinstance(expr1, engine_pb2.PlanResourcesFilter.Expression.Operand)
+    expr1 = pf.condition
+    assert isinstance(expr1, PlanResourcesExpression)
     assert expr1.expression.operator == "and"
     assert len(expr1.expression.operands) == 2
 
     value1 = expr1.expression.operands[0]
-    assert isinstance(value1, engine_pb2.PlanResourcesFilter.Expression.Operand)
-    assert value1.value.HasField("bool_value")
-    assert value1.value.bool_value == True
+    assert isinstance(value1, PlanResourcesValue)
+    assert value1.value == True
 
     expr2 = expr1.expression.operands[1]
-    assert isinstance(expr2, engine_pb2.PlanResourcesFilter.Expression.Operand)
+    assert isinstance(expr2, PlanResourcesExpression)
     assert expr2.expression.operator == "and"
     assert len(expr2.expression.operands) == 2
 
     value2 = expr2.expression.operands[0]
-    assert isinstance(value2, engine_pb2.PlanResourcesFilter.Expression.Operand)
-    assert value2.value.HasField("bool_value")
-    assert value2.value.bool_value == True
+    assert isinstance(value2, PlanResourcesValue)
+    assert value2.value == True
 
     expr3 = expr2.expression.operands[1]
-    assert isinstance(expr3, engine_pb2.PlanResourcesFilter.Expression.Operand)
+    assert isinstance(expr3, PlanResourcesExpression)
     assert expr3.expression.operator == "eq"
     assert len(expr3.expression.operands) == 2
 
     var1 = expr3.expression.operands[0]
-    assert isinstance(var1, engine_pb2.PlanResourcesFilter.Expression.Operand)
+    assert isinstance(var1, PlanResourcesVariable)
     assert var1.variable == "R.attr.department"
 
     value3 = expr3.expression.operands[1]
-    assert isinstance(value3, engine_pb2.PlanResourcesFilter.Expression.Operand)
-    assert value3.value.HasField("string_value")
-    assert value3.value.string_value == "marketing"
+    assert isinstance(value3, PlanResourcesValue)
+    assert value3.value == "marketing"

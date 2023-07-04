@@ -6,26 +6,29 @@ import logging
 import os
 import ssl
 import uuid
-from typing import Union
+from typing import Any, List, Union
 from urllib.parse import urlparse
 
 import grpc
 import httpx
+from grpc_status import rpc_status
+from google.rpc import error_details_pb2
 from requests_toolbelt import user_agent
+from cerbos.sdk.grpc.utils import get_resource, is_allowed
 
+from cerbos.effect.v1 import effect_pb2
+from cerbos.engine.v1 import engine_pb2
 from cerbos.request.v1 import request_pb2
 from cerbos.response.v1 import response_pb2
-from cerbos.sdk import model
 from cerbos.svc.v1 import svc_pb2_grpc
 
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
 
 _default_paths = ssl.get_default_verify_paths()
-TLSVerify = Union[str, bool, ssl.SSLContext]
+TLSVerify = Union[str, bool]
 
 
 def get_cert(c: TLSVerify) -> bytes | None:
-    # TODO(saml): error handling
     if isinstance(c, str):
         with open(c, "rb") as f:
             return f.read()
@@ -37,9 +40,8 @@ def get_cert(c: TLSVerify) -> bytes | None:
         # or the default location if not specified.
         with open(filename, "rb") as f:
             return f.read()
-    elif isinstance(c, TLSVerify):
-        # TODO(saml)
-        raise NotImplementedError
+    else:
+        raise TypeError("TLSVerify should be a string or boolean")
 
 
 class PlaygroundInstanceCredentials(grpc.AuthMetadataPlugin):
@@ -59,11 +61,11 @@ class AsyncCerbosClient:
 
     Args:
         host (str): The full address of the Cerbos API server (PDP)
-        timeout_secs (float): Request timeout in seconds (default is 2)
-        tls_verify (bool|str|SSLContext): If False, disables server certificate verification. If a path is passed it is used as the CA certificate
-        playground_instance (str): Optional Cerbos Playground ID if testing against a Playground playground_instance
-        raise_on_error (bool): Raise an exception on unsuccessful requests (default is False)
-        debug (bool): Log request and response
+        tls_verify (bool|str): If a path is passed it is used as the CA certificate. If True, we look for the path specified in `SSL_CERT_FILE` or at the default OS location. If False, disables server certificate verification
+        playground_instance (str): Optional Cerbos Playground ID if testing against a Playground playground_instance. Requires `tls_verify` to be set
+        timeout_secs (float): Optional request timeout in seconds (no timeout by default)
+        request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
+        wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
         logger (Logger): Logger to use for logging
 
     Example:
@@ -77,140 +79,117 @@ class AsyncCerbosClient:
     """
 
     _logger: logging.Logger
-    _raise_on_error: bool
     _channel: grpc.Channel
     _client: svc_pb2_grpc.CerbosServiceStub
 
     def __init__(
         self,
         host: str,
-        *,
-        timeout_secs: float = 2.0,
         tls_verify: TLSVerify = False,
         playground_instance: str | None = None,
-        raise_on_error: bool = False,
-        request_retries: int = 2,  # grpc expectes a minimum of 2
+        timeout_secs: float | None = None,
+        request_retries: int = 0,
+        wait_for_ready: bool = False,
         connection_retries: int = 0,
-        debug: bool = False,
         logger: logging.Logger = logging.getLogger(__name__),
     ):
+        if playground_instance and not tls_verify:
+            raise TypeError(
+                "playground_instance requires tls_verify to be enabled and valid"
+            )
+
+        if timeout_secs and not isinstance(timeout_secs, int | float):
+            raise TypeError("timeout_secs must be a number type")
+
+        if request_retries and not isinstance(request_retries, int | float):
+            raise TypeError(
+                "request_retries must be a number type. anything below 2 is treated as 0 (disabled)"
+            )
+
+        # grpc expectes a minimum of 2
+        if request_retries < 2:
+            request_retries = 0
+
         self._logger = logger
-        self._raise_on_error = raise_on_error
 
-        # ua = user_agent("cerbos-python", cerbos.__version__)
-        # headers = {"User-Agent": ua}
-
-        # event_hooks = {"response": []}
-        # if debug:
-        #     event_hooks["response"].append(self._log_response)
-
-        # if self._raise_on_error:
-        #     event_hooks["response"].append(self._raise_on_status)
-
-        # Historically, this client was built on top of HTTP, and the `host` argument would have explicitly
-        # required the `http{s}://` scheme prefix. In order to maintain backwards compatibility, we still
-        # accept these addresses but manually strip the prefix prior to building the url.
-        base_url = host
-        url = urlparse(base_url)
-        if url.scheme in ["http", "https"]:
-            base_url = base_url.removeprefix(url.scheme + "://")
-            # TODO(saml) dedup
-            if url.scheme == "https" and tls_verify is False:
-                tls_verify = True
-        #  We previously used `unix+http{s}` to indicate HTTP over UDS
-        elif url.scheme in ["unix+http", "unix+https"]:
-            base_url = "unix:" + url.netloc + url.path
-            if url.scheme == "unix+https" and tls_verify is False:
-                tls_verify = True
-
-        service_config = {
-            "methodConfig": [
+        method_config: dict[Any, Any] = {
+            "name": [
                 {
-                    "name": [
-                        {
-                            "service": "svc.CerbosService",
-                            "method": "CheckResources",
-                        },
-                        {"service": "svc.CerbosService", "method": "PlanResources"},
-                    ],
-                    "waitForReady": bool(
-                        connection_retries
-                    ),  # TODO(saml) rename and repurpose
-                    "timeout": f"{timeout_secs}s",
-                    "retryPolicy": {
-                        "maxAttempts": request_retries,
-                        "initialBackoff": "1s",
-                        "maxBackoff": "10s",
-                        "backoffMultiplier": 2,  # the http retry lib had it set to 1
-                        "retryableStatusCodes": ["UNAVAILABLE"],
-                    },
-                }
+                    "service": "svc.CerbosService",
+                    "method": "CheckResources",
+                },
+                {"service": "svc.CerbosService", "method": "PlanResources"},
             ]
         }
+
+        if timeout_secs:
+            method_config["timeout"] = f"{timeout_secs}s"
+
+        if request_retries:
+            method_config["retryPolicy"] = {
+                "maxAttempts": request_retries,
+                "initialBackoff": "1s",
+                "maxBackoff": "10s",
+                "backoffMultiplier": 2,
+                "retryableStatusCodes": ["UNAVAILABLE"],
+            }
+
+        if wait_for_ready:
+            method_config["waitForReady"] = wait_for_ready
+
+        # service_config = {
+        #     "methodConfig": [
+        #         {
+        #             "name": [
+        #                 {
+        #                     "service": "svc.CerbosService",
+        #                     "method": "CheckResources",
+        #                 },
+        #                 {"service": "svc.CerbosService", "method": "PlanResources"},
+        #             ],
+        #             "waitForReady": bool(
+        #                 connection_retries
+        #             ),  # TODO(saml) rename and repurpose
+        #             "timeout": f"{timeout_secs}s",
+        #             "retryPolicy": {
+        #                 "maxAttempts": request_retries,
+        #                 "initialBackoff": "1s",
+        #                 "maxBackoff": "10s",
+        #                 "backoffMultiplier": 2,
+        #                 "retryableStatusCodes": ["UNAVAILABLE"],
+        #             },
+        #         }
+        #     ]
+        # }
+        service_config = {"methodConfig": [method_config]}
         options = [
             ("grpc.service_config", json.dumps(service_config)),
         ]
+
         if tls_verify:
-            cert = get_cert(tls_verify)
+            try:
+                cert = get_cert(tls_verify)
+            except IOError:
+                self._logger.exception("Error occurred while reading certificate file")
+                raise
+            except Exception:
+                self._logger.exception("Error while trying to get certificate")
+                raise
+
             creds = grpc.ssl_channel_credentials(cert)
-            if (
-                playground_instance is not None
-            ):  # TODO(saml) noop, or report requirement of TLS?
+            if playground_instance is not None:
                 call_credentials = grpc.metadata_call_credentials(
                     PlaygroundInstanceCredentials(playground_instance)
                 )
                 creds = grpc.composite_channel_credentials(creds, call_credentials)
+
             self._channel = grpc.aio.secure_channel(
-                base_url, credentials=creds, options=options
+                host, credentials=creds, options=options
             )
         else:
-            self._channel = grpc.aio.insecure_channel(base_url, options=options)
+            self._channel = grpc.aio.insecure_channel(host, options=options)
 
         self._client = svc_pb2_grpc.CerbosServiceStub(self._channel)
-
-    # TODO(saml) rethink
-    async def _raise_on_status(self, response: httpx.Response):
-        if response is None:
-            return
-        # response.raise_for_status()
-
-    # TODO(saml) rethink
-    async def _log_response(self, response: httpx.Response):
-        if response is None:
-            return
-
-        req_prefix = "< "
-        res_prefix = "> "
-        request = response.request
-        output = []
-
-        await response.aread()
-
-        output.append(f"{req_prefix}{request.method} {request.url}")
-
-        for name, value in request.headers.items():
-            output.append(f"{req_prefix}{name}: {value}")
-
-        output.append(req_prefix)
-
-        if isinstance(request.content, (str, bytes)):
-            output.append(f"{req_prefix}{request.content}")
-        else:
-            output.append("<< Request body is not a string-like type >>")
-
-        output.append("")
-
-        output.append(f"{res_prefix}{response.status_code} {response.reason_phrase}")
-
-        for name, value in response.headers.items():
-            output.append(f"{res_prefix}{name}: {value}")
-
-        output.append(res_prefix)
-
-        output.append(f"{res_prefix}{response.text}")
-
-        msg = "\n".join(output)
-        self._logger.debug(msg)
 
     async def __aenter__(self):
         return self
@@ -220,10 +199,10 @@ class AsyncCerbosClient:
 
     async def check_resources(
         self,
-        principal: model.Principal,
-        resources: model.ResourceList,
+        principal: engine_pb2.Principal,
+        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
         request_id: str | None = None,
-        aux_data: model.AuxData | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -237,40 +216,31 @@ class AsyncCerbosClient:
         req_id = _get_request_id(request_id)
         req = request_pb2.CheckResourcesRequest(
             request_id=req_id,
-            principal=principal.to_proto(),
-            resources=[
-                request_pb2.CheckResourcesRequest.ResourceEntry(
-                    resource=r.resource.to_proto(), actions=r.actions
-                )
-                for r in resources.resources
-            ],
+            principal=principal,
+            resources=resources,
+            aux_data=aux_data,
         )
-        if aux_data:
-            req.aux_data = aux_data.to_proto()
 
         try:
             return await self._client.CheckResources(req)
         except grpc.aio.AioRpcError as e:
-            if self._raise_on_error:
-                raise model.CerbosRequestException(
-                    model.APIError(
-                        code=e.code(),
-                        message=e.details(),
-                    )
-                )
-            # raise model.CerbosRequestException(
-            #     request_id=req_id,
-            #     status_code=e.code(),
-            #     status_msg=model.APIError.from_dict(d),
-            # )
+            raise e
+            # TODO(saml) logging
+            # status = rpc_status.from_call(e)
+            # for detail in status.details:
+            #     if detail.Is(error_details_pb2.QuotaFailure.DESCRIPTOR):
+            #         info = error_details_pb2.QuotaFailure()
+            #         detail.Unpack(info)
+            #     else:
+            #         raise RuntimeError("Unexpected failure: %s" % detail)
 
     async def is_allowed(
         self,
         action: str,
-        principal: model.Principal,
-        resource: model.Resource,
+        principal: engine_pb2.Principal,
+        resource: engine_pb2.Resource,
         request_id: str | None = None,
-        aux_data: model.AuxData | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -284,31 +254,29 @@ class AsyncCerbosClient:
         try:
             resp = await self.check_resources(
                 principal=principal,
-                resources=model.ResourceList().add(resource, {action}),
+                resources=[
+                    request_pb2.CheckResourcesRequest.ResourceEntry(
+                        actions=[action], resource=resource
+                    )
+                ],
                 request_id=request_id,
                 aux_data=aux_data,
             )
-
-            if (res := model.get_resource(resp, resource.id, resp.results)) is not None:
-                return model.is_allowed(res, action)
+            if (res := get_resource(resp, resource.id, resp.results)) is not None:
+                return is_allowed(res, action)
         except grpc.aio.AioRpcError as e:
-            if self._raise_on_error:
-                raise model.CerbosRequestException(
-                    model.APIError(
-                        code=e.code(),
-                        message=e.details(),
-                    )
-                )
+            # TODO(saml) logging
+            raise e
 
         return False
 
     async def plan_resources(
         self,
         action: str,
-        principal: model.Principal,
-        resource: model.ResourceDesc,
+        principal: engine_pb2.Principal,
+        resource: engine_pb2.PlanResourcesInput.Resource,
         request_id: str | None = None,
-        aux_data: model.AuxData | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -324,29 +292,32 @@ class AsyncCerbosClient:
         req = request_pb2.PlanResourcesRequest(
             request_id=req_id,
             action=action,
-            principal=principal.to_proto(),
-            resource=resource.to_proto(),
+            principal=principal,
+            resource=resource,
+            aux_data=aux_data,
         )
-        if aux_data:
-            req.aux_data = aux_data.to_proto()
 
-        return await self._client.PlanResources(req)
+        try:
+            return await self._client.PlanResources(req)
+        except grpc.aio.AioRpcError as e:
+            # TODO(saml) logging
+            raise e
 
     async def server_info(
         self,
     ) -> response_pb2.ServerInfoResponse:
         """Retrieve server info for the running PDP"""
 
-        return self._client.ServerInfo(request_pb2.ServerInfoRequest())
-
-    async def is_healthy(self, *args) -> bool:
-        """Checks the health of the Cerbos endpoint"""
-
-        # TODO(saml) what to do here?
-        return True
+        try:
+            return self._client.ServerInfo(request_pb2.ServerInfoRequest())
+        except grpc.aio.AioRpcError as e:
+            # TODO(saml) logging
+            raise e
 
     def with_principal(
-        self, principal: model.Principal, aux_data: model.AuxData | None = None
+        self,
+        principal: engine_pb2.Principal,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> "AsyncPrincipalContext":
         """Fixes the principal for subsequent requests"""
 
@@ -364,21 +335,23 @@ class AsyncPrincipalContext:
     """A special Cerbos client where the principal and auxData are fixed"""
 
     _client: AsyncCerbosClient
-    _principal: model.Principal
-    _aux_data: model.AuxData | None
+    _principal: engine_pb2.Principal
+    _aux_data: request_pb2.AuxData | None
 
     def __init__(
         self,
         client: AsyncCerbosClient,
-        principal: model.Principal,
-        aux_data: model.AuxData | None = None,
+        principal: engine_pb2.Principal,
+        aux_data: request_pb2.AuxData | None = None,
     ):
         self._client = client
         self._principal = principal
         self._aux_data = aux_data
 
     async def check_resources(
-        self, resources: model.ResourceList, request_id: str | None = None
+        self,
+        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        request_id: str | None = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -397,9 +370,9 @@ class AsyncPrincipalContext:
     async def plan_resources(
         self,
         action: str,
-        resource: model.ResourceDesc,
+        resource: engine_pb2.PlanResourcesInput.Resource,
         request_id: str | None = None,
-        aux_data: model.AuxData | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -419,7 +392,7 @@ class AsyncPrincipalContext:
         )
 
     async def is_allowed(
-        self, action: str, resource: model.Resource, request_id: str | None = None
+        self, action: str, resource: engine_pb2.Resource, request_id: str | None = None
     ) -> bool:
         """Check permission for a single action
 

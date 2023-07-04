@@ -7,43 +7,11 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 import httpx
 from dataclasses_json import LetterCase, config, dataclass_json
-from google.protobuf import struct_pb2
-
-from cerbos.effect.v1 import effect_pb2
-from cerbos.engine.v1 import engine_pb2
-from cerbos.request.v1 import request_pb2
-from cerbos.response.v1 import response_pb2
 
 
-def get_resource(
-    resp: response_pb2.CheckResourcesResponse,
-    resource_id: str,
-    predicate=lambda _: True,
-) -> response_pb2.CheckResourcesResponse.ResultEntry:
-    return next(filter(lambda r: r.resource.id == resource_id, resp.results), None)
-
-
-def is_allowed(
-    entry: response_pb2.CheckResourcesResponse.ResultEntry, action: str
-) -> bool:
-    if action in entry.actions:
-        return entry.actions[action] == effect_pb2.EFFECT_ALLOW
-    return False
-
-
-def create_value(v):
-    if isinstance(v, str):
-        return struct_pb2.Value(string_value=v)
-    elif isinstance(v, bool):
-        return struct_pb2.Value(bool_value=v)
-    elif isinstance(v, int) or isinstance(v, float):
-        return struct_pb2.Value(number_value=v)
-    elif isinstance(v, list):
-        return struct_pb2.ListValue(v)
-    elif isinstance(v, dict):
-        return struct_pb2.Struct(v)
-
-    return struct_pb2.Value(null_value=None)
+class Effect(str, Enum):
+    DENY = "EFFECT_DENY"
+    ALLOW = "EFFECT_ALLOW"
 
 
 class Source(str, Enum):
@@ -64,15 +32,6 @@ class Principal:
         self.attr[name] = value
         return self
 
-    def to_proto(self) -> engine_pb2.Principal:
-        return engine_pb2.Principal(
-            id=self.id,
-            policy_version=self.policy_version,
-            roles=self.roles,
-            scope=self.scope,
-            attr={k: create_value(v) for k, v in self.attr.items()},
-        )
-
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
@@ -86,15 +45,6 @@ class Resource:
     def add_attr(self, name: str, value: Any) -> "Resource":
         self.attr[name] = value
         return self
-
-    def to_proto(self) -> engine_pb2.Resource:
-        return engine_pb2.Resource(
-            id=self.id,
-            kind=self.kind,
-            policy_version=self.policy_version,
-            scope=self.scope,
-            attr={k: create_value(v) for k, v in self.attr.items()},
-        )
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -126,13 +76,14 @@ class JWT:
 class AuxData:
     jwt: JWT
 
-    def to_proto(self) -> request_pb2.AuxData:
-        return request_pb2.AuxData(
-            jwt=request_pb2.AuxData.JWT(
-                key_set_id=self.jwt.key_set_id,
-                token=self.jwt.token,
-            )
-        )
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class CheckResourcesRequest:
+    request_id: str
+    principal: Principal
+    resources: ResourceList
+    aux_data: Optional[AuxData] = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -145,9 +96,60 @@ class ValidationError:
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
+class OutputEntry:
+    src: str
+    val: Any
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
 class APIError:
     code: int
     message: str
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class CheckResourcesResult:
+    resource: Resource
+    actions: Dict[str, Effect]
+    validation_errors: Optional[List[ValidationError]] = None
+    outputs: Optional[List[OutputEntry]] = None
+
+    def is_allowed(self, action: str) -> bool:
+        if action in self.actions:
+            return self.actions[action] == Effect.ALLOW
+
+        return False
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class CheckResourcesResponse:
+    request_id: str
+    results: Optional[List[CheckResourcesResult]] = None
+    status_code: int = httpx.codes.OK
+    status_msg: Optional[APIError] = None
+
+    def failed(self) -> bool:
+        return self.status_code != httpx.codes.OK
+
+    def raise_if_failed(self) -> "CheckResourcesResponse":
+        if not self.failed():
+            return self
+
+        raise CerbosRequestException(self.status_msg)
+
+    def get_resource(
+        self, id: str, predicate: Callable[[Resource], bool] = lambda _: True
+    ) -> Optional[CheckResourcesResult]:
+        if self.failed():
+            return None
+
+        return next(
+            (r for r in self.results if r.resource.id == id and predicate(r.resource)),
+            None,
+        )
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -162,13 +164,104 @@ class ResourceDesc:
         self.attr[name] = value
         return self
 
-    def to_proto(self) -> engine_pb2.PlanResourcesInput.Resource:
-        return engine_pb2.PlanResourcesInput.Resource(
-            kind=self.kind,
-            attr={k: create_value(v) for k, v in self.attr.items()},
-            policy_version=self.policy_version,
-            scope=self.scope,
-        )
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesRequest:
+    request_id: str
+    action: str
+    principal: Principal
+    resource: ResourceDesc
+    aux_data: Optional[AuxData] = None
+
+
+Operand = Union[
+    "PlanResourcesValue", "PlanResourcesVariable", "PlanResourcesExpression"
+]
+
+
+class PlanResourcesFilterKind(str, Enum):
+    ALWAYS_ALLOWED = "KIND_ALWAYS_ALLOWED"
+    ALWAYS_DENIED = "KIND_ALWAYS_DENIED"
+    CONDITIONAL = "KIND_CONDITIONAL"
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesValue:
+    value: Any
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesVariable:
+    variable: str
+
+
+def decode_operand_list(val):
+    if not isinstance(val, list):
+        return val
+
+    return [decode_operand(op) for op in val]
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesExpression:
+    @dataclass_json(letter_case=LetterCase.CAMEL)
+    @dataclass
+    class Expr:
+        operator: str
+        operands: List[Operand] = field(metadata=config(decoder=decode_operand_list))
+
+    expression: Expr
+
+
+def decode_operand(val):
+    if not isinstance(val, dict):
+        return val
+
+    if "value" in val:
+        return PlanResourcesValue.from_dict(val)
+
+    if "variable" in val:
+        return PlanResourcesVariable.from_dict(val)
+
+    if "expression" in val:
+        return PlanResourcesExpression.from_dict(val)
+
+    return val
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesFilter:
+    kind: PlanResourcesFilterKind
+    condition: Optional[Operand] = field(
+        default=None, metadata=config(decoder=decode_operand)
+    )
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class PlanResourcesResponse:
+    request_id: str
+    action: str
+    resource_kind: str
+    policy_version: str
+    filter: Optional[PlanResourcesFilter] = None
+    validation_errors: Optional[List[ValidationError]] = None
+    status_code: int = httpx.codes.OK
+    status_msg: Optional[APIError] = None
+
+    def failed(self) -> bool:
+        return self.status_code != httpx.codes.OK
+
+    def raise_if_failed(self) -> "PlanResourcesResponse":
+        if not self.failed():
+            return self
+
+        raise CerbosRequestException(self.status_msg)
 
 
 class CerbosRequestException(Exception):

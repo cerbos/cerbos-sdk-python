@@ -14,34 +14,18 @@ import httpx
 from grpc_status import rpc_status
 from google.rpc import error_details_pb2
 from requests_toolbelt import user_agent
+from cerbos.sdk.grpc.utils import get_resource, is_allowed
 
 from cerbos.effect.v1 import effect_pb2
 from cerbos.engine.v1 import engine_pb2
 from cerbos.request.v1 import request_pb2
 from cerbos.response.v1 import response_pb2
-from cerbos.sdk.model import CerbosRequestException
 from cerbos.svc.v1 import svc_pb2_grpc
 
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
 
 _default_paths = ssl.get_default_verify_paths()
 TLSVerify = Union[str, bool]
-
-
-def get_resource(
-    resp: response_pb2.CheckResourcesResponse,
-    resource_id: str,
-    predicate=lambda _: True,
-) -> response_pb2.CheckResourcesResponse.ResultEntry | None:
-    return next(filter(lambda r: r.resource.id == resource_id, resp.results), None)
-
-
-def is_allowed(
-    entry: response_pb2.CheckResourcesResponse.ResultEntry, action: str
-) -> bool:
-    if action in entry.actions:
-        return entry.actions[action] == effect_pb2.EFFECT_ALLOW
-    return False
 
 
 def get_cert(c: TLSVerify) -> bytes | None:

@@ -309,7 +309,7 @@ class AsyncCerbosClient:
         """Retrieve server info for the running PDP"""
 
         try:
-            return self._client.ServerInfo(request_pb2.ServerInfoRequest())
+            return await self._client.ServerInfo(request_pb2.ServerInfoRequest())
         except grpc.aio.AioRpcError as e:
             # TODO(saml) logging
             raise e

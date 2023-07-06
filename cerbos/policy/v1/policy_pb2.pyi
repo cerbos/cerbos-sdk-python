@@ -73,7 +73,7 @@ class Output(_message.Message):
     def __init__(self, expr: _Optional[str] = ...) -> None: ...
 
 class Policy(_message.Message):
-    __slots__ = ["api_version", "derived_roles", "description", "disabled", "metadata", "principal_policy", "resource_policy", "variables"]
+    __slots__ = ["api_version", "derived_roles", "description", "disabled", "json_schema", "metadata", "principal_policy", "resource_policy", "variables"]
     class VariablesEntry(_message.Message):
         __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -85,6 +85,7 @@ class Policy(_message.Message):
     DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     DISABLED_FIELD_NUMBER: _ClassVar[int]
+    JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
     PRINCIPAL_POLICY_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_POLICY_FIELD_NUMBER: _ClassVar[int]
@@ -93,11 +94,12 @@ class Policy(_message.Message):
     derived_roles: DerivedRoles
     description: str
     disabled: bool
+    json_schema: str
     metadata: Metadata
     principal_policy: PrincipalPolicy
     resource_policy: ResourcePolicy
     variables: _containers.ScalarMap[str, str]
-    def __init__(self, api_version: _Optional[str] = ..., disabled: bool = ..., description: _Optional[str] = ..., metadata: _Optional[_Union[Metadata, _Mapping]] = ..., resource_policy: _Optional[_Union[ResourcePolicy, _Mapping]] = ..., principal_policy: _Optional[_Union[PrincipalPolicy, _Mapping]] = ..., derived_roles: _Optional[_Union[DerivedRoles, _Mapping]] = ..., variables: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    def __init__(self, api_version: _Optional[str] = ..., disabled: bool = ..., description: _Optional[str] = ..., metadata: _Optional[_Union[Metadata, _Mapping]] = ..., resource_policy: _Optional[_Union[ResourcePolicy, _Mapping]] = ..., principal_policy: _Optional[_Union[PrincipalPolicy, _Mapping]] = ..., derived_roles: _Optional[_Union[DerivedRoles, _Mapping]] = ..., variables: _Optional[_Mapping[str, str]] = ..., json_schema: _Optional[str] = ...) -> None: ...
 
 class PrincipalPolicy(_message.Message):
     __slots__ = ["principal", "rules", "scope", "version"]
@@ -254,7 +256,7 @@ class Test(_message.Message):
 class TestFixture(_message.Message):
     __slots__ = []
     class AuxData(_message.Message):
-        __slots__ = ["aux_data"]
+        __slots__ = ["aux_data", "json_schema"]
         class AuxDataEntry(_message.Message):
             __slots__ = ["key", "value"]
             KEY_FIELD_NUMBER: _ClassVar[int]
@@ -263,10 +265,12 @@ class TestFixture(_message.Message):
             value: _engine_pb2.AuxData
             def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_engine_pb2.AuxData, _Mapping]] = ...) -> None: ...
         AUX_DATA_FIELD_NUMBER: _ClassVar[int]
+        JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
         aux_data: _containers.MessageMap[str, _engine_pb2.AuxData]
-        def __init__(self, aux_data: _Optional[_Mapping[str, _engine_pb2.AuxData]] = ...) -> None: ...
+        json_schema: str
+        def __init__(self, aux_data: _Optional[_Mapping[str, _engine_pb2.AuxData]] = ..., json_schema: _Optional[str] = ...) -> None: ...
     class Principals(_message.Message):
-        __slots__ = ["principals"]
+        __slots__ = ["json_schema", "principals"]
         class PrincipalsEntry(_message.Message):
             __slots__ = ["key", "value"]
             KEY_FIELD_NUMBER: _ClassVar[int]
@@ -274,11 +278,13 @@ class TestFixture(_message.Message):
             key: str
             value: _engine_pb2.Principal
             def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_engine_pb2.Principal, _Mapping]] = ...) -> None: ...
+        JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
         PRINCIPALS_FIELD_NUMBER: _ClassVar[int]
+        json_schema: str
         principals: _containers.MessageMap[str, _engine_pb2.Principal]
-        def __init__(self, principals: _Optional[_Mapping[str, _engine_pb2.Principal]] = ...) -> None: ...
+        def __init__(self, principals: _Optional[_Mapping[str, _engine_pb2.Principal]] = ..., json_schema: _Optional[str] = ...) -> None: ...
     class Resources(_message.Message):
-        __slots__ = ["resources"]
+        __slots__ = ["json_schema", "resources"]
         class ResourcesEntry(_message.Message):
             __slots__ = ["key", "value"]
             KEY_FIELD_NUMBER: _ClassVar[int]
@@ -286,9 +292,11 @@ class TestFixture(_message.Message):
             key: str
             value: _engine_pb2.Resource
             def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_engine_pb2.Resource, _Mapping]] = ...) -> None: ...
+        JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
         RESOURCES_FIELD_NUMBER: _ClassVar[int]
+        json_schema: str
         resources: _containers.MessageMap[str, _engine_pb2.Resource]
-        def __init__(self, resources: _Optional[_Mapping[str, _engine_pb2.Resource]] = ...) -> None: ...
+        def __init__(self, resources: _Optional[_Mapping[str, _engine_pb2.Resource]] = ..., json_schema: _Optional[str] = ...) -> None: ...
     def __init__(self) -> None: ...
 
 class TestOptions(_message.Message):
@@ -415,7 +423,7 @@ class TestResults(_message.Message):
     def __init__(self, suites: _Optional[_Iterable[_Union[TestResults.Suite, _Mapping]]] = ..., summary: _Optional[_Union[TestResults.Summary, _Mapping]] = ...) -> None: ...
 
 class TestSuite(_message.Message):
-    __slots__ = ["aux_data", "description", "name", "options", "principals", "resources", "skip", "skip_reason", "tests"]
+    __slots__ = ["aux_data", "description", "json_schema", "name", "options", "principals", "resources", "skip", "skip_reason", "tests"]
     class AuxDataEntry(_message.Message):
         __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -439,6 +447,7 @@ class TestSuite(_message.Message):
         def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_engine_pb2.Resource, _Mapping]] = ...) -> None: ...
     AUX_DATA_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     OPTIONS_FIELD_NUMBER: _ClassVar[int]
     PRINCIPALS_FIELD_NUMBER: _ClassVar[int]
@@ -448,6 +457,7 @@ class TestSuite(_message.Message):
     TESTS_FIELD_NUMBER: _ClassVar[int]
     aux_data: _containers.MessageMap[str, _engine_pb2.AuxData]
     description: str
+    json_schema: str
     name: str
     options: TestOptions
     principals: _containers.MessageMap[str, _engine_pb2.Principal]
@@ -455,7 +465,7 @@ class TestSuite(_message.Message):
     skip: bool
     skip_reason: str
     tests: _containers.RepeatedCompositeFieldContainer[TestTable]
-    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., skip: bool = ..., skip_reason: _Optional[str] = ..., tests: _Optional[_Iterable[_Union[TestTable, _Mapping]]] = ..., principals: _Optional[_Mapping[str, _engine_pb2.Principal]] = ..., resources: _Optional[_Mapping[str, _engine_pb2.Resource]] = ..., aux_data: _Optional[_Mapping[str, _engine_pb2.AuxData]] = ..., options: _Optional[_Union[TestOptions, _Mapping]] = ...) -> None: ...
+    def __init__(self, name: _Optional[str] = ..., description: _Optional[str] = ..., skip: bool = ..., skip_reason: _Optional[str] = ..., tests: _Optional[_Iterable[_Union[TestTable, _Mapping]]] = ..., principals: _Optional[_Mapping[str, _engine_pb2.Principal]] = ..., resources: _Optional[_Mapping[str, _engine_pb2.Resource]] = ..., aux_data: _Optional[_Mapping[str, _engine_pb2.AuxData]] = ..., options: _Optional[_Union[TestOptions, _Mapping]] = ..., json_schema: _Optional[str] = ...) -> None: ...
 
 class TestTable(_message.Message):
     __slots__ = ["description", "expected", "input", "name", "options", "skip", "skip_reason"]

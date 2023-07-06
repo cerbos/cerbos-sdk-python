@@ -29,11 +29,11 @@ def get_cert(c: TLSVerify) -> bytes | None:
         with open(c, "rb") as f:
             return f.read()
     elif isinstance(c, bool):
+        # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
+        # or the default location if not specified.
         filename = _default_paths.cafile
         if cf := os.getenv("SSL_CERT_FILE"):
             filename = cf
-        # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
-        # or the default location if not specified.
         with open(filename, "rb") as f:
             return f.read()
     else:

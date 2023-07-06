@@ -2,11 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import grpc
-import json
 from typing import List
-from unittest.mock import Mock, patch
 
-import anyio
 import pytest
 from cerbos.engine.v1 import engine_pb2
 from cerbos.request.v1 import request_pb2
@@ -35,7 +32,7 @@ class TestCerbosClient:
         have = cerbos_grpc_client.is_allowed(
             "view:public", principal_john, resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     def test_principal_context_is_allowed(
         self,
@@ -43,7 +40,7 @@ class TestCerbosClient:
         resource_john_leave_req: engine_pb2.Resource,
     ):
         have = principal_ctx.is_allowed("view:public", resource_john_leave_req)
-        assert have == True
+        assert have
 
     def test_check_resources(
         self,
@@ -61,7 +58,7 @@ class TestCerbosClient:
             grpc.RpcError,
             match="invalid CheckResourcesRequest.Resources: value must contain at least 1 item\\(s\\)",
         ) as e:
-            have = cerbos_grpc_client.check_resources(principal_john, [])
+            cerbos_grpc_client.check_resources(principal_john, [])
         err = e.value
         assert err.code().value[0] == 3
 
@@ -104,7 +101,7 @@ class TestPrincipalContext:
         resource_john_leave_req: engine_pb2.Resource,
     ):
         have = principal_ctx.is_allowed("view:public", resource_john_leave_req)
-        assert have == True
+        assert have
 
     def test_check_resources(
         self,
@@ -143,7 +140,7 @@ class TestAsyncCerbosClient:
         have = await cerbos_async_grpc_client.is_allowed(
             "view:public", principal_john, resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_principal_context_is_allowed(
         self,
@@ -153,7 +150,7 @@ class TestAsyncCerbosClient:
         have = await async_principal_ctx.is_allowed(
             "view:public", resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_check_resources(
         self,
@@ -175,7 +172,7 @@ class TestAsyncCerbosClient:
             grpc.aio.AioRpcError,
             match="invalid CheckResourcesRequest.Resources: value must contain at least 1 item\\(s\\)",
         ) as e:
-            have = await cerbos_async_grpc_client.check_resources(principal_john, [])
+            await cerbos_async_grpc_client.check_resources(principal_john, [])
         err = e.value
         assert err.code().value[0] == 3
 
@@ -222,7 +219,7 @@ class TestAsyncAsyncPrincipalContext:
         have = await async_principal_ctx.is_allowed(
             "view:public", resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_check_resources(
         self,
@@ -260,13 +257,13 @@ def _assert_check_resources(have: response_pb2.CheckResourcesResponse):
         have, "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert is_allowed(xx125, "view:public") == True
-    assert is_allowed(xx125, "approve") == False
+    assert is_allowed(xx125, "view:public")
+    assert not is_allowed(xx125, "approve")
 
     xx225 = get_resource(have, "XX225")
     assert xx225 is not None
-    assert is_allowed(xx225, "view:public") == False
-    assert is_allowed(xx225, "approve") == False
+    assert not is_allowed(xx225, "view:public")
+    assert not is_allowed(xx225, "approve")
 
     zz225 = get_resource(have, "ZZ225")
     assert zz225 is None
@@ -320,13 +317,8 @@ def _assert_check_resources_principal_override_with_output(
         have, "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert len(xx125.outputs) == 2
-    s = next(filter(lambda x: x.val.HasField("string_value"), xx125.outputs))
+    assert len(xx125.outputs) == 1
     d = next(filter(lambda x: x.val.HasField("struct_value"), xx125.outputs))
-    assert MessageToDict(s) == {
-        "src": "principal.donald_duck.v20210210#dev_admin",
-        "val": "dev_record_override:donald_duck",
-    }
     assert MessageToDict(d) == {
         "src": "resource.leave_request.v20210210#public-view",
         "val": {

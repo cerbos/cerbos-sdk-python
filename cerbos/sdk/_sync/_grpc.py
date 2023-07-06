@@ -65,11 +65,11 @@ class CerbosClient:
         logger (Logger): Logger to use for logging
 
     Example:
-        with CerbosClient("http://localhost:3592") as cerbos:
+        with CerbosClient("localhost:3593") as cerbos:
             if cerbos.is_allowed(
                 "view",
-                Principal(id="john", roles={"employee"}, attr={"geography":"GB"}),
-                Resource(id="XX125", "kind"="leave_request", attr={"geography":"GB"})
+                Principal(id="john", roles={"employee"}, attr={"geography": struct_pb2.Value(string_value="GB")}),
+                Resource(id="XX125", "kind"="leave_request", attr={"geography": struct_pb2.Value(string_value="GB")})
                 ):
                 do_thing()
     """
@@ -180,10 +180,10 @@ class CerbosClient:
         """Check permissions for a list of resources
 
         Args:
-            principal (Principal): principal who is performing the action
-            resources (ResourceList): list of resources to check permissions for
+            principal (engine_pb2.Principal): principal who is performing the action
+            resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
             request_id (None|str): request ID for the request (default None)
-            aux_data (None|AuxData): auxiliary data for the request
+            aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
 
         req_id = _get_request_id(request_id)
@@ -219,10 +219,10 @@ class CerbosClient:
 
         Args:
             action (str): action being performed
-            principal (Principal): principal who is performing the action
-            resource (Resource): resource on which the action is being performed
+            principal (engine_pb2.Principal): principal who is performing the action
+            resource (engine_pb2.Resource): resource on which the action is being performed
             request_id (None|str): request ID for the request (default None)
-            aux_data (None|AuxData): auxiliary data for the request
+            aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
         try:
             resp = self.check_resources(
@@ -255,10 +255,10 @@ class CerbosClient:
 
         Args:
             action (str): Action to perform
-            principal (Principal): principal who is performing the action
-            resource (ResourceDesc): information about the resource kind
+            principal (engine_pb2.Principal): principal who is performing the action
+            resource (engine_pb2.PlanResourcesInput.Resource): information about the resource kind
             request_id (None|str): request ID for the request (default None)
-            aux_data (None|AuxData): auxiliary data for the request
+            aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
 
         req_id = _get_request_id(request_id)
@@ -329,7 +329,7 @@ class PrincipalContext:
         """Check permissions for a list of resources
 
         Args:
-            resources (ResourceList): list of resources to check permissions for
+            resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
             request_id (None|str): request ID for the request (default None)
         """
 
@@ -351,9 +351,9 @@ class PrincipalContext:
 
         Args:
             action (str): Action to perform
-            resource (ResourceDesc): information about the resource kind
+            resource (engine_pb2.PlanResourcesInput.Resource): information about the resource kind
             request_id (None|str): request ID for the request (default None)
-            aux_data (None|AuxData): auxiliary data for the request
+            aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
 
         return self._client.plan_resources(
@@ -371,7 +371,7 @@ class PrincipalContext:
 
         Args:
             action (str): action being performed
-            resource (Resource): resource on which the action is being performed
+            resource (engine_pb2.Resource): resource on which the action is being performed
             request_id (None|str): request ID for the request (default None)
         """
 

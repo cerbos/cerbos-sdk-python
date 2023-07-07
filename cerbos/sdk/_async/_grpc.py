@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-import logging
 import os
 import ssl
 import uuid
+from functools import wraps
 from typing import Any, List, Union
 
 import grpc
-from grpc_status import rpc_status
-from google.rpc import error_details_pb2
 from cerbos.sdk.grpc.utils import get_resource, is_allowed
+from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
 
 from cerbos.engine.v1 import engine_pb2
 from cerbos.request.v1 import request_pb2
@@ -24,20 +23,40 @@ _default_paths = ssl.get_default_verify_paths()
 TLSVerify = Union[str, bool]
 
 
+# TODO(saml) type errors generated from passing incorrect types to proto generated code currently
+# aren't great, e.g. passing the incorrect Principal type to CheckResourcesRequest results in:
+#     "Message must be initialized with a dict: cerbos.request.v1.CheckResourcesRequest".
+# Investigate more useful TypeError returns.
+def handle_errors(method):
+    @wraps(method)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await method(*args, **kwargs)
+        except TypeError as e:
+            raise CerbosTypeError(str(e))
+
+    return wrapper
+
+
 def get_cert(c: TLSVerify) -> bytes | None:
-    if isinstance(c, str):
-        with open(c, "rb") as f:
-            return f.read()
-    elif isinstance(c, bool):
-        # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
-        # or the default location if not specified.
-        filename = _default_paths.cafile
-        if cf := os.getenv("SSL_CERT_FILE"):
-            filename = cf
-        with open(filename, "rb") as f:
-            return f.read()
-    else:
-        raise TypeError("TLSVerify should be a string or boolean")
+    try:
+        if isinstance(c, str):
+            with open(c, "rb") as f:
+                return f.read()
+        elif isinstance(c, bool):
+            # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
+            # or the default location if not specified.
+            filename = _default_paths.cafile
+            if cf := os.getenv("SSL_CERT_FILE"):
+                filename = cf
+            with open(filename, "rb") as f:
+                return f.read()
+    except IOError:
+        raise CerbosTLSError(f"Error reading certificate from file: {c}")
+    except Exception:
+        raise CerbosTLSError("Error retrieving certificate")
+
+    raise TypeError("TLSVerify should be a string or boolean")
 
 
 class PlaygroundInstanceCredentials(grpc.AuthMetadataPlugin):
@@ -62,7 +81,6 @@ class AsyncCerbosClient:
         timeout_secs (float): Optional request timeout in seconds (no timeout by default)
         request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
         wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
-        logger (Logger): Logger to use for logging
 
     Example:
         with CerbosClient("localhost:3593") as cerbos:
@@ -74,7 +92,6 @@ class AsyncCerbosClient:
                 do_thing()
     """
 
-    _logger: logging.Logger
     _channel: grpc.aio.Channel
     _client: svc_pb2_grpc.CerbosServiceStub
 
@@ -86,7 +103,6 @@ class AsyncCerbosClient:
         timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        logger: logging.Logger = logging.getLogger(__name__),
     ):
         if timeout_secs and not isinstance(timeout_secs, int | float):
             raise TypeError("timeout_secs must be a number type")
@@ -99,8 +115,6 @@ class AsyncCerbosClient:
         # grpc expectes a minimum of 2
         if request_retries < 2:
             request_retries = 0
-
-        self._logger = logger
 
         method_config: dict[Any, Any] = {
             "name": [
@@ -134,14 +148,7 @@ class AsyncCerbosClient:
 
         creds: grpc.ChannelCredentials | None = None
         if tls_verify:
-            try:
-                cert = get_cert(tls_verify)
-            except IOError:
-                self._logger.exception("Error reading certificate file")
-                raise
-            except Exception:
-                self._logger.exception("Error retrieving certificate")
-                raise
+            cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
 
         if playground_instance:
@@ -170,6 +177,7 @@ class AsyncCerbosClient:
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.close()
 
+    @handle_errors
     async def check_resources(
         self,
         principal: engine_pb2.Principal,
@@ -194,18 +202,7 @@ class AsyncCerbosClient:
             aux_data=aux_data,
         )
 
-        try:
-            return await self._client.CheckResources(req)
-        except grpc.aio.AioRpcError as e:
-            raise e
-            # TODO(saml) logging
-            # status = rpc_status.from_call(e)
-            # for detail in status.details:
-            #     if detail.Is(error_details_pb2.QuotaFailure.DESCRIPTOR):
-            #         info = error_details_pb2.QuotaFailure()
-            #         detail.Unpack(info)
-            #     else:
-            #         raise RuntimeError("Unexpected failure: %s" % detail)
+        return await self._client.CheckResources(req)
 
     async def is_allowed(
         self,
@@ -224,25 +221,22 @@ class AsyncCerbosClient:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-        try:
-            resp = await self.check_resources(
-                principal=principal,
-                resources=[
-                    request_pb2.CheckResourcesRequest.ResourceEntry(
-                        actions=[action], resource=resource
-                    )
-                ],
-                request_id=request_id,
-                aux_data=aux_data,
-            )
-            if (res := get_resource(resp, resource.id, resp.results)) is not None:
-                return is_allowed(res, action)
-        except grpc.aio.AioRpcError as e:
-            # TODO(saml) logging
-            raise e
+        resp = await self.check_resources(
+            principal=principal,
+            resources=[
+                request_pb2.CheckResourcesRequest.ResourceEntry(
+                    actions=[action], resource=resource
+                )
+            ],
+            request_id=request_id,
+            aux_data=aux_data,
+        )
+        if (res := get_resource(resp, resource.id, resp.results)) is not None:
+            return is_allowed(res, action)
 
         return False
 
+    @handle_errors
     async def plan_resources(
         self,
         action: str,
@@ -270,22 +264,13 @@ class AsyncCerbosClient:
             aux_data=aux_data,
         )
 
-        try:
-            return await self._client.PlanResources(req)
-        except grpc.aio.AioRpcError as e:
-            # TODO(saml) logging
-            raise e
+        return await self._client.PlanResources(req)
 
     async def server_info(
         self,
     ) -> response_pb2.ServerInfoResponse:
         """Retrieve server info for the running PDP"""
-
-        try:
-            return await self._client.ServerInfo(request_pb2.ServerInfoRequest())
-        except grpc.aio.AioRpcError as e:
-            # TODO(saml) logging
-            raise e
+        return await self._client.ServerInfo(request_pb2.ServerInfoRequest())
 
     def with_principal(
         self,

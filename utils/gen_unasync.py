@@ -4,12 +4,13 @@ import shutil
 import tempfile
 from pathlib import Path
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     rules = [
         unasync.Rule(
             fromdir="/cerbos/sdk/_async/",
             todir="/cerbos/sdk/_sync/",
             additional_replacements={
+                "AsyncCerbosAdminClient": "CerbosAdminClient",
                 "AsyncCerbosClient": "CerbosClient",
                 "AsyncPrincipalContext": "PrincipalContext",
                 "AsyncClient": "Client",
@@ -32,9 +33,9 @@ if __name__ == '__main__':
     sync_root = Path(__file__).absolute().parent.parent / "cerbos/sdk/_sync/**/*.py"
     sync_files = glob.glob(str(sync_root), recursive=True)
     for file_path in sync_files:
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
-            with open(file_path, 'r') as original_file:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+            with open(file_path, "r") as original_file:
                 for line in original_file:
-                    temp_file.write(line.replace('grpc.aio', 'grpc'))
+                    temp_file.write(line.replace("grpc.aio", "grpc"))
 
             shutil.move(temp_file.name, file_path)

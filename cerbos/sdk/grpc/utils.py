@@ -10,7 +10,13 @@ def get_resource(
     resource_id: str,
     predicate=lambda _: True,
 ) -> CheckResourcesResponse.ResultEntry | None:
-    return next(filter(lambda r: r.resource.id == resource_id, resp.results), None)
+    return next(
+        filter(
+            lambda r: (r.resource.id == resource_id and predicate(r.resource)),
+            resp.results,
+        ),
+        None,
+    )
 
 
 def is_allowed(entry: CheckResourcesResponse.ResultEntry, action: str) -> bool:

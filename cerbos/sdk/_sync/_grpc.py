@@ -8,7 +8,7 @@ import ssl
 import uuid
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import grpc
 from google.protobuf import struct_pb2, timestamp_pb2
@@ -82,8 +82,8 @@ class SyncClientBase:
     def __init__(
         self,
         host: str,
-        # call_credentials: grpc.CallCredentials,
         creds: grpc.ChannelCredentials,
+        methods: List[Dict[str, str]] = None,
         tls_verify: TLSVerify = False,
         timeout_secs: float | None = None,
         request_retries: int = 0,
@@ -100,15 +100,10 @@ class SyncClientBase:
         if request_retries < 2:
             request_retries = 0
 
-        method_config: dict[Any, Any] = {
-            "name": [
-                {
-                    "service": "svc.CerbosService",
-                    "method": "CheckResources",
-                },
-                {"service": "svc.CerbosService", "method": "PlanResources"},
-            ]
-        }
+        method_config: dict[Any, Any] = {}
+
+        if methods:
+            method_config["name"] = methods
 
         if timeout_secs:
             method_config["timeout"] = f"{timeout_secs}s"
@@ -203,9 +198,15 @@ class CerbosClient(SyncClientBase):
             )
             creds = grpc.composite_channel_credentials(creds, call_credentials)
 
+        methods = [
+            {"service": "svc.CerbosService", "method": "CheckResources"},
+            {"service": "svc.CerbosService", "method": "PlanResources"},
+        ]
+
         super().__init__(
             host,
             creds,
+            methods,
             tls_verify,
             timeout_secs,
             request_retries,
@@ -464,9 +465,24 @@ class CerbosAdminClient(SyncClientBase):
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
 
+        methods = [
+            {"service": "svc.CerbosAdminService", "method": "AddOrUpdatePolicy"},
+            {"service": "svc.CerbosAdminService", "method": "ListPolicies"},
+            {"service": "svc.CerbosAdminService", "method": "GetPolicy"},
+            {"service": "svc.CerbosAdminService", "method": "DisablePolicy"},
+            {"service": "svc.CerbosAdminService", "method": "EnablePolicy"},
+            {"service": "svc.CerbosAdminService", "method": "AddOrUpdateSchema"},
+            {"service": "svc.CerbosAdminService", "method": "DeleteSchema"},
+            {"service": "svc.CerbosAdminService", "method": "ListSchemas"},
+            {"service": "svc.CerbosAdminService", "method": "GetSchema"},
+            {"service": "svc.CerbosAdminService", "method": "ReloadStore"},
+            # {"service": "svc.CerbosAdminService", "method": "AuditLogs"},
+        ]
+
         super().__init__(
             host,
             creds,
+            methods,
             tls_verify,
             timeout_secs,
             request_retries,

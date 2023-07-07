@@ -1,27 +1,26 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
-from dataclasses import dataclass
 import base64
 import json
 import os
 import ssl
 import uuid
+from dataclasses import dataclass
 from functools import wraps
-from typing import Any, List, Union, Tuple
+from typing import Any, List, Tuple, Union
 
 import grpc
 from google.protobuf import struct_pb2, timestamp_pb2
-from cerbos.sdk.grpc.utils import get_resource, is_allowed
-from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
 
 from cerbos.engine.v1 import engine_pb2
 from cerbos.policy.v1 import policy_pb2
 from cerbos.request.v1 import request_pb2
 from cerbos.response.v1 import response_pb2
-from cerbos.svc.v1 import svc_pb2_grpc
 from cerbos.schema.v1 import schema_pb2
+from cerbos.sdk.grpc.utils import get_resource, is_allowed
+from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
+from cerbos.svc.v1 import svc_pb2_grpc
 
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
 
@@ -534,9 +533,7 @@ class CerbosAdminClient(SyncClientBase):
         return self._call(self._client.GetPolicy, req)
 
     @handle_errors
-    def disable_policy(
-        self, ids: List[str]
-    ) -> response_pb2.DisablePolicyResponse:
+    def disable_policy(self, ids: List[str]) -> response_pb2.DisablePolicyResponse:
         """Disable a set of policies by id
 
         Args:
@@ -596,9 +593,7 @@ class CerbosAdminClient(SyncClientBase):
         return self._call(self._client.GetSchema, req)
 
     @handle_errors
-    def reload_store(
-        self, wait: bool = False
-    ) -> response_pb2.ReloadStoreResponse:
+    def reload_store(self, wait: bool = False) -> response_pb2.ReloadStoreResponse:
         """Reload the store
 
         Args:

@@ -20,8 +20,7 @@ def anyio_backend():
     return "asyncio"
 
 
-# _params = [("http"), ("uds")]
-_params = [("http")]
+_params = [("http"), ("uds")]
 
 
 @pytest.fixture(

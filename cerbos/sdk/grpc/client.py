@@ -11,8 +11,10 @@ from cerbos.sdk._sync._grpc import CerbosAdminClient, CerbosClient, PrincipalCon
 
 __all__ = [
     "AdminCredentials",
+    "AsyncCerbosAdminClient",
     "AsyncCerbosClient",
     "AsyncPrincipalContext",
+    "CerbosAdminClient",
     "CerbosClient",
     "PrincipalContext",
 ]

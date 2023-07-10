@@ -1,0 +1,21 @@
+---
+server:
+  adminAPI:
+    adminCredentials:
+      username: cerbos
+      passwordHash: JDJ5JDEwJGJWcFRKUzJKRzYxOTJERWs5SzZaS2VSb2Z1cXNSeTYzam9NR1U5UkVKM3BtZ1VLQUVuM0xlCgo= # echo "randomHash" | htpasswd -niBC 10 cerbos | cut -d ':' -f 2 | base64
+    enabled: true
+
+storage:
+  driver: "disk"
+  disk:
+    directory: ./store/policies
+
+# audit:
+#   enabled: true # Set to false to completely disable audit logging.
+#   accessLogsEnabled: true # Log API access attempts
+#   #decisionLogsEnabled: true # Log policy decisions
+#   backend: local # Audit backend to use.
+#   local: # Configuration for the local audit backend
+#     storagePath: /auditlogs # Path to store the data
+#     retentionPeriod: 168h # Records older than this will be automatically deleted

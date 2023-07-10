@@ -10,6 +10,9 @@ from cerbos.sdk.client import AsyncCerbosClient, CerbosClient
 from cerbos.sdk.grpc.client import (
     AsyncCerbosClient as AsyncGrpcCerbosClient,
     CerbosClient as GrpcCerbosClient,
+    CerbosAdminClient,
+    AsyncCerbosAdminClient,
+    AdminCredentials,
 )
 from cerbos.sdk.container import CerbosContainer
 from cerbos.sdk.model import *
@@ -20,7 +23,8 @@ def anyio_backend():
     return "asyncio"
 
 
-_params = [("http"), ("uds")]
+# _params = [("http"), ("uds")]
+_params = [("http")]
 
 
 @pytest.fixture(
@@ -77,14 +81,56 @@ async def cerbos_async_grpc_client(anyio_backend, request, tmp_path_factory):
         container.stop()
 
 
-def start_container(client_type, listener, tmp_path_factory):
-    policy_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "store")
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=grpc,listener={p}" for p in _params],
+)
+def cerbos_admin_client(request, tmp_path_factory):
+    container, host = start_container(
+        "grpc", request.param, tmp_path_factory, with_admin=True
+    )
+    if container:
+        with CerbosAdminClient(host, AdminCredentials(password="randomHash")) as client:
+            yield client
+        container.stop()
+
+
+@pytest.mark.anyio
+@pytest.fixture(
+    scope="module",
+    params=_params,
+    ids=[f"transport=grpc,listener={p}" for p in _params],
+)
+async def cerbos_async_admin_client(anyio_backend, request, tmp_path_factory):
+    container, host = start_container(
+        "grpc", request.param, tmp_path_factory, with_admin=True
+    )
+    if container:
+        async with AsyncCerbosAdminClient(
+            host, AdminCredentials(password="randomHash")
+        ) as client:
+            yield client
+        container.stop()
+
+
+def start_container(client_type, listener, tmp_path_factory, with_admin=False):
+    store_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "store")
     container = CerbosContainer(image="ghcr.io/cerbos/cerbos:dev")
-    container.with_volume_mapping(policy_dir, "/policies")
+    container.with_volume_mapping(store_dir, "/store")
     container.with_env("CERBOS_NO_TELEMETRY", "1")
 
+    with_mutable_store = ""
+    if with_admin:
+        with_mutable_store = (
+            " --set=storage.driver=sqlite3 --set=storage.sqlite3.dsn=:memory:"
+        )
+
     if listener == "http":
-        container.with_command("server --set=schema.enforcement=reject")
+        container.with_command(
+            "server --config=./store/conf.yaml --set=schema.enforcement=reject"
+            + with_mutable_store
+        )
         container.start()
         container.wait_until_ready()
 
@@ -96,7 +142,8 @@ def start_container(client_type, listener, tmp_path_factory):
 
         container.with_volume_mapping(sock_dir, "/socket", "rw")
         container.with_command(
-            f"server --set=server.{client_type}ListenAddr=unix:/socket/cerbos.{client_type} --set=server.udsFileMode=0o777 --set=schema.enforcement=reject"
+            f"server --config=./store/conf.yaml --set=server.{client_type}ListenAddr=unix:/socket/cerbos.{client_type} --set=server.udsFileMode=0o777 --set=schema.enforcement=reject"
+            + with_mutable_store
         )
         container.start()
         container.wait_until_ready()

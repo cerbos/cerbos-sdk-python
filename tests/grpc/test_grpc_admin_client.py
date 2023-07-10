@@ -2,16 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
-import os
 import json
+import os
+
 import pytest
 
 from cerbos.policy.v1 import policy_pb2
 from cerbos.schema.v1 import schema_pb2
 from cerbos.sdk.grpc.client import (
     AdminCredentials,
-    CerbosAdminClient,
     AsyncCerbosAdminClient,
+    CerbosAdminClient,
 )
 
 pytestmark = pytest.mark.anyio

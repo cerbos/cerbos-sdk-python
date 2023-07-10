@@ -1,16 +1,16 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-import grpc
 from typing import List
 
+import grpc
 import pytest
-from cerbos.engine.v1 import engine_pb2
-from cerbos.request.v1 import request_pb2
 from google.protobuf import struct_pb2
 from google.protobuf.json_format import MessageToDict
-from cerbos.response.v1 import response_pb2
 
+from cerbos.engine.v1 import engine_pb2
+from cerbos.request.v1 import request_pb2
+from cerbos.response.v1 import response_pb2
 from cerbos.sdk.grpc.client import (
     AsyncCerbosClient,
     AsyncPrincipalContext,

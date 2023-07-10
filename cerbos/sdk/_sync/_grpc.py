@@ -125,14 +125,6 @@ class SyncClientBase:
             ("grpc.service_config", json.dumps(service_config)),
         ]
 
-        # cert = get_cert(tls_verify) if tls_verify else None
-        # # insecure creds required for playground or basic auth without TLS
-        # creds = grpc.ssl_channel_credentials(cert)
-
-        # if call_credentials:
-        #     creds = grpc.composite_channel_credentials(creds, call_credentials)
-
-        # if tls_verify or call_credentials:
         if tls_verify:
             self._channel = grpc.secure_channel(
                 host,

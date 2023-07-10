@@ -39,8 +39,8 @@ principal = engine_pb2.Principal(
 )
 
 resource = engine_pb2.Resource(
-    id="XX125", 
-    kind="leave_request", 
+    id="XX125",
+    kind="leave_request",
     attr={
         "id": Value(string_value="XX125"),
         "department": Value(string_value="marketing"),
@@ -111,7 +111,7 @@ async with AsyncCerbosAdminClient("localhost:3593", admin_credentials=admin_cred
 with CerbosClient("unix:/var/cerbos.sock", tls_verify=False) as c:
   ...
 ```
- 
+
 ### HTTP client
 
 We maintain this for backwards compatibility. It is recommended to use the [gRPC client](#grpc-client).
@@ -210,7 +210,7 @@ See the tests available in the `tests` directory for more examples.
 
 The gRPC client uses protoc generated python classes from definitions retrieved from our [buf registry](https://buf.build/cerbos/cerbos-api).
 When making changes to this library, be sure to run the `./proto/generate_protos.sh` to update definitions and generate python classes.
- 
+
 ## Get help
 
 - Visit the [Cerbos website](https://cerbos.dev)

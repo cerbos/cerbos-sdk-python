@@ -1,8 +1,8 @@
-## Unreleased
+## v0.8.0 (2023-07-11)
 
-### Enhancements
+### Features
 
-- Refactor to use gRPC
+- Add gRPC client and admin API capabilities (#29)
 
 ## v0.7.1 (2023-06-07)
 

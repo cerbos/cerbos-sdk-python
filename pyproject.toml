@@ -51,7 +51,7 @@ tools = [
 ]
 
 [tool.pdm.scripts]
-isort ={cmd = "isort cerbos/sdk tests"}
+isort = {cmd = "isort cerbos/sdk tests"}
 black = {cmd = "black cerbos/sdk tests"}
 format = {composite = ["isort", "black"]}
 unasync = {cmd = "python utils/gen_unasync.py"}

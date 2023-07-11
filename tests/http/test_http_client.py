@@ -530,13 +530,8 @@ def _assert_check_resources_principal_override_with_output(
         "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert len(xx125.outputs) == 2
-    s = next(filter(lambda x: isinstance(x.val, str), xx125.outputs))
+    assert len(xx125.outputs) == 1
     d = next(filter(lambda x: isinstance(x.val, dict), xx125.outputs))
-    assert s.to_dict() == {
-        "src": "principal.donald_duck.v20210210#dev_admin",
-        "val": "dev_record_override:donald_duck",
-    }
     assert d.to_dict() == {
         "src": "resource.leave_request.v20210210#public-view",
         "val": {

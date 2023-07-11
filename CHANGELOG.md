@@ -1,4 +1,14 @@
-## Unreleased
+## v0.8.1 (2023-07-11)
+
+### Bug fixes
+
+- Format on pre_build to fix publish flow (#30)
+
+## v0.8.0 (2023-07-11)
+
+### Features
+
+- Add gRPC client and admin API capabilities (#29)
 
 ## v0.7.1 (2023-06-07)
 

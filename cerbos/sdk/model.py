@@ -270,3 +270,11 @@ class CerbosRequestException(Exception):
         super(CerbosRequestException, self).__init__(msg)
 
         self.error = error
+
+
+class CerbosTLSError(Exception):
+    ...
+
+
+class CerbosTypeError(Exception):
+    ...

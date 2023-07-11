@@ -17,9 +17,9 @@ from cerbos.sdk.model import *
 TLSVerify = Union[str, bool, ssl.SSLContext]
 
 
-class SyncRetryClient(httpx.Client):
+class AsyncRetryClient(httpx.AsyncClient):
     def __init__(self, request_retries: int = 0, *args, **kwargs):
-        self._client = httpx.Client(*args, **kwargs)
+        self._client = httpx.AsyncClient(*args, **kwargs)
 
         fn = self._client.post
         if request_retries:
@@ -41,7 +41,7 @@ class SyncRetryClient(httpx.Client):
         return getattr(self._client, attr)
 
 
-class CerbosClient:
+class AsyncCerbosClient:
     """Client for accessing the Cerbos API
 
     Args:
@@ -63,7 +63,7 @@ class CerbosClient:
                 do_thing()
     """
 
-    _http: httpx.Client
+    _http: httpx.AsyncClient
     _logger: logging.Logger
     _raise_on_error: bool
 
@@ -112,9 +112,9 @@ class CerbosClient:
 
         transport = None
         if transport_params:
-            transport = httpx.HTTPTransport(**transport_params)
+            transport = httpx.AsyncHTTPTransport(**transport_params)
 
-        self._http = SyncRetryClient(
+        self._http = AsyncRetryClient(
             base_url=base_url,
             headers=headers,
             timeout=timeout_secs,
@@ -124,13 +124,13 @@ class CerbosClient:
             request_retries=request_retries,
         )
 
-    def _raise_on_status(self, response: httpx.Response):
+    async def _raise_on_status(self, response: httpx.Response):
         if response is None:
             return
 
         response.raise_for_status()
 
-    def _log_response(self, response: httpx.Response):
+    async def _log_response(self, response: httpx.Response):
         if response is None:
             return
 
@@ -139,7 +139,7 @@ class CerbosClient:
         request = response.request
         output = []
 
-        response.read()
+        await response.aread()
 
         output.append(f"{req_prefix}{request.method} {request.url}")
 
@@ -167,13 +167,13 @@ class CerbosClient:
         msg = "\n".join(output)
         self._logger.debug(msg)
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self
 
-    def __exit__(self, *args):
-        self.close()
+    async def __aexit__(self, *args):
+        await self.close()
 
-    def check_resources(
+    async def check_resources(
         self,
         principal: Principal,
         resources: ResourceList,
@@ -196,7 +196,7 @@ class CerbosClient:
             resources=resources.resources,
             aux_data=aux_data,
         )
-        resp = self._http.post("/api/check/resources", json=req.to_dict())
+        resp = await self._http.post("/api/check/resources", json=req.to_dict())
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
@@ -209,7 +209,7 @@ class CerbosClient:
 
         return CheckResourcesResponse.from_dict(resp.json())
 
-    def is_allowed(
+    async def is_allowed(
         self,
         action: str,
         principal: Principal,
@@ -226,16 +226,19 @@ class CerbosClient:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
-        resp = self.check_resources(
+        resp = await self.check_resources(
             principal=principal,
             resources=ResourceList().add(resource, {action}),
             request_id=request_id,
             aux_data=aux_data,
         )
 
-        return resp.get_resource(resource.id).is_allowed(action)
+        if (r := resp.get_resource(resource.id)) is not None:
+            return r.is_allowed(action)
 
-    def plan_resources(
+        return False
+
+    async def plan_resources(
         self,
         action: str,
         principal: Principal,
@@ -262,7 +265,7 @@ class CerbosClient:
             aux_data=aux_data,
         )
 
-        resp = self._http.post("/api/plan/resources", json=req.to_dict())
+        resp = await self._http.post("/api/plan/resources", json=req.to_dict())
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
@@ -278,37 +281,37 @@ class CerbosClient:
 
         return PlanResourcesResponse.from_dict(resp.json())
 
-    def is_healthy(self, svc: Optional[str] = None) -> bool:
+    async def is_healthy(self, svc: Optional[str] = None) -> bool:
         """Checks the health of the Cerbos endpoint"""
 
         params = None if svc is None else {"service": svc}
         try:
-            resp = self._http.get("/_cerbos/health", params=params)
+            resp = await self._http.get("/_cerbos/health", params=params)
             return resp.is_success
         except Exception:
             return False
 
     def with_principal(
         self, principal: Principal, aux_data: Optional[AuxData] = None
-    ) -> "PrincipalContext":
+    ) -> "AsyncPrincipalContext":
         """Fixes the principal for subsequent requests"""
 
-        return PrincipalContext(self, principal, aux_data)
+        return AsyncPrincipalContext(self, principal, aux_data)
 
-    def close(self):
-        self._http.close()
+    async def close(self):
+        await self._http.aclose()
 
 
-class PrincipalContext:
+class AsyncPrincipalContext:
     """A special Cerbos client where the principal and auxData are fixed"""
 
-    _client: CerbosClient
+    _client: AsyncCerbosClient
     _principal: Principal
     _aux_data: Optional[AuxData]
 
     def __init__(
         self,
-        client: CerbosClient,
+        client: AsyncCerbosClient,
         principal: Principal,
         aux_data: Optional[AuxData] = None,
     ):
@@ -316,7 +319,7 @@ class PrincipalContext:
         self._principal = principal
         self._aux_data = aux_data
 
-    def check_resources(
+    async def check_resources(
         self, resources: ResourceList, request_id: Optional[str] = None
     ) -> CheckResourcesResponse:
         """Check permissions for a list of resources
@@ -326,14 +329,14 @@ class PrincipalContext:
             request_id (None|str): request ID for the request (default None)
         """
 
-        return self._client.check_resources(
+        return await self._client.check_resources(
             principal=self._principal,
             resources=resources,
             request_id=request_id,
             aux_data=self._aux_data,
         )
 
-    def plan_resources(
+    async def plan_resources(
         self,
         action: str,
         resource: ResourceDesc,
@@ -349,7 +352,7 @@ class PrincipalContext:
             aux_data (None|AuxData): auxiliary data for the request
         """
 
-        return self._client.plan_resources(
+        return await self._client.plan_resources(
             action=action,
             principal=self._principal,
             resource=resource,
@@ -357,7 +360,7 @@ class PrincipalContext:
             aux_data=aux_data,
         )
 
-    def is_allowed(
+    async def is_allowed(
         self, action: str, resource: Resource, request_id: Optional[str] = None
     ) -> bool:
         """Check permission for a single action
@@ -368,7 +371,7 @@ class PrincipalContext:
             request_id (None|str): request ID for the request (default None)
         """
 
-        return self._client.is_allowed(
+        return await self._client.is_allowed(
             action=action,
             principal=self._principal,
             resource=resource,

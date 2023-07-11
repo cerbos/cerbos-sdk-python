@@ -1,3 +1,9 @@
+## Unreleased
+
+### Bug fixes
+
+- Format on pre-build to fix publish flow
+
 ## v0.8.0 (2023-07-11)
 
 ### Features

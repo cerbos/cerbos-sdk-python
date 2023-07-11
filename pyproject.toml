@@ -5,7 +5,7 @@ readme = "README.md"
 authors = [
     {name = "Cerbos Developers", email = "sdk+python@cerbos.dev"},
 ]
-license = "Apache-2.0"
+license = {text = "Apache-2.0"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -33,8 +33,8 @@ testcontainers = [
     "testcontainers>=3.5.3",
 ]
 
-[tool.pdm]
-version = {use_scm = true}
+[tool.pdm.version]
+source = "scm"
 
 [tool.pdm.dev-dependencies]
 lint = [
@@ -51,12 +51,16 @@ tools = [
 ]
 
 [tool.pdm.scripts]
-pre_build = {cmd = "python utils/gen_unasync.py"}
-pre_test = {cmd = "python utils/gen_unasync.py"}
+isort = {cmd = "isort cerbos/sdk tests"}
+black = {cmd = "black cerbos/sdk tests"}
+format = {composite = ["isort", "black"]}
+unasync = {cmd = "python utils/gen_unasync.py"}
+pre_build = {composite = ["unasync", "format"]}
+pre_test = {composite = ["unasync"]}
 
 [build-system]
-requires = ["pdm-pep517>=0.12.0"]
-build-backend = "pdm.pep517.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.pyprojectx]
 pdm = "pdm"
@@ -72,9 +76,7 @@ run = "pdm run"
 outdated = "pdm update --outdated"
 pytest = "pdm run pytest tests"
 test = "pw@generate && pw@pytest"
-isort = "isort --profile black cerbos/sdk tests"
-black = "black cerbos/sdk tests"
-format = "pw@isort && pw@black"
+format = "pdm format"
 test_upload = "twine upload -r testpypi dist/*"
 tag_release = "pdm run cz bump --changelog --increment"
 changelog = "pdm run cz changelog"

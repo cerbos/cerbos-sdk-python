@@ -18,6 +18,7 @@ dependencies = [
     "httpx[http2]>=0.22.0",
     "anyio>=3.6.1",
     "tenacity>=8.1.0",
+    "grpcio-tools>=1.54.2",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]
@@ -46,6 +47,7 @@ tools = [
     "unasync>=0.5.0",
     "setuptools>=63.2.0",
     "commitizen>=3.2.2",
+    "ptpython>=3.0.23",
 ]
 
 [tool.pdm.scripts]
@@ -70,8 +72,8 @@ run = "pdm run"
 outdated = "pdm update --outdated"
 pytest = "pdm run pytest tests"
 test = "pw@generate && pw@pytest"
-isort = "isort cerbos tests"
-black = "black cerbos tests"
+isort = "isort --profile black cerbos/sdk tests"
+black = "black cerbos/sdk tests"
 format = "pw@isort && pw@black"
 test_upload = "twine upload -r testpypi dist/*"
 tag_release = "pdm run cz bump --changelog --increment"

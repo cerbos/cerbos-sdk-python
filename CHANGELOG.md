@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Enhancements
+
+- Update protobufs
+
 ## v0.8.1 (2023-07-11)
 
 ### Bug fixes

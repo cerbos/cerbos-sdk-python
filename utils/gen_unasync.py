@@ -33,9 +33,11 @@ if __name__ == "__main__":
     sync_root = Path(__file__).absolute().parent.parent / "cerbos/sdk/_sync/**/*.py"
     sync_files = glob.glob(str(sync_root), recursive=True)
     for file_path in sync_files:
+        temp_file_name = ""
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+            temp_file_name = temp_file.name
             with open(file_path, "r") as original_file:
                 for line in original_file:
                     temp_file.write(line.replace("grpc.aio", "grpc"))
 
-            shutil.move(temp_file.name, file_path)
+        shutil.move(temp_file_name, file_path)

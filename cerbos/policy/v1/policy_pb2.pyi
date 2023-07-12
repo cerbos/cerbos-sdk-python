@@ -13,7 +13,7 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Policy(_message.Message):
-    __slots__ = ["api_version", "disabled", "description", "metadata", "resource_policy", "principal_policy", "derived_roles", "variables", "json_schema"]
+    __slots__ = ["api_version", "disabled", "description", "metadata", "resource_policy", "principal_policy", "derived_roles", "export_variables", "variables", "json_schema"]
     class VariablesEntry(_message.Message):
         __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -28,6 +28,7 @@ class Policy(_message.Message):
     RESOURCE_POLICY_FIELD_NUMBER: _ClassVar[int]
     PRINCIPAL_POLICY_FIELD_NUMBER: _ClassVar[int]
     DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
+    EXPORT_VARIABLES_FIELD_NUMBER: _ClassVar[int]
     VARIABLES_FIELD_NUMBER: _ClassVar[int]
     JSON_SCHEMA_FIELD_NUMBER: _ClassVar[int]
     api_version: str
@@ -37,9 +38,10 @@ class Policy(_message.Message):
     resource_policy: ResourcePolicy
     principal_policy: PrincipalPolicy
     derived_roles: DerivedRoles
+    export_variables: ExportVariables
     variables: _containers.ScalarMap[str, str]
     json_schema: str
-    def __init__(self, api_version: _Optional[str] = ..., disabled: bool = ..., description: _Optional[str] = ..., metadata: _Optional[_Union[Metadata, _Mapping]] = ..., resource_policy: _Optional[_Union[ResourcePolicy, _Mapping]] = ..., principal_policy: _Optional[_Union[PrincipalPolicy, _Mapping]] = ..., derived_roles: _Optional[_Union[DerivedRoles, _Mapping]] = ..., variables: _Optional[_Mapping[str, str]] = ..., json_schema: _Optional[str] = ...) -> None: ...
+    def __init__(self, api_version: _Optional[str] = ..., disabled: bool = ..., description: _Optional[str] = ..., metadata: _Optional[_Union[Metadata, _Mapping]] = ..., resource_policy: _Optional[_Union[ResourcePolicy, _Mapping]] = ..., principal_policy: _Optional[_Union[PrincipalPolicy, _Mapping]] = ..., derived_roles: _Optional[_Union[DerivedRoles, _Mapping]] = ..., export_variables: _Optional[_Union[ExportVariables, _Mapping]] = ..., variables: _Optional[_Mapping[str, str]] = ..., json_schema: _Optional[str] = ...) -> None: ...
 
 class Metadata(_message.Message):
     __slots__ = ["source_file", "annotations", "hash", "store_identifer", "store_identifier"]
@@ -63,20 +65,22 @@ class Metadata(_message.Message):
     def __init__(self, source_file: _Optional[str] = ..., annotations: _Optional[_Mapping[str, str]] = ..., hash: _Optional[_Union[_wrappers_pb2.UInt64Value, _Mapping]] = ..., store_identifer: _Optional[str] = ..., store_identifier: _Optional[str] = ...) -> None: ...
 
 class ResourcePolicy(_message.Message):
-    __slots__ = ["resource", "version", "import_derived_roles", "rules", "scope", "schemas"]
+    __slots__ = ["resource", "version", "import_derived_roles", "rules", "scope", "schemas", "variables"]
     RESOURCE_FIELD_NUMBER: _ClassVar[int]
     VERSION_FIELD_NUMBER: _ClassVar[int]
     IMPORT_DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
     RULES_FIELD_NUMBER: _ClassVar[int]
     SCOPE_FIELD_NUMBER: _ClassVar[int]
     SCHEMAS_FIELD_NUMBER: _ClassVar[int]
+    VARIABLES_FIELD_NUMBER: _ClassVar[int]
     resource: str
     version: str
     import_derived_roles: _containers.RepeatedScalarFieldContainer[str]
     rules: _containers.RepeatedCompositeFieldContainer[ResourceRule]
     scope: str
     schemas: Schemas
-    def __init__(self, resource: _Optional[str] = ..., version: _Optional[str] = ..., import_derived_roles: _Optional[_Iterable[str]] = ..., rules: _Optional[_Iterable[_Union[ResourceRule, _Mapping]]] = ..., scope: _Optional[str] = ..., schemas: _Optional[_Union[Schemas, _Mapping]] = ...) -> None: ...
+    variables: Variables
+    def __init__(self, resource: _Optional[str] = ..., version: _Optional[str] = ..., import_derived_roles: _Optional[_Iterable[str]] = ..., rules: _Optional[_Iterable[_Union[ResourceRule, _Mapping]]] = ..., scope: _Optional[str] = ..., schemas: _Optional[_Union[Schemas, _Mapping]] = ..., variables: _Optional[_Union[Variables, _Mapping]] = ...) -> None: ...
 
 class ResourceRule(_message.Message):
     __slots__ = ["actions", "derived_roles", "roles", "condition", "effect", "name", "output"]
@@ -97,16 +101,18 @@ class ResourceRule(_message.Message):
     def __init__(self, actions: _Optional[_Iterable[str]] = ..., derived_roles: _Optional[_Iterable[str]] = ..., roles: _Optional[_Iterable[str]] = ..., condition: _Optional[_Union[Condition, _Mapping]] = ..., effect: _Optional[_Union[_effect_pb2.Effect, str]] = ..., name: _Optional[str] = ..., output: _Optional[_Union[Output, _Mapping]] = ...) -> None: ...
 
 class PrincipalPolicy(_message.Message):
-    __slots__ = ["principal", "version", "rules", "scope"]
+    __slots__ = ["principal", "version", "rules", "scope", "variables"]
     PRINCIPAL_FIELD_NUMBER: _ClassVar[int]
     VERSION_FIELD_NUMBER: _ClassVar[int]
     RULES_FIELD_NUMBER: _ClassVar[int]
     SCOPE_FIELD_NUMBER: _ClassVar[int]
+    VARIABLES_FIELD_NUMBER: _ClassVar[int]
     principal: str
     version: str
     rules: _containers.RepeatedCompositeFieldContainer[PrincipalRule]
     scope: str
-    def __init__(self, principal: _Optional[str] = ..., version: _Optional[str] = ..., rules: _Optional[_Iterable[_Union[PrincipalRule, _Mapping]]] = ..., scope: _Optional[str] = ...) -> None: ...
+    variables: Variables
+    def __init__(self, principal: _Optional[str] = ..., version: _Optional[str] = ..., rules: _Optional[_Iterable[_Union[PrincipalRule, _Mapping]]] = ..., scope: _Optional[str] = ..., variables: _Optional[_Union[Variables, _Mapping]] = ...) -> None: ...
 
 class PrincipalRule(_message.Message):
     __slots__ = ["resource", "actions"]
@@ -130,12 +136,14 @@ class PrincipalRule(_message.Message):
     def __init__(self, resource: _Optional[str] = ..., actions: _Optional[_Iterable[_Union[PrincipalRule.Action, _Mapping]]] = ...) -> None: ...
 
 class DerivedRoles(_message.Message):
-    __slots__ = ["name", "definitions"]
+    __slots__ = ["name", "definitions", "variables"]
     NAME_FIELD_NUMBER: _ClassVar[int]
     DEFINITIONS_FIELD_NUMBER: _ClassVar[int]
+    VARIABLES_FIELD_NUMBER: _ClassVar[int]
     name: str
     definitions: _containers.RepeatedCompositeFieldContainer[RoleDef]
-    def __init__(self, name: _Optional[str] = ..., definitions: _Optional[_Iterable[_Union[RoleDef, _Mapping]]] = ...) -> None: ...
+    variables: Variables
+    def __init__(self, name: _Optional[str] = ..., definitions: _Optional[_Iterable[_Union[RoleDef, _Mapping]]] = ..., variables: _Optional[_Union[Variables, _Mapping]] = ...) -> None: ...
 
 class RoleDef(_message.Message):
     __slots__ = ["name", "parent_roles", "condition"]
@@ -146,6 +154,35 @@ class RoleDef(_message.Message):
     parent_roles: _containers.RepeatedScalarFieldContainer[str]
     condition: Condition
     def __init__(self, name: _Optional[str] = ..., parent_roles: _Optional[_Iterable[str]] = ..., condition: _Optional[_Union[Condition, _Mapping]] = ...) -> None: ...
+
+class ExportVariables(_message.Message):
+    __slots__ = ["name", "definitions"]
+    class DefinitionsEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    DEFINITIONS_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    definitions: _containers.ScalarMap[str, str]
+    def __init__(self, name: _Optional[str] = ..., definitions: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class Variables(_message.Message):
+    __slots__ = ["local"]
+    class LocalEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    IMPORT_FIELD_NUMBER: _ClassVar[int]
+    LOCAL_FIELD_NUMBER: _ClassVar[int]
+    local: _containers.ScalarMap[str, str]
+    def __init__(self, local: _Optional[_Mapping[str, str]] = ..., **kwargs) -> None: ...
 
 class Condition(_message.Message):
     __slots__ = ["match", "script"]

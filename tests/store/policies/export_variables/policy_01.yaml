@@ -1,0 +1,6 @@
+---
+apiVersion: api.cerbos.dev/v1
+exportVariables:
+  name: vip_variables
+  definitions:
+    is_vip: P.attr.vip == true

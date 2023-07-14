@@ -1,8 +1,8 @@
-## Unreleased
+## v0.9.0 (2023-07-14)
 
 ### Features
 
-- Add support for `exportVariables` policies
+- Add support for `exportVariables` policies (#35)
 
 ## v0.8.1 (2023-07-11)
 

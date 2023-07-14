@@ -93,6 +93,30 @@ class TestCerbosClient:
         have = cerbos_grpc_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
 
+    def test_is_allowed_with_export_variables(
+        self,
+        cerbos_grpc_client: CerbosClient,
+    ):
+        p = engine_pb2.Principal(
+            id="daffy",
+            roles={"user"},
+            policy_version="default",
+            attr={
+                "vip": struct_pb2.Value(bool_value=True),
+            },
+        )
+        r = engine_pb2.Resource(
+            id="XX325",
+            kind="album:object",
+            policy_version="default",
+        )
+        have = cerbos_grpc_client.is_allowed(
+            "view-as-vip",
+            p,
+            r,
+        )
+        assert have
+
 
 class TestPrincipalContext:
     def test_is_allowed(

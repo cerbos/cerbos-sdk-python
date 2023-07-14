@@ -2,6 +2,9 @@
 apiVersion: api.cerbos.dev/v1
 resourcePolicy:
   version: "default"
+  variables:
+    import:
+      - vip_variables
   importDerivedRoles:
     - apatr_common_roles
   resource: "album:object"
@@ -30,4 +33,4 @@ resourcePolicy:
         - user
       condition:
         match:
-          expr: request.principal.attr.vip == true
+          expr: V.is_vip

@@ -50,6 +50,10 @@ tools = [
     "ptpython>=3.0.23",
 ]
 
+
+[tool.pdm.build]
+includes = ["cerbos/", "google/", "protoc_gen_openapiv2/", "validate/"]
+
 [tool.pdm.scripts]
 isort = {cmd = "isort cerbos/sdk tests"}
 black = {cmd = "black cerbos/sdk tests"}

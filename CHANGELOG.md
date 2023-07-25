@@ -1,3 +1,9 @@
+## Unreleased
+
+### Bug fixes
+
+- Include generated code in package
+
 ## v0.9.0 (2023-07-14)
 
 ### Features

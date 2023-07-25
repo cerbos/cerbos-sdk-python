@@ -1,8 +1,8 @@
-## Unreleased
+## v0.9.1 (2023-07-25)
 
 ### Bug fixes
 
-- Include generated code in package
+- Include generated code in package (#37)
 
 ## v0.9.0 (2023-07-14)
 

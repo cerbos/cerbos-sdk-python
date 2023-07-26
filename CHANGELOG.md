@@ -1,3 +1,9 @@
+## Unreleased
+
+### Enhancements
+
+- Support optional gRPC channel options
+
 ## v0.9.1 (2023-07-25)
 
 ### Bug fixes

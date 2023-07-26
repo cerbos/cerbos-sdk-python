@@ -88,6 +88,7 @@ class AsyncClientBase:
         timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
+        channel_options: dict[str, Any] | None = None,
     ):
         if timeout_secs and not isinstance(timeout_secs, (int, float)):
             raise TypeError("timeout_secs must be a number type")
@@ -100,7 +101,7 @@ class AsyncClientBase:
         if request_retries < 2:
             request_retries = 0
 
-        method_config: dict[Any, Any] = {}
+        method_config: dict[str, Any] = {}
 
         if methods:
             method_config["name"] = methods
@@ -120,19 +121,22 @@ class AsyncClientBase:
         if wait_for_ready:
             method_config["waitForReady"] = wait_for_ready
 
-        service_config = {"methodConfig": [method_config]}
-        options = [
-            ("grpc.service_config", json.dumps(service_config)),
-        ]
+        options = {
+            "grpc.service_config": json.dumps({"methodConfig": [method_config]}),
+        }
 
+        if channel_options:
+            options |= channel_options
+
+        opts = [(k, v) for k, v in options.items()]
         if tls_verify:
             self._channel = grpc.aio.secure_channel(
                 host,
                 credentials=creds,
-                options=options,
+                options=opts,
             )
         else:
-            self._channel = grpc.aio.insecure_channel(host, options=options)
+            self._channel = grpc.aio.insecure_channel(host, options=opts)
 
     async def __aenter__(self):
         return self
@@ -154,6 +158,7 @@ class AsyncCerbosClient(AsyncClientBase):
         timeout_secs (float): Optional request timeout in seconds (no timeout by default)
         request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
         wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
+        channel_options (dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
 
     Example:
         with AsyncCerbosClient("localhost:3593") as cerbos:
@@ -175,6 +180,7 @@ class AsyncCerbosClient(AsyncClientBase):
         timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
+        channel_options: dict[str, Any] | None = None,
     ):
         creds: grpc.ChannelCredentials = None
         if tls_verify:
@@ -203,6 +209,7 @@ class AsyncCerbosClient(AsyncClientBase):
             timeout_secs,
             request_retries,
             wait_for_ready,
+            channel_options,
         )
 
         self._client = svc_pb2_grpc.CerbosServiceStub(self._channel)
@@ -426,6 +433,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         timeout_secs (float): Optional request timeout in seconds (no timeout by default)
         request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
         wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
+        channel_options (dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
 
     Example:
         with AsyncCerbosAdminClient("localhost:3593", admin_credentials=AdminCredentials("admin", "some_password")) as cerbos:
@@ -448,6 +456,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
+        channel_options: dict[str, Any] | None = None,
     ):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
@@ -479,6 +488,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
             timeout_secs,
             request_retries,
             wait_for_ready,
+            channel_options,
         )
 
         self._client = svc_pb2_grpc.CerbosAdminServiceStub(self._channel)

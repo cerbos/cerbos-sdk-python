@@ -112,6 +112,37 @@ with CerbosClient("unix:/var/cerbos.sock", tls_verify=False) as c:
   ...
 ```
 
+**Enabling TLS**
+
+`tls_verify` can either be the certificate location (string) or a boolean. If `True`, it'll look for the file at the location specified by the environment variable `SSL_CERT_FILE`, else the default OS location.
+
+```python
+with CerbosClient("localhost:3593", tls_verify=True) as c:
+  ...
+```
+
+```python
+with CerbosClient("localhost:3593", tls_verify="path/to/tls.crt") as c:
+  ...
+```
+
+**Optional channel arguments**
+
+You can pass additional options in the `channel_options` dict.
+Available options are described [here](https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h).
+The argument is of type `dict[str, Any]` where the `Any` value must match the expected type defined in the previous link.
+
+NOTE: We provide this as a generic method to set arbitrary options for particular use cases.
+For purely demonstrative purposes, our example below overrides `grpc.ssl_target_name_override`, which is certainly not recommended practice for production applications.
+
+```python
+opts = {
+    "grpc.ssl_target_name_override": "localhost"
+}
+with CerbosClient("localhost:3593", tls_verify=True, channel_options=opts) as c:
+  ...
+```
+
 ### HTTP client
 
 We maintain this for backwards compatibility. It is recommended to use the [gRPC client](#grpc-client).

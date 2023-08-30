@@ -1,3 +1,9 @@
+## Unreleased
+
+### Bug fixes
+
+- Add types-protobuf for editor type support
+
 ## v0.10.0 (2023-07-26)
 
 ### Enhancements

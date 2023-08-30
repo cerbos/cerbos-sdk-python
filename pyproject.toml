@@ -19,6 +19,7 @@ dependencies = [
     "anyio>=3.6.1",
     "tenacity>=8.1.0",
     "grpcio-tools>=1.54.2",
+    "types-protobuf>=4.24.0.1",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]

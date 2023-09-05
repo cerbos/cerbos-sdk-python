@@ -551,7 +551,9 @@ class CerbosAdminClient(SyncClientBase):
         return self._call(self._client.GetPolicy, req)
 
     @handle_errors
-    def disable_policy(self, ids: List[str]) -> response_pb2.DisablePolicyResponse:
+    def disable_policy(
+        self, ids: List[str]
+    ) -> response_pb2.DisablePolicyResponse:
         """Disable a set of policies by id
 
         Args:
@@ -611,7 +613,9 @@ class CerbosAdminClient(SyncClientBase):
         return self._call(self._client.GetSchema, req)
 
     @handle_errors
-    def reload_store(self, wait: bool = False) -> response_pb2.ReloadStoreResponse:
+    def reload_store(
+        self, wait: bool = False
+    ) -> response_pb2.ReloadStoreResponse:
         """Reload the store
 
         Args:

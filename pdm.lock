@@ -3,10 +3,9 @@
 
 [metadata]
 groups = ["default", "lint", "test", "testcontainers", "tools"]
-cross_platform = true
-static_urls = false
-lock_version = "4.3"
-content_hash = "sha256:871d89da7dd00500204b37c2a371a771dc49352ae26419959bbef9125a3780f7"
+strategy = ["cross_platform"]
+lock_version = "4.4"
+content_hash = "sha256:8704fc4ffd37293cb8a3cabb96acd8ea1d7232dfbf030822d06f21b46a075e74"
 
 [[package]]
 name = "anyio"
@@ -79,6 +78,91 @@ files = [
     {file = "black-23.3.0-cp39-cp39-win_amd64.whl", hash = "sha256:6b39abdfb402002b8a7d030ccc85cf5afff64ee90fa4c5aebc531e3ad0175ddb"},
     {file = "black-23.3.0-py3-none-any.whl", hash = "sha256:ec751418022185b0c1bb7d7736e6933d40bbb14c14a0abcf9123d1b159f98dd4"},
     {file = "black-23.3.0.tar.gz", hash = "sha256:1c7b8d606e728a41ea1ccbd7264677e494e87cf630e399262ced92d4a8dac940"},
+]
+
+[[package]]
+name = "bufbuild-protovalidate-grpc-python"
+version = "1.60.0.1.20231115204500+e097f827e652"
+requires_python = ">=3.7"
+summary = "This package contains generated code for the protobuf module bufbuild/protovalidate when generated with the plugin grpc/python."
+dependencies = [
+    "bufbuild-protovalidate-protocolbuffers-python",
+    "grpcio",
+]
+files = [
+    {file = "bufbuild_protovalidate_grpc_python-1.60.0.1.20231115204500+e097f827e652-py3-none-any.whl", hash = "sha256:da062cfdb5eec6b219662eaa18395f02ad243e855e74fcdda8c0ec26171dbac6"},
+]
+
+[[package]]
+name = "bufbuild-protovalidate-protocolbuffers-pyi"
+version = "25.2.0.1.20231115204500+e097f827e652"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module bufbuild/protovalidate when generated with the plugin protocolbuffers/pyi."
+dependencies = [
+    "protobuf",
+    "types-protobuf",
+]
+files = [
+    {file = "bufbuild_protovalidate_protocolbuffers_pyi-25.2.0.1.20231115204500+e097f827e652-py3-none-any.whl", hash = "sha256:e6d7aaab19cb5b899cda6f6088254110040fe6f37f03aa61de8d939fc28bf8f8"},
+]
+
+[[package]]
+name = "bufbuild-protovalidate-protocolbuffers-python"
+version = "25.2.0.1.20231115204500+e097f827e652"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module bufbuild/protovalidate when generated with the plugin protocolbuffers/python."
+dependencies = [
+    "protobuf",
+]
+files = [
+    {file = "bufbuild_protovalidate_protocolbuffers_python-25.2.0.1.20231115204500+e097f827e652-py3-none-any.whl", hash = "sha256:823ba2aed4c167ecb6e36f7f1e8726eea9ef2b632563a3e35ff1eb01958dd5a4"},
+]
+
+[[package]]
+name = "cerbos-cerbos-api-grpc-python"
+version = "1.60.0.1.20240110153040+75004b0044b2"
+requires_python = ">=3.7"
+summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin grpc/python."
+dependencies = [
+    "bufbuild-protovalidate-grpc-python",
+    "cerbos-cerbos-api-protocolbuffers-python",
+    "googleapis-googleapis-grpc-python",
+    "grpc-ecosystem-grpc-gateway-grpc-python",
+    "grpcio",
+]
+files = [
+    {file = "cerbos_cerbos_api_grpc_python-1.60.0.1.20240110153040+75004b0044b2-py3-none-any.whl", hash = "sha256:e09ac73fe4d58ef649085683c804ad46e88250524ae6193be16e28965559cdcb"},
+]
+
+[[package]]
+name = "cerbos-cerbos-api-protocolbuffers-pyi"
+version = "25.2.0.1.20240110153040+75004b0044b2"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin protocolbuffers/pyi."
+dependencies = [
+    "bufbuild-protovalidate-protocolbuffers-pyi",
+    "googleapis-googleapis-protocolbuffers-pyi",
+    "grpc-ecosystem-grpc-gateway-protocolbuffers-pyi",
+    "protobuf",
+    "types-protobuf",
+]
+files = [
+    {file = "cerbos_cerbos_api_protocolbuffers_pyi-25.2.0.1.20240110153040+75004b0044b2-py3-none-any.whl", hash = "sha256:1a39d3dba04545d6926a53dbea338fdb57a208cf25dfa5036d8339577d4e0294"},
+]
+
+[[package]]
+name = "cerbos-cerbos-api-protocolbuffers-python"
+version = "25.2.0.1.20240110153040+75004b0044b2"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin protocolbuffers/python."
+dependencies = [
+    "bufbuild-protovalidate-protocolbuffers-python",
+    "googleapis-googleapis-protocolbuffers-python",
+    "grpc-ecosystem-grpc-gateway-protocolbuffers-python",
+    "protobuf",
+]
+files = [
+    {file = "cerbos_cerbos_api_protocolbuffers_python-25.2.0.1.20240110153040+75004b0044b2-py3-none-any.whl", hash = "sha256:034918235178373190d1d93df2d2b8cc8a045290061cd9e989e64c26c038608e"},
 ]
 
 [[package]]
@@ -269,6 +353,82 @@ summary = "Backport of PEP 654 (exception groups)"
 files = [
     {file = "exceptiongroup-1.1.2-py3-none-any.whl", hash = "sha256:e346e69d186172ca7cf029c8c1d16235aa0e04035e5750b4b95039e65204328f"},
     {file = "exceptiongroup-1.1.2.tar.gz", hash = "sha256:12c3e887d6485d16943a309616de20ae5582633e0a2eda17f4e10fd61c1e8af5"},
+]
+
+[[package]]
+name = "googleapis-googleapis-grpc-python"
+version = "1.60.0.1.20231214202519+a86849a25cc0"
+requires_python = ">=3.7"
+summary = "This package contains generated code for the protobuf module googleapis/googleapis when generated with the plugin grpc/python."
+dependencies = [
+    "googleapis-googleapis-protocolbuffers-python",
+    "grpcio",
+]
+files = [
+    {file = "googleapis_googleapis_grpc_python-1.60.0.1.20231214202519+a86849a25cc0-py3-none-any.whl", hash = "sha256:d7d5a53283773e7b7356a99652b514e7cf84e81d0f619145934283a030834701"},
+]
+
+[[package]]
+name = "googleapis-googleapis-protocolbuffers-pyi"
+version = "25.2.0.1.20231214202519+a86849a25cc0"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module googleapis/googleapis when generated with the plugin protocolbuffers/pyi."
+dependencies = [
+    "protobuf",
+    "types-protobuf",
+]
+files = [
+    {file = "googleapis_googleapis_protocolbuffers_pyi-25.2.0.1.20231214202519+a86849a25cc0-py3-none-any.whl", hash = "sha256:54c3a48f6568677798e382cce39c7fe59ef8aaefcef2dce82004defef31cc752"},
+]
+
+[[package]]
+name = "googleapis-googleapis-protocolbuffers-python"
+version = "25.2.0.1.20231214202519+a86849a25cc0"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module googleapis/googleapis when generated with the plugin protocolbuffers/python."
+dependencies = [
+    "protobuf",
+]
+files = [
+    {file = "googleapis_googleapis_protocolbuffers_python-25.2.0.1.20231214202519+a86849a25cc0-py3-none-any.whl", hash = "sha256:d72c73d497623556e9016f4379b739118d71e9d20704d8bd5ec08d2ca602de24"},
+]
+
+[[package]]
+name = "grpc-ecosystem-grpc-gateway-grpc-python"
+version = "1.60.0.1.20231027202514+3f42134f4c56"
+requires_python = ">=3.7"
+summary = "This package contains generated code for the protobuf module grpc-ecosystem/grpc-gateway when generated with the plugin grpc/python."
+dependencies = [
+    "grpc-ecosystem-grpc-gateway-protocolbuffers-python",
+    "grpcio",
+]
+files = [
+    {file = "grpc_ecosystem_grpc_gateway_grpc_python-1.60.0.1.20231027202514+3f42134f4c56-py3-none-any.whl", hash = "sha256:5556c9bd9e7ba78b6d5892b9e9ccf94e48d21e7798e156a4b4fbc90cb750b910"},
+]
+
+[[package]]
+name = "grpc-ecosystem-grpc-gateway-protocolbuffers-pyi"
+version = "25.2.0.1.20231027202514+3f42134f4c56"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module grpc-ecosystem/grpc-gateway when generated with the plugin protocolbuffers/pyi."
+dependencies = [
+    "protobuf",
+    "types-protobuf",
+]
+files = [
+    {file = "grpc_ecosystem_grpc_gateway_protocolbuffers_pyi-25.2.0.1.20231027202514+3f42134f4c56-py3-none-any.whl", hash = "sha256:6ed7f8a077911e9e7f50e9f204caee13ffdd580e5afa62ef061211330241e392"},
+]
+
+[[package]]
+name = "grpc-ecosystem-grpc-gateway-protocolbuffers-python"
+version = "25.2.0.1.20231027202514+3f42134f4c56"
+requires_python = ">=3.8"
+summary = "This package contains generated code for the protobuf module grpc-ecosystem/grpc-gateway when generated with the plugin protocolbuffers/python."
+dependencies = [
+    "protobuf",
+]
+files = [
+    {file = "grpc_ecosystem_grpc_gateway_protocolbuffers_python-25.2.0.1.20231027202514+3f42134f4c56-py3-none-any.whl", hash = "sha256:9a7f035ef97cd15f542319c587186b0102ce384d9c6bf2ddfc5c849e2724a04a"},
 ]
 
 [[package]]

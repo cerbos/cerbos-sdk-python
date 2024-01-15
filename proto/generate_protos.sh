@@ -9,6 +9,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo ">> Generating python classes"
 (
     cd $SCRIPT_DIR
-    buf generate buf.build/cerbos/cerbos-api --include-imports
+    buf generate buf.build/cerbos/cerbos-api
 )
 echo ">> Finished!"

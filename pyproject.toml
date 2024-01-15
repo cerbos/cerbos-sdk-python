@@ -20,6 +20,8 @@ dependencies = [
     "tenacity>=8.1.0",
     "grpcio-tools>=1.54.2",
     "types-protobuf>=4.24.0.1",
+    "cerbos-cerbos-api-protocolbuffers-pyi>=25.2.0.1.20240110153040",
+    "cerbos-cerbos-api-protocolbuffers-python>=25.2.0.1.20240110153040",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]
@@ -36,6 +38,10 @@ testcontainers = [
 
 [tool.pdm.version]
 source = "scm"
+
+[[tool.pdm.source]]
+name = "buf"
+url = "https://buf.build/gen/python"
 
 [tool.pdm.dev-dependencies]
 lint = [
@@ -107,4 +113,3 @@ update_changelog_on_bump = true
 commit_parser = "^(?P<change_type>feat|fix|enhancement|docs|chore)(\\\\(.*?\\\\))?:\\s(?P<message>.*)?"
 change_type_map = {"feat" = "Features", "fix" = "Bug fixes", "enhancement" = "Enhancements", "docs" = "Documentation", "chore" = "Chores"}
 change_type_order = ["feat", "enhancement", "fix", "docs"]
-

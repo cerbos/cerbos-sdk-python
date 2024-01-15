@@ -132,7 +132,7 @@ def start_container(client_type, listener, tmp_path_factory, with_admin=False):
 
         host = container.http_host() if client_type == "http" else container.grpc_host()
     else:
-        # (07-23 saml) macOS+docker does not play nice when it comes to sharing UDS across the host and container. I've not figured out how to work around
+        # (jul-23 saml) macOS+docker does not play nice when it comes to sharing UDS across the host and container. I've not figured out how to work around
         # this yet so I tend to comment out `uds` in the fixture params above and rely on CI to test the full suite.
         sock_dir = tmp_path_factory.mktemp("socket")
 

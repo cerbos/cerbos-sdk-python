@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
-import anyio
 import pytest
-from tenacity import RetryError
 
 from cerbos.sdk.client import *
 from cerbos.sdk.model import *

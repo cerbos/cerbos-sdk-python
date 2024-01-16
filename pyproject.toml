@@ -20,9 +20,9 @@ dependencies = [
     "tenacity>=8.1.0",
     "grpcio-tools>=1.54.2",
     "types-protobuf>=4.24.0.1",
-    "cerbos-cerbos-api-protocolbuffers-pyi>=25.2.0.1.20240110153040",
-    "cerbos-cerbos-api-protocolbuffers-python>=25.2.0.1.20240110153040",
-    "cerbos-cerbos-api-grpc-python>=1.60.0.1.20240110153040",
+    "cerbos-cerbos-api-grpc-python @ file:///Users/samuellock/cerbos/cerbos-sdk-python/libs/cerbos_cerbos_api_grpc_python-1.60.0.1.20240110153040%2B75004b0044b2-py3-none-any.whl",
+    "cerbos-cerbos-api-protocolbuffers-pyi @ file:///Users/samuellock/cerbos/cerbos-sdk-python/libs/cerbos_cerbos_api_protocolbuffers_pyi-25.2.0.1.20240110153040%2B75004b0044b2-py3-none-any.whl",
+    "cerbos-cerbos-api-protocolbuffers-python @ file:///Users/samuellock/cerbos/cerbos-sdk-python/libs/cerbos_cerbos_api_protocolbuffers_python-25.2.0.1.20240110153040%2B75004b0044b2-py3-none-any.whl",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]
@@ -60,15 +60,17 @@ tools = [
 
 
 [tool.pdm.build]
-includes = ["cerbos/", "google/", "protoc_gen_openapiv2/", "validate/"]
+includes = ["cerbos/"]
 
 [tool.pdm.scripts]
 isort = {cmd = "isort cerbos/sdk tests"}
 black = {cmd = "black cerbos/sdk tests"}
 format = {composite = ["isort", "black"]}
 unasync = {cmd = "python utils/gen_unasync.py"}
-pre_build = {composite = ["unasync", "format"]}
-pre_test = {composite = ["unasync"]}
+test = {cmd = "pytest"}
+vendor = {shell = "./vendor_protos.sh"}
+pre_build = {composite = ["vendor", "unasync", "format", "test"]}
+pre_test = {composite = ["unasync", "format"]}
 
 [build-system]
 requires = ["pdm-backend"]

@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:8704fc4ffd37293cb8a3cabb96acd8ea1d7232dfbf030822d06f21b46a075e74"
+content_hash = "sha256:6d7e3f9730f207c1372ead50654990f5c9532c5a71798d8e9d03c2f32a17cfd1"
 
 [[package]]
 name = "anyio"
@@ -122,6 +122,7 @@ files = [
 name = "cerbos-cerbos-api-grpc-python"
 version = "1.60.0.1.20240110153040+75004b0044b2"
 requires_python = ">=3.7"
+path = "./libs/cerbos_cerbos_api_grpc_python-1.60.0.1.20240110153040+75004b0044b2-py3-none-any.whl"
 summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin grpc/python."
 dependencies = [
     "bufbuild-protovalidate-grpc-python",
@@ -138,6 +139,7 @@ files = [
 name = "cerbos-cerbos-api-protocolbuffers-pyi"
 version = "25.2.0.1.20240110153040+75004b0044b2"
 requires_python = ">=3.8"
+path = "./libs/cerbos_cerbos_api_protocolbuffers_pyi-25.2.0.1.20240110153040+75004b0044b2-py3-none-any.whl"
 summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin protocolbuffers/pyi."
 dependencies = [
     "bufbuild-protovalidate-protocolbuffers-pyi",
@@ -154,6 +156,7 @@ files = [
 name = "cerbos-cerbos-api-protocolbuffers-python"
 version = "25.2.0.1.20240110153040+75004b0044b2"
 requires_python = ">=3.8"
+path = "./libs/cerbos_cerbos_api_protocolbuffers_python-25.2.0.1.20240110153040+75004b0044b2-py3-none-any.whl"
 summary = "This package contains generated code for the protobuf module cerbos/cerbos-api when generated with the plugin protocolbuffers/python."
 dependencies = [
     "bufbuild-protovalidate-protocolbuffers-python",

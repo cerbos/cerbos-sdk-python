@@ -1,9 +1,8 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 from dataclasses import dataclass
-
-from docker.utils.utils import base64
 
 from cerbos.effect.v1.effect_pb2 import EFFECT_ALLOW
 from cerbos.response.v1.response_pb2 import CheckResourcesResponse

@@ -46,6 +46,7 @@ fi
     echo ">> Tracking generated files..."
 
     rm $CURRENT_PROTOS
+    echo "# DO NOT EDIT. This is generated automatically and used to track proto-generated code" >> $CURRENT_PROTOS
     for file in $(find $TEMP_DEFS_DIR -type f); do
         echo $(dirname ${file#$TEMP_DEFS_DIR/}) >> $CURRENT_PROTOS
     done

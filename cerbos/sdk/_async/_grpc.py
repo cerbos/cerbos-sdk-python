@@ -1,24 +1,21 @@
 # Copyright 2021-2022 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-import base64
 import json
 import os
 import ssl
 import uuid
-from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Dict, List, Tuple, Union
 
 import grpc
-from google.protobuf import struct_pb2, timestamp_pb2
 
 from cerbos.engine.v1 import engine_pb2
 from cerbos.policy.v1 import policy_pb2
 from cerbos.request.v1 import request_pb2
 from cerbos.response.v1 import response_pb2
 from cerbos.schema.v1 import schema_pb2
-from cerbos.sdk.grpc.utils import get_resource, is_allowed
+from cerbos.sdk.grpc.utils import AdminCredentials, get_resource, is_allowed
 from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
 from cerbos.svc.v1 import svc_pb2_grpc
 
@@ -408,19 +405,6 @@ def _get_request_id(request_id: str | None) -> str:
         return str(uuid.uuid4())
 
     return request_id
-
-
-@dataclass
-class AdminCredentials:
-    username: str = "cerbos"
-    password: str = "cerbosAdmin"
-
-    def metadata(self):
-        credentials = f"{self.username}:{self.password}"
-        encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode(
-            "utf-8"
-        )
-        return (("authorization", f"Basic {encoded_credentials}"),)
 
 
 class AsyncCerbosAdminClient(AsyncClientBase):

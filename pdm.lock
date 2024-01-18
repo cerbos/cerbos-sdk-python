@@ -3,10 +3,9 @@
 
 [metadata]
 groups = ["default", "lint", "test", "testcontainers", "tools"]
-cross_platform = true
-static_urls = false
-lock_version = "4.3"
-content_hash = "sha256:871d89da7dd00500204b37c2a371a771dc49352ae26419959bbef9125a3780f7"
+strategy = ["cross_platform"]
+lock_version = "4.4"
+content_hash = "sha256:55bd124f1051fa9dab0d849292d16f517124d2a9c996db78350f004bb9e85392"
 
 [[package]]
 name = "anyio"
@@ -269,6 +268,19 @@ summary = "Backport of PEP 654 (exception groups)"
 files = [
     {file = "exceptiongroup-1.1.2-py3-none-any.whl", hash = "sha256:e346e69d186172ca7cf029c8c1d16235aa0e04035e5750b4b95039e65204328f"},
     {file = "exceptiongroup-1.1.2.tar.gz", hash = "sha256:12c3e887d6485d16943a309616de20ae5582633e0a2eda17f4e10fd61c1e8af5"},
+]
+
+[[package]]
+name = "googleapis-common-protos"
+version = "1.62.0"
+requires_python = ">=3.7"
+summary = "Common protobufs used in Google APIs"
+dependencies = [
+    "protobuf!=3.20.0,!=3.20.1,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<5.0.0.dev0,>=3.19.5",
+]
+files = [
+    {file = "googleapis-common-protos-1.62.0.tar.gz", hash = "sha256:83f0ece9f94e5672cced82f592d2a5edf527a96ed1794f0bab36d5735c996277"},
+    {file = "googleapis_common_protos-1.62.0-py2.py3-none-any.whl", hash = "sha256:4750113612205514f9f6aa4cb00d523a94f3e8c06c5ad2fee466387dc4875f07"},
 ]
 
 [[package]]
@@ -690,6 +702,20 @@ files = [
     {file = "protobuf-4.23.4-cp39-cp39-win_amd64.whl", hash = "sha256:0a5759f5696895de8cc913f084e27fd4125e8fb0914bb729a17816a33819f474"},
     {file = "protobuf-4.23.4-py3-none-any.whl", hash = "sha256:e9d0be5bf34b275b9f87ba7407796556abeeba635455d036c7351f7c183ef8ff"},
     {file = "protobuf-4.23.4.tar.gz", hash = "sha256:ccd9430c0719dce806b93f89c91de7977304729e55377f872a92465d548329a9"},
+]
+
+[[package]]
+name = "protoc-gen-openapiv2"
+version = "0.0.1"
+requires_python = ">=3.6"
+summary = "Provides the missing pieces for gRPC Gateway."
+dependencies = [
+    "googleapis-common-protos",
+    "protobuf>=4.21.0",
+]
+files = [
+    {file = "protoc-gen-openapiv2-0.0.1.tar.gz", hash = "sha256:6f79188d842c13177c9c0558845442c340b43011bf67dfef1dfc3bc067506409"},
+    {file = "protoc_gen_openapiv2-0.0.1-py3-none-any.whl", hash = "sha256:18090c8be3877c438e7da0f7eb7cace45a9a210306bca4707708dbad367857be"},
 ]
 
 [[package]]

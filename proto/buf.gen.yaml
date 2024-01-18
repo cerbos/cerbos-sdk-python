@@ -1,4 +1,3 @@
-# buf.gen.yaml
 version: v1
 plugins:
   - plugin: buf.build/protocolbuffers/python

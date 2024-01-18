@@ -1,3 +1,4 @@
+from buf.validate import validate_pb2 as _validate_pb2
 from cerbos.engine.v1 import engine_pb2 as _engine_pb2
 from cerbos.policy.v1 import policy_pb2 as _policy_pb2
 from cerbos.schema.v1 import schema_pb2 as _schema_pb2
@@ -6,7 +7,6 @@ from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from protoc_gen_openapiv2.options import annotations_pb2 as _annotations_pb2
-from validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor

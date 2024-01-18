@@ -1,4 +1,5 @@
 from cerbos.engine.v1 import engine_pb2 as _engine_pb2
+from cerbos.policy.v1 import policy_pb2 as _policy_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
@@ -31,7 +32,7 @@ class AccessLogEntry(_message.Message):
     def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., method: _Optional[str] = ..., status_code: _Optional[int] = ...) -> None: ...
 
 class DecisionLogEntry(_message.Message):
-    __slots__ = ["call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata"]
+    __slots__ = ["call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata", "audit_trail"]
     class CheckResources(_message.Message):
         __slots__ = ["inputs", "outputs", "error"]
         INPUTS_FIELD_NUMBER: _ClassVar[int]
@@ -66,6 +67,7 @@ class DecisionLogEntry(_message.Message):
     CHECK_RESOURCES_FIELD_NUMBER: _ClassVar[int]
     PLAN_RESOURCES_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
+    AUDIT_TRAIL_FIELD_NUMBER: _ClassVar[int]
     call_id: str
     timestamp: _timestamp_pb2.Timestamp
     peer: Peer
@@ -75,7 +77,8 @@ class DecisionLogEntry(_message.Message):
     check_resources: DecisionLogEntry.CheckResources
     plan_resources: DecisionLogEntry.PlanResources
     metadata: _containers.MessageMap[str, MetaValues]
-    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ...) -> None: ...
+    audit_trail: AuditTrail
+    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., audit_trail: _Optional[_Union[AuditTrail, _Mapping]] = ...) -> None: ...
 
 class MetaValues(_message.Message):
     __slots__ = ["values"]
@@ -94,3 +97,16 @@ class Peer(_message.Message):
     user_agent: str
     forwarded_for: str
     def __init__(self, address: _Optional[str] = ..., auth_info: _Optional[str] = ..., user_agent: _Optional[str] = ..., forwarded_for: _Optional[str] = ...) -> None: ...
+
+class AuditTrail(_message.Message):
+    __slots__ = ["effective_policies"]
+    class EffectivePoliciesEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: _policy_pb2.SourceAttributes
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_policy_pb2.SourceAttributes, _Mapping]] = ...) -> None: ...
+    EFFECTIVE_POLICIES_FIELD_NUMBER: _ClassVar[int]
+    effective_policies: _containers.MessageMap[str, _policy_pb2.SourceAttributes]
+    def __init__(self, effective_policies: _Optional[_Mapping[str, _policy_pb2.SourceAttributes]] = ...) -> None: ...

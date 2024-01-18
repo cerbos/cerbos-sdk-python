@@ -1,9 +1,9 @@
+from buf.validate import validate_pb2 as _validate_pb2
 from cerbos.effect.v1 import effect_pb2 as _effect_pb2
 from cerbos.engine.v1 import engine_pb2 as _engine_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -43,8 +43,21 @@ class Policy(_message.Message):
     json_schema: str
     def __init__(self, api_version: _Optional[str] = ..., disabled: bool = ..., description: _Optional[str] = ..., metadata: _Optional[_Union[Metadata, _Mapping]] = ..., resource_policy: _Optional[_Union[ResourcePolicy, _Mapping]] = ..., principal_policy: _Optional[_Union[PrincipalPolicy, _Mapping]] = ..., derived_roles: _Optional[_Union[DerivedRoles, _Mapping]] = ..., export_variables: _Optional[_Union[ExportVariables, _Mapping]] = ..., variables: _Optional[_Mapping[str, str]] = ..., json_schema: _Optional[str] = ...) -> None: ...
 
+class SourceAttributes(_message.Message):
+    __slots__ = ["attributes"]
+    class AttributesEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: _struct_pb2.Value
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+    ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
+    attributes: _containers.MessageMap[str, _struct_pb2.Value]
+    def __init__(self, attributes: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+
 class Metadata(_message.Message):
-    __slots__ = ["source_file", "annotations", "hash", "store_identifer", "store_identifier"]
+    __slots__ = ["source_file", "annotations", "hash", "store_identifer", "store_identifier", "source_attributes"]
     class AnnotationsEntry(_message.Message):
         __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -57,12 +70,14 @@ class Metadata(_message.Message):
     HASH_FIELD_NUMBER: _ClassVar[int]
     STORE_IDENTIFER_FIELD_NUMBER: _ClassVar[int]
     STORE_IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
+    SOURCE_ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
     source_file: str
     annotations: _containers.ScalarMap[str, str]
     hash: _wrappers_pb2.UInt64Value
     store_identifer: str
     store_identifier: str
-    def __init__(self, source_file: _Optional[str] = ..., annotations: _Optional[_Mapping[str, str]] = ..., hash: _Optional[_Union[_wrappers_pb2.UInt64Value, _Mapping]] = ..., store_identifer: _Optional[str] = ..., store_identifier: _Optional[str] = ...) -> None: ...
+    source_attributes: SourceAttributes
+    def __init__(self, source_file: _Optional[str] = ..., annotations: _Optional[_Mapping[str, str]] = ..., hash: _Optional[_Union[_wrappers_pb2.UInt64Value, _Mapping]] = ..., store_identifer: _Optional[str] = ..., store_identifier: _Optional[str] = ..., source_attributes: _Optional[_Union[SourceAttributes, _Mapping]] = ...) -> None: ...
 
 class ResourcePolicy(_message.Message):
     __slots__ = ["resource", "version", "import_derived_roles", "rules", "scope", "schemas", "variables"]
@@ -210,10 +225,19 @@ class Match(_message.Message):
     def __init__(self, all: _Optional[_Union[Match.ExprList, _Mapping]] = ..., any: _Optional[_Union[Match.ExprList, _Mapping]] = ..., none: _Optional[_Union[Match.ExprList, _Mapping]] = ..., expr: _Optional[str] = ...) -> None: ...
 
 class Output(_message.Message):
-    __slots__ = ["expr"]
+    __slots__ = ["expr", "when"]
+    class When(_message.Message):
+        __slots__ = ["rule_activated", "condition_not_met"]
+        RULE_ACTIVATED_FIELD_NUMBER: _ClassVar[int]
+        CONDITION_NOT_MET_FIELD_NUMBER: _ClassVar[int]
+        rule_activated: str
+        condition_not_met: str
+        def __init__(self, rule_activated: _Optional[str] = ..., condition_not_met: _Optional[str] = ...) -> None: ...
     EXPR_FIELD_NUMBER: _ClassVar[int]
+    WHEN_FIELD_NUMBER: _ClassVar[int]
     expr: str
-    def __init__(self, expr: _Optional[str] = ...) -> None: ...
+    when: Output.When
+    def __init__(self, expr: _Optional[str] = ..., when: _Optional[_Union[Output.When, _Mapping]] = ...) -> None: ...
 
 class Schemas(_message.Message):
     __slots__ = ["principal_schema", "resource_schema"]
@@ -282,10 +306,21 @@ class TestFixture(_message.Message):
     def __init__(self) -> None: ...
 
 class TestOptions(_message.Message):
-    __slots__ = ["now"]
+    __slots__ = ["now", "lenient_scope_search", "globals"]
+    class GlobalsEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: _struct_pb2.Value
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
     NOW_FIELD_NUMBER: _ClassVar[int]
+    LENIENT_SCOPE_SEARCH_FIELD_NUMBER: _ClassVar[int]
+    GLOBALS_FIELD_NUMBER: _ClassVar[int]
     now: _timestamp_pb2.Timestamp
-    def __init__(self, now: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    lenient_scope_search: bool
+    globals: _containers.MessageMap[str, _struct_pb2.Value]
+    def __init__(self, now: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., lenient_scope_search: bool = ..., globals: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
 
 class TestSuite(_message.Message):
     __slots__ = ["name", "description", "skip", "skip_reason", "tests", "principals", "resources", "aux_data", "options", "json_schema"]
@@ -517,16 +552,18 @@ class TestResults(_message.Message):
         details: TestResults.Details
         def __init__(self, name: _Optional[str] = ..., details: _Optional[_Union[TestResults.Details, _Mapping]] = ...) -> None: ...
     class Details(_message.Message):
-        __slots__ = ["result", "failure", "error", "engine_trace"]
+        __slots__ = ["result", "failure", "error", "success", "engine_trace"]
         RESULT_FIELD_NUMBER: _ClassVar[int]
         FAILURE_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
+        SUCCESS_FIELD_NUMBER: _ClassVar[int]
         ENGINE_TRACE_FIELD_NUMBER: _ClassVar[int]
         result: TestResults.Result
         failure: TestResults.Failure
         error: str
+        success: TestResults.Success
         engine_trace: _containers.RepeatedCompositeFieldContainer[_engine_pb2.Trace]
-        def __init__(self, result: _Optional[_Union[TestResults.Result, str]] = ..., failure: _Optional[_Union[TestResults.Failure, _Mapping]] = ..., error: _Optional[str] = ..., engine_trace: _Optional[_Iterable[_Union[_engine_pb2.Trace, _Mapping]]] = ...) -> None: ...
+        def __init__(self, result: _Optional[_Union[TestResults.Result, str]] = ..., failure: _Optional[_Union[TestResults.Failure, _Mapping]] = ..., error: _Optional[str] = ..., success: _Optional[_Union[TestResults.Success, _Mapping]] = ..., engine_trace: _Optional[_Iterable[_Union[_engine_pb2.Trace, _Mapping]]] = ...) -> None: ...
     class OutputFailure(_message.Message):
         __slots__ = ["src", "mismatched", "missing"]
         class MismatchedValue(_message.Message):
@@ -557,6 +594,13 @@ class TestResults(_message.Message):
         actual: _effect_pb2.Effect
         outputs: _containers.RepeatedCompositeFieldContainer[TestResults.OutputFailure]
         def __init__(self, expected: _Optional[_Union[_effect_pb2.Effect, str]] = ..., actual: _Optional[_Union[_effect_pb2.Effect, str]] = ..., outputs: _Optional[_Iterable[_Union[TestResults.OutputFailure, _Mapping]]] = ...) -> None: ...
+    class Success(_message.Message):
+        __slots__ = ["effect", "outputs"]
+        EFFECT_FIELD_NUMBER: _ClassVar[int]
+        OUTPUTS_FIELD_NUMBER: _ClassVar[int]
+        effect: _effect_pb2.Effect
+        outputs: _containers.RepeatedCompositeFieldContainer[_engine_pb2.OutputEntry]
+        def __init__(self, effect: _Optional[_Union[_effect_pb2.Effect, str]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.OutputEntry, _Mapping]]] = ...) -> None: ...
     SUITES_FIELD_NUMBER: _ClassVar[int]
     SUMMARY_FIELD_NUMBER: _ClassVar[int]
     suites: _containers.RepeatedCompositeFieldContainer[TestResults.Suite]

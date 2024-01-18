@@ -13,7 +13,7 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PlanResourcesResponse(_message.Message):
-    __slots__ = ["request_id", "action", "resource_kind", "policy_version", "filter", "meta", "validation_errors"]
+    __slots__ = ["request_id", "action", "resource_kind", "policy_version", "filter", "meta", "validation_errors", "cerbos_call_id"]
     class Meta(_message.Message):
         __slots__ = ["filter_debug", "matched_scope"]
         FILTER_DEBUG_FIELD_NUMBER: _ClassVar[int]
@@ -28,6 +28,7 @@ class PlanResourcesResponse(_message.Message):
     FILTER_FIELD_NUMBER: _ClassVar[int]
     META_FIELD_NUMBER: _ClassVar[int]
     VALIDATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
+    CERBOS_CALL_ID_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     action: str
     resource_kind: str
@@ -35,7 +36,8 @@ class PlanResourcesResponse(_message.Message):
     filter: _engine_pb2.PlanResourcesFilter
     meta: PlanResourcesResponse.Meta
     validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
-    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., resource_kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., filter: _Optional[_Union[_engine_pb2.PlanResourcesFilter, _Mapping]] = ..., meta: _Optional[_Union[PlanResourcesResponse.Meta, _Mapping]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ...) -> None: ...
+    cerbos_call_id: str
+    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., resource_kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., filter: _Optional[_Union[_engine_pb2.PlanResourcesFilter, _Mapping]] = ..., meta: _Optional[_Union[PlanResourcesResponse.Meta, _Mapping]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
 
 class CheckResourceSetResponse(_message.Message):
     __slots__ = ["request_id", "resource_instances", "meta"]
@@ -126,7 +128,7 @@ class CheckResourceBatchResponse(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., results: _Optional[_Iterable[_Union[CheckResourceBatchResponse.ActionEffectMap, _Mapping]]] = ...) -> None: ...
 
 class CheckResourcesResponse(_message.Message):
-    __slots__ = ["request_id", "results"]
+    __slots__ = ["request_id", "results", "cerbos_call_id"]
     class ResultEntry(_message.Message):
         __slots__ = ["resource", "actions", "validation_errors", "meta", "outputs"]
         class Resource(_message.Message):
@@ -181,9 +183,11 @@ class CheckResourcesResponse(_message.Message):
         def __init__(self, resource: _Optional[_Union[CheckResourcesResponse.ResultEntry.Resource, _Mapping]] = ..., actions: _Optional[_Mapping[str, _effect_pb2.Effect]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., meta: _Optional[_Union[CheckResourcesResponse.ResultEntry.Meta, _Mapping]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.OutputEntry, _Mapping]]] = ...) -> None: ...
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     RESULTS_FIELD_NUMBER: _ClassVar[int]
+    CERBOS_CALL_ID_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     results: _containers.RepeatedCompositeFieldContainer[CheckResourcesResponse.ResultEntry]
-    def __init__(self, request_id: _Optional[str] = ..., results: _Optional[_Iterable[_Union[CheckResourcesResponse.ResultEntry, _Mapping]]] = ...) -> None: ...
+    cerbos_call_id: str
+    def __init__(self, request_id: _Optional[str] = ..., results: _Optional[_Iterable[_Union[CheckResourcesResponse.ResultEntry, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
 
 class PlaygroundFailure(_message.Message):
     __slots__ = ["errors"]

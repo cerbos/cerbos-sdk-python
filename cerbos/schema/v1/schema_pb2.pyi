@@ -1,6 +1,6 @@
+from buf.validate import validate_pb2 as _validate_pb2
 from google.api import field_behavior_pb2 as _field_behavior_pb2
 from protoc_gen_openapiv2.options import annotations_pb2 as _annotations_pb2
-from validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message

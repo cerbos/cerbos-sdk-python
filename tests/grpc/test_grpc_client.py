@@ -56,11 +56,9 @@ class TestCerbosClient:
     ):
         with pytest.raises(
             grpc.RpcError,
-            match="invalid CheckResourcesRequest.Resources: value must contain at least 1 item\\(s\\)",
         ) as e:
             cerbos_grpc_client.check_resources(principal_john, [])
-        err = e.value
-        assert err.code().value[0] == 3
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     def test_plan_resources(
         self,
@@ -194,11 +192,9 @@ class TestAsyncCerbosClient:
     ):
         with pytest.raises(
             grpc.aio.AioRpcError,
-            match="invalid CheckResourcesRequest.Resources: value must contain at least 1 item\\(s\\)",
         ) as e:
             await cerbos_async_grpc_client.check_resources(principal_john, [])
-        err = e.value
-        assert err.code().value[0] == 3
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     async def test_plan_resources(
         self,

@@ -1,10 +1,10 @@
+from buf.validate import validate_pb2 as _validate_pb2
 from cerbos.effect.v1 import effect_pb2 as _effect_pb2
 from cerbos.schema.v1 import schema_pb2 as _schema_pb2
 from google.api.expr.v1alpha1 import checked_pb2 as _checked_pb2
 from google.api import field_behavior_pb2 as _field_behavior_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
 from protoc_gen_openapiv2.options import annotations_pb2 as _annotations_pb2
-from validate import validate_pb2 as _validate_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -332,3 +332,51 @@ class Trace(_message.Message):
     components: _containers.RepeatedCompositeFieldContainer[Trace.Component]
     event: Trace.Event
     def __init__(self, components: _Optional[_Iterable[_Union[Trace.Component, _Mapping]]] = ..., event: _Optional[_Union[Trace.Event, _Mapping]] = ...) -> None: ...
+
+class Request(_message.Message):
+    __slots__ = ["principal", "resource", "aux_data"]
+    class Principal(_message.Message):
+        __slots__ = ["id", "roles", "attr"]
+        class AttrEntry(_message.Message):
+            __slots__ = ["key", "value"]
+            KEY_FIELD_NUMBER: _ClassVar[int]
+            VALUE_FIELD_NUMBER: _ClassVar[int]
+            key: str
+            value: _struct_pb2.Value
+            def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+        ID_FIELD_NUMBER: _ClassVar[int]
+        ROLES_FIELD_NUMBER: _ClassVar[int]
+        ATTR_FIELD_NUMBER: _ClassVar[int]
+        id: str
+        roles: _containers.RepeatedScalarFieldContainer[str]
+        attr: _containers.MessageMap[str, _struct_pb2.Value]
+        def __init__(self, id: _Optional[str] = ..., roles: _Optional[_Iterable[str]] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+    class Resource(_message.Message):
+        __slots__ = ["kind", "id", "attr"]
+        class AttrEntry(_message.Message):
+            __slots__ = ["key", "value"]
+            KEY_FIELD_NUMBER: _ClassVar[int]
+            VALUE_FIELD_NUMBER: _ClassVar[int]
+            key: str
+            value: _struct_pb2.Value
+            def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+        KIND_FIELD_NUMBER: _ClassVar[int]
+        ID_FIELD_NUMBER: _ClassVar[int]
+        ATTR_FIELD_NUMBER: _ClassVar[int]
+        kind: str
+        id: str
+        attr: _containers.MessageMap[str, _struct_pb2.Value]
+        def __init__(self, kind: _Optional[str] = ..., id: _Optional[str] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+    PRINCIPAL_FIELD_NUMBER: _ClassVar[int]
+    RESOURCE_FIELD_NUMBER: _ClassVar[int]
+    AUX_DATA_FIELD_NUMBER: _ClassVar[int]
+    principal: Request.Principal
+    resource: Request.Resource
+    aux_data: AuxData
+    def __init__(self, principal: _Optional[_Union[Request.Principal, _Mapping]] = ..., resource: _Optional[_Union[Request.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ...) -> None: ...
+
+class Runtime(_message.Message):
+    __slots__ = ["effective_derived_roles"]
+    EFFECTIVE_DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
+    effective_derived_roles: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, effective_derived_roles: _Optional[_Iterable[str]] = ...) -> None: ...

@@ -1,4 +1,8 @@
-## Unreleased
+## v0.10.3 (2024-01-18)
+
+### Chores
+
+- Vendor subset of dependencies to avoid namespace collisions (#46)
 
 ## v0.10.1 (2023-08-30)
 

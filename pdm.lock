@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:f7287cb69c3eb62b71b82bd294d123680df4437f7aefb89ae9a04e6c04700795"
+content_hash = "sha256:998a389baf581f807f95183fcf65e045ab8b0acfc796ed2a890bb267194cc480"
 
 [[package]]
 name = "anyio"

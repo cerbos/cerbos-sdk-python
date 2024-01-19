@@ -51,6 +51,7 @@ tools = [
     "setuptools>=63.2.0",
     "commitizen>=3.2.2",
     "ptpython>=3.0.23",
+    "pyyaml>=6.0.1",
 ]
 
 

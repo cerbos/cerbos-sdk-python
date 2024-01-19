@@ -4,6 +4,7 @@
 import json
 from unittest.mock import patch
 
+import httpcore
 import pytest
 
 from cerbos.sdk.client import *
@@ -389,7 +390,7 @@ class TestAsyncCerbosClient:
         assert resp.status_code == status_code
         assert post_mock.call_count == 1
 
-    @patch("anyio._backends._asyncio.connect_tcp")
+    @patch("httpcore._backends.anyio.AnyIOBackend.connect_tcp")
     async def test_connection_retries(
         self,
         tcp_mock,
@@ -399,7 +400,7 @@ class TestAsyncCerbosClient:
         n_retries = 3
         n_requests = n_retries + 1
 
-        tcp_mock.side_effect = [ConnectionRefusedError()] * n_requests
+        tcp_mock.side_effect = [httpcore._exceptions.ConnectError] * n_requests
 
         client = AsyncCerbosClient(
             "http://127.0.0.1:3592", connection_retries=n_retries, debug=True

@@ -1,8 +1,8 @@
-## Unreleased
+## v0.10.4 (2024-01-24)
 
 ### Bug fixes
 
-- Backward compatible type subscriptions/unions
+- Backward compatible type subscriptions/unions (#48)
 
 ## v0.10.3 (2024-01-18)
 

@@ -3,6 +3,7 @@
 
 import base64
 from dataclasses import dataclass
+from typing import Union
 
 from cerbos.effect.v1.effect_pb2 import EFFECT_ALLOW
 from cerbos.response.v1.response_pb2 import CheckResourcesResponse
@@ -25,7 +26,7 @@ def get_resource(
     resp: CheckResourcesResponse,
     resource_id: str,
     predicate=lambda _: True,
-) -> CheckResourcesResponse.ResultEntry | None:
+) -> Union[CheckResourcesResponse.ResultEntry, None]:
     return next(
         filter(
             lambda r: (r.resource.id == resource_id and predicate(r.resource)),

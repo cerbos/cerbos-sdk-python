@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Bug fixes
+
+- Backward compatible type subscriptions/unions
+
 ## v0.10.3 (2024-01-18)
 
 ### Chores

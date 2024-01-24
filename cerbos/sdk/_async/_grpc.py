@@ -40,7 +40,7 @@ def handle_errors(method):
     return wrapper
 
 
-def get_cert(c: TLSVerify) -> bytes | None:
+def get_cert(c: TLSVerify) -> Union[bytes, None]:
     try:
         if isinstance(c, str):
             with open(c, "rb") as f:
@@ -82,10 +82,10 @@ class AsyncClientBase:
         creds: grpc.ChannelCredentials,
         methods: List[Dict[str, str]] = None,
         tls_verify: TLSVerify = False,
-        timeout_secs: float | None = None,
+        timeout_secs: Union[float, None] = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: dict[str, Any] | None = None,
+        channel_options: Union[Dict[str, Any], None] = None,
     ):
         if timeout_secs and not isinstance(timeout_secs, (int, float)):
             raise TypeError("timeout_secs must be a number type")
@@ -98,7 +98,7 @@ class AsyncClientBase:
         if request_retries < 2:
             request_retries = 0
 
-        method_config: dict[str, Any] = {}
+        method_config: Dict[str, Any] = {}
 
         if methods:
             method_config["name"] = methods
@@ -155,7 +155,7 @@ class AsyncCerbosClient(AsyncClientBase):
         timeout_secs (float): Optional request timeout in seconds (no timeout by default)
         request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
         wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
-        channel_options (dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
+        channel_options (Dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
 
     Example:
         with AsyncCerbosClient("localhost:3593") as cerbos:
@@ -174,10 +174,10 @@ class AsyncCerbosClient(AsyncClientBase):
         host: str,
         tls_verify: TLSVerify = False,
         playground_instance: str = "",
-        timeout_secs: float | None = None,
+        timeout_secs: Union[float, None] = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: dict[str, Any] | None = None,
+        channel_options: Union[Dict[str, Any], None] = None,
     ):
         creds: grpc.ChannelCredentials = None
         if tls_verify:
@@ -216,8 +216,8 @@ class AsyncCerbosClient(AsyncClientBase):
         self,
         principal: engine_pb2.Principal,
         resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: str | None = None,
-        aux_data: request_pb2.AuxData | None = None,
+        request_id: Union[str, None] = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -243,8 +243,8 @@ class AsyncCerbosClient(AsyncClientBase):
         action: str,
         principal: engine_pb2.Principal,
         resource: engine_pb2.Resource,
-        request_id: str | None = None,
-        aux_data: request_pb2.AuxData | None = None,
+        request_id: Union[str, None] = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -276,8 +276,8 @@ class AsyncCerbosClient(AsyncClientBase):
         action: str,
         principal: engine_pb2.Principal,
         resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: str | None = None,
-        aux_data: request_pb2.AuxData | None = None,
+        request_id: Union[str, None] = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -309,7 +309,7 @@ class AsyncCerbosClient(AsyncClientBase):
     def with_principal(
         self,
         principal: engine_pb2.Principal,
-        aux_data: request_pb2.AuxData | None = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> "AsyncPrincipalContext":
         """Fixes the principal for subsequent requests"""
 
@@ -325,13 +325,13 @@ class AsyncPrincipalContext:
 
     _client: AsyncCerbosClient
     _principal: engine_pb2.Principal
-    _aux_data: request_pb2.AuxData | None
+    _aux_data: Union[request_pb2.AuxData, None]
 
     def __init__(
         self,
         client: AsyncCerbosClient,
         principal: engine_pb2.Principal,
-        aux_data: request_pb2.AuxData | None = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ):
         self._client = client
         self._principal = principal
@@ -340,7 +340,7 @@ class AsyncPrincipalContext:
     async def check_resources(
         self,
         resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: str | None = None,
+        request_id: Union[str, None] = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -360,8 +360,8 @@ class AsyncPrincipalContext:
         self,
         action: str,
         resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: str | None = None,
-        aux_data: request_pb2.AuxData | None = None,
+        request_id: Union[str, None] = None,
+        aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -381,7 +381,10 @@ class AsyncPrincipalContext:
         )
 
     async def is_allowed(
-        self, action: str, resource: engine_pb2.Resource, request_id: str | None = None
+        self,
+        action: str,
+        resource: engine_pb2.Resource,
+        request_id: Union[str, None] = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -400,7 +403,7 @@ class AsyncPrincipalContext:
         )
 
 
-def _get_request_id(request_id: str | None) -> str:
+def _get_request_id(request_id: Union[str, None]) -> str:
     if request_id is None:
         return str(uuid.uuid4())
 
@@ -417,7 +420,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         timeout_secs (float): Optional request timeout in seconds (no timeout by default)
         request_retries (int): Optional maximum number of retries, including the original attempt. Anything below 2 will be treated as 0 (disabled)
         wait_for_ready (bool): Boolean specifying whether RPCs should wait until the connection is ready. Defaults to False
-        channel_options (dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
+        channel_options (Dict[str, Any]): Optional gRPC channel options to pass on channel creation. The values need to match the expected types: https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h
 
     Example:
         with AsyncCerbosAdminClient("localhost:3593", admin_credentials=AdminCredentials("admin", "some_password")) as cerbos:
@@ -435,12 +438,12 @@ class AsyncCerbosAdminClient(AsyncClientBase):
     def __init__(
         self,
         host: str,
-        admin_credentials: AdminCredentials | None = None,
+        admin_credentials: Union[AdminCredentials, None] = None,
         tls_verify: TLSVerify = False,
-        timeout_secs: float | None = None,
+        timeout_secs: Union[float, None] = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: dict[str, Any] | None = None,
+        channel_options: Union[Dict[str, Any], None] = None,
     ):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
@@ -612,8 +615,8 @@ class AsyncCerbosAdminClient(AsyncClientBase):
     # @handle_errors
     # async def list_audit_logs(
     #     self,
-    #     start_time: datetime | None = None,
-    #     end_time: datetime | None = None,
+    #     start_time: Union[datetime, None] = None,
+    #     end_time: Union[datetime, None] = None,
     #     lookup: str = "",
     #     tail: int = 0,
     #     kind: request_pb2.ListAuditLogEntriesRequest.Kind = request_pb2.ListAuditLogEntriesRequest.KIND_ACCESS,

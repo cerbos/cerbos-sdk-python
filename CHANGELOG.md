@@ -1,3 +1,9 @@
+## Unreleased
+
+### Bug fixes
+
+- Use pre-3.9 dict merge operator
+
 ## v0.10.4 (2024-01-24)
 
 ### Bug fixes

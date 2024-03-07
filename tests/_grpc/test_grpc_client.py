@@ -153,6 +153,14 @@ class TestPrincipalContext:
 
 
 class TestAsyncCerbosClient:
+    async def test_channel_options(
+        self,
+    ):
+        # This seems like a pointless test, but was added to ensure we continue to support python 3.8 dict operations
+        # https://github.com/cerbos/cerbos-sdk-python/issues/49
+        opts = {"grpc.server_handshake_timeout_ms": 50}
+        AsyncCerbosClient("http://localhost", channel_options=opts)
+
     async def test_is_allowed(
         self,
         cerbos_async_grpc_client: AsyncCerbosClient,

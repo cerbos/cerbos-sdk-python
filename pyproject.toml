@@ -2,10 +2,8 @@
 name = "cerbos"
 description = "SDK for working with Cerbos: an open core, language-agnostic, scalable authorization solution"
 readme = "README.md"
-authors = [
-    {name = "Cerbos Developers", email = "sdk+python@cerbos.dev"},
-]
-license = {text = "Apache-2.0"}
+authors = [{ name = "Cerbos Developers", email = "sdk+python@cerbos.dev" }]
+license = { text = "Apache-2.0" }
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -27,25 +25,18 @@ requires-python = ">=3.8"
 dynamic = ["version"]
 
 
-
 [project.urls]
 Homepage = "https://cerbos.dev"
 
 [project.optional-dependencies]
-testcontainers = [
-    "testcontainers>=3.5.3",
-]
+testcontainers = ["testcontainers>=3.5.3"]
 
 [tool.pdm.version]
 source = "scm"
 
 [tool.pdm.dev-dependencies]
-lint = [
-    "black>=22.3.0",
-    "isort>=5.10.1"]
-test = [
-    "pytest>=7.3.1",
-]
+lint = ["black>=22.3.0", "isort>=5.10.1"]
+test = ["pytest>=7.3.1"]
 tools = [
     "unasync>=0.5.0",
     "setuptools>=63.2.0",
@@ -59,13 +50,13 @@ tools = [
 includes = ["cerbos/", "google/", "buf/"]
 
 [tool.pdm.scripts]
-isort = {cmd = "isort cerbos/sdk tests"}
-black = {cmd = "black cerbos/sdk tests"}
-format = {composite = ["isort", "black"]}
-unasync = {cmd = "python utils/gen_unasync.py"}
-test = {cmd = "pytest"}
-pre_build = {composite = ["unasync", "format"]}
-pre_test = {composite = ["unasync", "format"]}
+isort = { cmd = "isort cerbos/sdk tests" }
+black = { cmd = "black cerbos/sdk tests" }
+format = { composite = ["isort", "black"] }
+unasync = { cmd = "python utils/gen_unasync.py" }
+test = { cmd = "pytest" }
+pre_build = { composite = ["unasync", "format"] }
+pre_test = { composite = ["unasync", "format"] }
 
 [build-system]
 requires = ["pdm-backend"]
@@ -91,6 +82,8 @@ tag_release = "pdm run cz bump --changelog --increment"
 changelog = "pdm run cz changelog"
 
 [tool.pyright]
+venvPath = "."
+venv = ".venv"
 extraPaths = ["__pypackages__/3.10/lib/"]
 
 [tool.pytest.ini_options]
@@ -109,5 +102,5 @@ update_changelog_on_bump = true
 
 [tool.commitizen.customize]
 commit_parser = "^(?P<change_type>feat|fix|enhancement|docs|chore)(\\\\(.*?\\\\))?:\\s(?P<message>.*)?"
-change_type_map = {"feat" = "Features", "fix" = "Bug fixes", "enhancement" = "Enhancements", "docs" = "Documentation", "chore" = "Chores"}
+change_type_map = { "feat" = "Features", "fix" = "Bug fixes", "enhancement" = "Enhancements", "docs" = "Documentation", "chore" = "Chores" }
 change_type_order = ["feat", "enhancement", "fix", "docs"]

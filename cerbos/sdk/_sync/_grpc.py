@@ -6,7 +6,7 @@ import os
 import ssl
 import uuid
 from functools import wraps
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import grpc
 
@@ -79,8 +79,8 @@ class SyncClientBase:
     def __init__(
         self,
         host: str,
-        creds: grpc.ChannelCredentials,
-        methods: List[Dict[str, str]] = None,
+        creds: Optional[grpc.ChannelCredentials],
+        methods: Optional[List[Dict[str, str]]] = None,
         tls_verify: TLSVerify = False,
         timeout_secs: Union[float, None] = None,
         request_retries: int = 0,
@@ -123,10 +123,10 @@ class SyncClientBase:
         }
 
         if channel_options:
-            options |= channel_options
+            options = {**options, **channel_options}
 
         opts = [(k, v) for k, v in options.items()]
-        if tls_verify:
+        if tls_verify and creds:
             self._channel = grpc.secure_channel(
                 host,
                 credentials=creds,
@@ -179,7 +179,7 @@ class CerbosClient(SyncClientBase):
         wait_for_ready: bool = False,
         channel_options: Union[Dict[str, Any], None] = None,
     ):
-        creds: grpc.ChannelCredentials = None
+        creds: Optional[grpc.ChannelCredentials] = None
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
@@ -448,7 +448,7 @@ class CerbosAdminClient(SyncClientBase):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
 
-        creds: grpc.ChannelCredentials = None
+        creds: Optional[grpc.ChannelCredentials] = None
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)

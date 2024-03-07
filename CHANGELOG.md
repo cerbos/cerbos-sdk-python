@@ -1,8 +1,8 @@
-## Unreleased
+## v0.10.5 (2024-03-07)
 
 ### Bug fixes
 
-- Use pre-3.9 dict merge operator
+- Use pre-3.9 dict merge operator (#50)
 
 ## v0.10.4 (2024-01-24)
 

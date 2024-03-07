@@ -132,6 +132,8 @@ You can pass additional options in the `channel_options` dict.
 Available options are described [here](https://github.com/grpc/grpc/blob/7536d8a849c0096e4c968e7730306872bb5ec674/include/grpc/impl/grpc_types.h).
 The argument is of type `dict[str, Any]` where the `Any` value must match the expected type defined in the previous link.
 
+IMPORTANT: We use the config key `grpc.service_config` to set service-specific configuration (retry policies, backoffs etc) within the nested JSON field. Passing this as a `channel_options` key will override that configuration entirely. We recommend leaving this untouched, however, if you need to pass custom config, ensure you pass the entire existing dict along with the desired updates (this can be found within the `AsyncClientBase.__init__` method).
+
 NOTE: We provide this as a generic method to set arbitrary options for particular use cases.
 For purely demonstrative purposes, our example below overrides `grpc.ssl_target_name_override`, which is certainly not recommended practice for production applications.
 

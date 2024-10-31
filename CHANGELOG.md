@@ -1,8 +1,8 @@
-## Unreleased
+## v0.11.0 (2024-10-31)
 
 ### Bug fixes
 
-- Validation error path field can be empty
+- Validation error path field can be empty (#52)
 
 ## v0.10.5 (2024-03-07)
 

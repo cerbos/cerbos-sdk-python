@@ -89,9 +89,9 @@ class CheckResourcesRequest:
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class ValidationError:
-    path: str
     message: str
     source: Source
+    path: Optional[str] = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

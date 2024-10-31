@@ -60,6 +60,15 @@ class TestCerbosClient:
             cerbos_grpc_client.check_resources(principal_john, [])
             assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
+    def test_check_resources_validation(
+        self,
+        cerbos_grpc_client: CerbosClient,
+        principal_invalid_john: engine_pb2.Principal,
+        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+    ):
+        have = cerbos_grpc_client.check_resources(principal_invalid_john, resource_list)
+        _assert_check_resources_validation(have)
+
     def test_plan_resources(
         self,
         cerbos_grpc_client: CerbosClient,
@@ -289,6 +298,25 @@ def _assert_check_resources(have: response_pb2.CheckResourcesResponse):
     assert zz225 is None
 
 
+def _assert_check_resources_validation(have: response_pb2.CheckResourcesResponse):
+    xx125 = get_resource(
+        have, "XX125", predicate=lambda r: r.policy_version == "20210210"
+    )
+    assert xx125 is not None
+    assert not is_allowed(xx125, "view:public")
+    assert not is_allowed(xx125, "approve")
+    assert len(xx125.validation_errors) == 1
+
+    xx225 = get_resource(have, "XX225")
+    assert xx225 is not None
+    assert not is_allowed(xx225, "view:public")
+    assert not is_allowed(xx225, "approve")
+    assert len(xx125.validation_errors) == 1
+
+    zz225 = get_resource(have, "ZZ225")
+    assert zz225 is None
+
+
 def _assert_plan_resources(have: response_pb2.PlanResourcesResponse):
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
@@ -440,6 +468,18 @@ def principal_john():
         attr={
             "department": struct_pb2.Value(string_value="marketing"),
             "geography": struct_pb2.Value(string_value="GB"),
+            "team": struct_pb2.Value(string_value="design"),
+        },
+    )
+
+
+@pytest.fixture
+def principal_invalid_john():
+    return engine_pb2.Principal(
+        id="john",
+        roles=["employee"],
+        policy_version="20210210",
+        attr={
             "team": struct_pb2.Value(string_value="design"),
         },
     )

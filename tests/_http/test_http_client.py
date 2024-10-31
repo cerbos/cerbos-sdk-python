@@ -44,6 +44,15 @@ class TestCerbosClient:
         have = cerbos_client.check_resources(principal_john, resource_list)
         _assert_check_resources(have)
 
+    def test_check_resources_validation(
+        self,
+        cerbos_client: CerbosClient,
+        principal_invalid_john: Principal,
+        resource_list: ResourceList,
+    ):
+        have = cerbos_client.check_resources(principal_invalid_john, resource_list)
+        _assert_check_resources_validation(have)
+
     def test_check_resources_empty_resources(
         self, cerbos_client: CerbosClient, principal_john: Principal
     ):
@@ -471,6 +480,29 @@ def _assert_check_resources(have: CheckResourcesResponse):
     assert zz225 is None
 
 
+def _assert_check_resources_validation(have: CheckResourcesResponse):
+    assert have.failed() == False
+
+    xx125 = have.get_resource(
+        "XX125", predicate=lambda r: r.policy_version == "20210210"
+    )
+    assert xx125 is not None
+    assert xx125.is_allowed("view:public") == False
+    assert xx125.is_allowed("approve") == False
+    assert xx125.validation_errors is not None
+    assert len(xx125.validation_errors) == 1
+
+    xx225 = have.get_resource("XX225")
+    assert xx225 is not None
+    assert xx225.is_allowed("view:public") == False
+    assert xx225.is_allowed("approve") == False
+    assert xx225.validation_errors is not None
+    assert len(xx225.validation_errors) == 1
+
+    zz225 = have.get_resource("ZZ225")
+    assert zz225 is None
+
+
 def _assert_check_resources_empty_resources(have: CheckResourcesResponse):
     assert have.failed() == True
     assert have.status_msg.code == 3
@@ -629,6 +661,16 @@ def principal_john():
         roles={"employee"},
         policy_version="20210210",
         attr={"department": "marketing", "geography": "GB", "team": "design"},
+    )
+
+
+@pytest.fixture
+def principal_invalid_john():
+    return Principal(
+        "john",
+        roles={"employee"},
+        policy_version="20210210",
+        attr={"team": "design"},
     )
 
 

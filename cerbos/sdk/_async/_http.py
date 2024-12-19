@@ -196,7 +196,12 @@ class AsyncCerbosClient:
             resources=resources.resources,
             aux_data=aux_data,
         )
-        resp = await self._http.post("/api/check/resources", json=req.to_dict())
+
+        # omit keys with `None` values
+        resp = await self._http.post(
+            "/api/check/resources",
+            json={k: v for k, v in req.to_dict().items() if v is not None},
+        )
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
@@ -265,7 +270,10 @@ class AsyncCerbosClient:
             aux_data=aux_data,
         )
 
-        resp = await self._http.post("/api/plan/resources", json=req.to_dict())
+        resp = await self._http.post(
+            "/api/plan/resources",
+            json={k: v for k, v in req.to_dict().items() if v is not None},
+        )
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))

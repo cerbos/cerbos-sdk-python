@@ -2,7 +2,7 @@
 
 ### Bug fixes
 
-- Validation error path field can be empty
+- Validation error path field can be empty (#52)
 
 ## v0.10.5 (2024-03-07)
 

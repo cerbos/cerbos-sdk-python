@@ -1,3 +1,10 @@
+## v0.11.1 (2024-12-19)
+
+### Bug fixes
+
+- Omit check_request params with None values (#53)
+- Validation error path field can be empty (#52)
+
 ## v0.10.6 (2024-12-19)
 
 ### Bug fixes

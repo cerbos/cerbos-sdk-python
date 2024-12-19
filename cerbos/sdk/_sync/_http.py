@@ -198,9 +198,10 @@ class CerbosClient:
         )
 
         # omit keys with `None` values
-        req_params = {k: v for k, v in req.to_dict().items() if v is not None}
-
-        resp = self._http.post("/api/check/resources", json=req_params)
+        resp = self._http.post(
+            "/api/check/resources",
+            json={k: v for k, v in req.to_dict().items() if v is not None},
+        )
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
@@ -269,7 +270,10 @@ class CerbosClient:
             aux_data=aux_data,
         )
 
-        resp = self._http.post("/api/plan/resources", json=req.to_dict())
+        resp = self._http.post(
+            "/api/plan/resources",
+            json={k: v for k, v in req.to_dict().items() if v is not None},
+        )
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))

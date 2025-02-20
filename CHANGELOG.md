@@ -1,5 +1,13 @@
 ## Unreleased
 
+### Chores
+
+- Upgrade dependencies
+
+### Enhancements
+
+- Add marker file to make package PEP-561 aware (#56)
+
 ## v0.11.2 (2025-01-07)
 
 ## v0.11.1 (2024-12-19)

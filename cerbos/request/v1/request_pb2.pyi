@@ -16,20 +16,22 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PlanResourcesRequest(_message.Message):
-    __slots__ = ["request_id", "action", "principal", "resource", "aux_data", "include_meta"]
+    __slots__ = ["request_id", "action", "actions", "principal", "resource", "aux_data", "include_meta"]
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     ACTION_FIELD_NUMBER: _ClassVar[int]
+    ACTIONS_FIELD_NUMBER: _ClassVar[int]
     PRINCIPAL_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_FIELD_NUMBER: _ClassVar[int]
     AUX_DATA_FIELD_NUMBER: _ClassVar[int]
     INCLUDE_META_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     action: str
+    actions: _containers.RepeatedScalarFieldContainer[str]
     principal: _engine_pb2.Principal
     resource: _engine_pb2.PlanResourcesInput.Resource
     aux_data: AuxData
     include_meta: bool
-    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., principal: _Optional[_Union[_engine_pb2.Principal, _Mapping]] = ..., resource: _Optional[_Union[_engine_pb2.PlanResourcesInput.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ..., include_meta: bool = ...) -> None: ...
+    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., actions: _Optional[_Iterable[str]] = ..., principal: _Optional[_Union[_engine_pb2.Principal, _Mapping]] = ..., resource: _Optional[_Union[_engine_pb2.PlanResourcesInput.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ..., include_meta: bool = ...) -> None: ...
 
 class CheckResourceSetRequest(_message.Message):
     __slots__ = ["request_id", "actions", "principal", "resource", "include_meta", "aux_data"]
@@ -228,16 +230,18 @@ class ServerInfoRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class ListPoliciesRequest(_message.Message):
-    __slots__ = ["include_disabled", "name_regexp", "scope_regexp", "version_regexp"]
+    __slots__ = ["include_disabled", "name_regexp", "scope_regexp", "version_regexp", "policy_id"]
     INCLUDE_DISABLED_FIELD_NUMBER: _ClassVar[int]
     NAME_REGEXP_FIELD_NUMBER: _ClassVar[int]
     SCOPE_REGEXP_FIELD_NUMBER: _ClassVar[int]
     VERSION_REGEXP_FIELD_NUMBER: _ClassVar[int]
+    POLICY_ID_FIELD_NUMBER: _ClassVar[int]
     include_disabled: bool
     name_regexp: str
     scope_regexp: str
     version_regexp: str
-    def __init__(self, include_disabled: bool = ..., name_regexp: _Optional[str] = ..., scope_regexp: _Optional[str] = ..., version_regexp: _Optional[str] = ...) -> None: ...
+    policy_id: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, include_disabled: bool = ..., name_regexp: _Optional[str] = ..., scope_regexp: _Optional[str] = ..., version_regexp: _Optional[str] = ..., policy_id: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GetPolicyRequest(_message.Message):
     __slots__ = ["id"]
@@ -256,6 +260,20 @@ class EnablePolicyRequest(_message.Message):
     ID_FIELD_NUMBER: _ClassVar[int]
     id: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, id: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class InspectPoliciesRequest(_message.Message):
+    __slots__ = ["include_disabled", "name_regexp", "scope_regexp", "version_regexp", "policy_id"]
+    INCLUDE_DISABLED_FIELD_NUMBER: _ClassVar[int]
+    NAME_REGEXP_FIELD_NUMBER: _ClassVar[int]
+    SCOPE_REGEXP_FIELD_NUMBER: _ClassVar[int]
+    VERSION_REGEXP_FIELD_NUMBER: _ClassVar[int]
+    POLICY_ID_FIELD_NUMBER: _ClassVar[int]
+    include_disabled: bool
+    name_regexp: str
+    scope_regexp: str
+    version_regexp: str
+    policy_id: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, include_disabled: bool = ..., name_regexp: _Optional[str] = ..., scope_regexp: _Optional[str] = ..., version_regexp: _Optional[str] = ..., policy_id: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class AddOrUpdateSchemaRequest(_message.Message):
     __slots__ = ["schemas"]

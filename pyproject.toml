@@ -20,6 +20,7 @@ dependencies = [
     "types-protobuf>=4.24.0.1",
     "protoc-gen-openapiv2>=0.0.1",
     "googleapis-common-protos>=1.62.0",
+    "protobuf>=6.31.0",
 ]
 requires-python = ">=3.8"
 dynamic = ["version"]
@@ -30,33 +31,6 @@ Homepage = "https://cerbos.dev"
 
 [project.optional-dependencies]
 testcontainers = ["testcontainers>=3.5.3"]
-
-[tool.pdm.version]
-source = "scm"
-
-[tool.pdm.dev-dependencies]
-lint = ["black>=22.3.0", "isort>=5.10.1"]
-test = ["pytest>=7.3.1"]
-tools = [
-    "unasync>=0.5.0",
-    "setuptools>=63.2.0",
-    "commitizen>=3.2.2",
-    "ptpython>=3.0.23",
-    "pyyaml>=6.0.1",
-]
-
-
-[tool.pdm.build]
-includes = ["cerbos/", "google/", "buf/"]
-
-[tool.pdm.scripts]
-isort = { cmd = "isort cerbos/sdk tests" }
-black = { cmd = "black cerbos/sdk tests" }
-format = { composite = ["isort", "black"] }
-unasync = { cmd = "python utils/gen_unasync.py" }
-test = { cmd = "pytest" }
-pre_build = { composite = ["unasync", "format"] }
-pre_test = { composite = ["unasync", "format"] }
 
 [build-system]
 requires = ["pdm-backend"]
@@ -104,3 +78,35 @@ update_changelog_on_bump = true
 commit_parser = "^(?P<change_type>feat|fix|enhancement|docs|chore)(\\\\(.*?\\\\))?:\\s(?P<message>.*)?"
 change_type_map = { "feat" = "Features", "fix" = "Bug fixes", "enhancement" = "Enhancements", "docs" = "Documentation", "chore" = "Chores" }
 change_type_order = ["feat", "enhancement", "fix", "docs"]
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.dev-dependencies]
+lint = ["black>=22.3.0", "isort>=5.10.1"]
+test = ["pytest>=7.3.1"]
+
+
+[tool.pdm.build]
+includes = ["cerbos/", "google/", "buf/"]
+
+[tool.pdm.scripts]
+isort = { cmd = "isort cerbos/sdk tests" }
+black = { cmd = "black cerbos/sdk tests" }
+format = { composite = ["isort", "black"] }
+unasync = { cmd = "python utils/gen_unasync.py" }
+test = { cmd = "pytest" }
+pre_build = { composite = ["unasync", "format"] }
+pre_test = { composite = ["unasync", "format"] }
+
+
+[dependency-groups]
+tools = [
+    "unasync>=0.5.0",
+    "setuptools>=63.2.0",
+    "commitizen>=3.2.2",
+    "ptpython>=3.0.23",
+    "pyyaml>=6.0.1",
+    "ruff>=0.11.13",
+    "jedi-language-server>=0.45.1",
+]

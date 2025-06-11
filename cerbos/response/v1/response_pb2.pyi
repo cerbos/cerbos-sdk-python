@@ -4,8 +4,10 @@ from cerbos.engine.v1 import engine_pb2 as _engine_pb2
 from cerbos.policy.v1 import policy_pb2 as _policy_pb2
 from cerbos.schema.v1 import schema_pb2 as _schema_pb2
 from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf import struct_pb2 as _struct_pb2
 from protoc_gen_openapiv2.options import annotations_pb2 as _annotations_pb2
 from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
@@ -13,16 +15,26 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PlanResourcesResponse(_message.Message):
-    __slots__ = ["request_id", "action", "resource_kind", "policy_version", "filter", "meta", "validation_errors", "cerbos_call_id"]
+    __slots__ = ["request_id", "action", "actions", "resource_kind", "policy_version", "filter", "meta", "validation_errors", "cerbos_call_id"]
     class Meta(_message.Message):
-        __slots__ = ["filter_debug", "matched_scope"]
+        __slots__ = ["filter_debug", "matched_scope", "matched_scopes"]
+        class MatchedScopesEntry(_message.Message):
+            __slots__ = ["key", "value"]
+            KEY_FIELD_NUMBER: _ClassVar[int]
+            VALUE_FIELD_NUMBER: _ClassVar[int]
+            key: str
+            value: str
+            def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
         FILTER_DEBUG_FIELD_NUMBER: _ClassVar[int]
         MATCHED_SCOPE_FIELD_NUMBER: _ClassVar[int]
+        MATCHED_SCOPES_FIELD_NUMBER: _ClassVar[int]
         filter_debug: str
         matched_scope: str
-        def __init__(self, filter_debug: _Optional[str] = ..., matched_scope: _Optional[str] = ...) -> None: ...
+        matched_scopes: _containers.ScalarMap[str, str]
+        def __init__(self, filter_debug: _Optional[str] = ..., matched_scope: _Optional[str] = ..., matched_scopes: _Optional[_Mapping[str, str]] = ...) -> None: ...
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     ACTION_FIELD_NUMBER: _ClassVar[int]
+    ACTIONS_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_KIND_FIELD_NUMBER: _ClassVar[int]
     POLICY_VERSION_FIELD_NUMBER: _ClassVar[int]
     FILTER_FIELD_NUMBER: _ClassVar[int]
@@ -31,13 +43,14 @@ class PlanResourcesResponse(_message.Message):
     CERBOS_CALL_ID_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     action: str
+    actions: _containers.RepeatedScalarFieldContainer[str]
     resource_kind: str
     policy_version: str
     filter: _engine_pb2.PlanResourcesFilter
     meta: PlanResourcesResponse.Meta
     validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
     cerbos_call_id: str
-    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., resource_kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., filter: _Optional[_Union[_engine_pb2.PlanResourcesFilter, _Mapping]] = ..., meta: _Optional[_Union[PlanResourcesResponse.Meta, _Mapping]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
+    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., actions: _Optional[_Iterable[str]] = ..., resource_kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., filter: _Optional[_Union[_engine_pb2.PlanResourcesFilter, _Mapping]] = ..., meta: _Optional[_Union[PlanResourcesResponse.Meta, _Mapping]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
 
 class CheckResourceSetResponse(_message.Message):
     __slots__ = ["request_id", "resource_instances", "meta"]
@@ -191,13 +204,24 @@ class CheckResourcesResponse(_message.Message):
 
 class PlaygroundFailure(_message.Message):
     __slots__ = ["errors"]
+    class ErrorDetails(_message.Message):
+        __slots__ = ["line", "column", "context"]
+        LINE_FIELD_NUMBER: _ClassVar[int]
+        COLUMN_FIELD_NUMBER: _ClassVar[int]
+        CONTEXT_FIELD_NUMBER: _ClassVar[int]
+        line: int
+        column: int
+        context: str
+        def __init__(self, line: _Optional[int] = ..., column: _Optional[int] = ..., context: _Optional[str] = ...) -> None: ...
     class Error(_message.Message):
-        __slots__ = ["file", "error"]
+        __slots__ = ["file", "error", "details"]
         FILE_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
+        DETAILS_FIELD_NUMBER: _ClassVar[int]
         file: str
         error: str
-        def __init__(self, file: _Optional[str] = ..., error: _Optional[str] = ...) -> None: ...
+        details: PlaygroundFailure.ErrorDetails
+        def __init__(self, file: _Optional[str] = ..., error: _Optional[str] = ..., details: _Optional[_Union[PlaygroundFailure.ErrorDetails, _Mapping]] = ...) -> None: ...
     ERRORS_FIELD_NUMBER: _ClassVar[int]
     errors: _containers.RepeatedCompositeFieldContainer[PlaygroundFailure.Error]
     def __init__(self, errors: _Optional[_Iterable[_Union[PlaygroundFailure.Error, _Mapping]]] = ...) -> None: ...
@@ -324,6 +348,122 @@ class EnablePolicyResponse(_message.Message):
     ENABLED_POLICIES_FIELD_NUMBER: _ClassVar[int]
     enabled_policies: int
     def __init__(self, enabled_policies: _Optional[int] = ...) -> None: ...
+
+class InspectPoliciesResponse(_message.Message):
+    __slots__ = ["results"]
+    class Attribute(_message.Message):
+        __slots__ = ["kind", "name"]
+        class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = []
+            KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
+            KIND_PRINCIPAL_ATTRIBUTE: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
+            KIND_RESOURCE_ATTRIBUTE: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
+        KIND_UNSPECIFIED: InspectPoliciesResponse.Attribute.Kind
+        KIND_PRINCIPAL_ATTRIBUTE: InspectPoliciesResponse.Attribute.Kind
+        KIND_RESOURCE_ATTRIBUTE: InspectPoliciesResponse.Attribute.Kind
+        KIND_FIELD_NUMBER: _ClassVar[int]
+        NAME_FIELD_NUMBER: _ClassVar[int]
+        kind: InspectPoliciesResponse.Attribute.Kind
+        name: str
+        def __init__(self, kind: _Optional[_Union[InspectPoliciesResponse.Attribute.Kind, str]] = ..., name: _Optional[str] = ...) -> None: ...
+    class DerivedRole(_message.Message):
+        __slots__ = ["name", "kind", "source"]
+        class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = []
+            KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
+            KIND_UNDEFINED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
+            KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
+            KIND_IMPORTED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
+        KIND_UNSPECIFIED: InspectPoliciesResponse.DerivedRole.Kind
+        KIND_UNDEFINED: InspectPoliciesResponse.DerivedRole.Kind
+        KIND_EXPORTED: InspectPoliciesResponse.DerivedRole.Kind
+        KIND_IMPORTED: InspectPoliciesResponse.DerivedRole.Kind
+        NAME_FIELD_NUMBER: _ClassVar[int]
+        KIND_FIELD_NUMBER: _ClassVar[int]
+        SOURCE_FIELD_NUMBER: _ClassVar[int]
+        name: str
+        kind: InspectPoliciesResponse.DerivedRole.Kind
+        source: str
+        def __init__(self, name: _Optional[str] = ..., kind: _Optional[_Union[InspectPoliciesResponse.DerivedRole.Kind, str]] = ..., source: _Optional[str] = ...) -> None: ...
+    class Constant(_message.Message):
+        __slots__ = ["name", "value", "kind", "source", "used"]
+        class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = []
+            KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+            KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+            KIND_IMPORTED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+            KIND_LOCAL: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+            KIND_UNDEFINED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+            KIND_UNKNOWN: _ClassVar[InspectPoliciesResponse.Constant.Kind]
+        KIND_UNSPECIFIED: InspectPoliciesResponse.Constant.Kind
+        KIND_EXPORTED: InspectPoliciesResponse.Constant.Kind
+        KIND_IMPORTED: InspectPoliciesResponse.Constant.Kind
+        KIND_LOCAL: InspectPoliciesResponse.Constant.Kind
+        KIND_UNDEFINED: InspectPoliciesResponse.Constant.Kind
+        KIND_UNKNOWN: InspectPoliciesResponse.Constant.Kind
+        NAME_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        KIND_FIELD_NUMBER: _ClassVar[int]
+        SOURCE_FIELD_NUMBER: _ClassVar[int]
+        USED_FIELD_NUMBER: _ClassVar[int]
+        name: str
+        value: _struct_pb2.Value
+        kind: InspectPoliciesResponse.Constant.Kind
+        source: str
+        used: bool
+        def __init__(self, name: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Constant.Kind, str]] = ..., source: _Optional[str] = ..., used: bool = ...) -> None: ...
+    class Variable(_message.Message):
+        __slots__ = ["name", "value", "kind", "source", "used"]
+        class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+            __slots__ = []
+            KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+            KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+            KIND_IMPORTED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+            KIND_LOCAL: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+            KIND_UNDEFINED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+            KIND_UNKNOWN: _ClassVar[InspectPoliciesResponse.Variable.Kind]
+        KIND_UNSPECIFIED: InspectPoliciesResponse.Variable.Kind
+        KIND_EXPORTED: InspectPoliciesResponse.Variable.Kind
+        KIND_IMPORTED: InspectPoliciesResponse.Variable.Kind
+        KIND_LOCAL: InspectPoliciesResponse.Variable.Kind
+        KIND_UNDEFINED: InspectPoliciesResponse.Variable.Kind
+        KIND_UNKNOWN: InspectPoliciesResponse.Variable.Kind
+        NAME_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        KIND_FIELD_NUMBER: _ClassVar[int]
+        SOURCE_FIELD_NUMBER: _ClassVar[int]
+        USED_FIELD_NUMBER: _ClassVar[int]
+        name: str
+        value: str
+        kind: InspectPoliciesResponse.Variable.Kind
+        source: str
+        used: bool
+        def __init__(self, name: _Optional[str] = ..., value: _Optional[str] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Variable.Kind, str]] = ..., source: _Optional[str] = ..., used: bool = ...) -> None: ...
+    class Result(_message.Message):
+        __slots__ = ["actions", "variables", "policy_id", "derived_roles", "attributes", "constants"]
+        ACTIONS_FIELD_NUMBER: _ClassVar[int]
+        VARIABLES_FIELD_NUMBER: _ClassVar[int]
+        POLICY_ID_FIELD_NUMBER: _ClassVar[int]
+        DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
+        ATTRIBUTES_FIELD_NUMBER: _ClassVar[int]
+        CONSTANTS_FIELD_NUMBER: _ClassVar[int]
+        actions: _containers.RepeatedScalarFieldContainer[str]
+        variables: _containers.RepeatedCompositeFieldContainer[InspectPoliciesResponse.Variable]
+        policy_id: str
+        derived_roles: _containers.RepeatedCompositeFieldContainer[InspectPoliciesResponse.DerivedRole]
+        attributes: _containers.RepeatedCompositeFieldContainer[InspectPoliciesResponse.Attribute]
+        constants: _containers.RepeatedCompositeFieldContainer[InspectPoliciesResponse.Constant]
+        def __init__(self, actions: _Optional[_Iterable[str]] = ..., variables: _Optional[_Iterable[_Union[InspectPoliciesResponse.Variable, _Mapping]]] = ..., policy_id: _Optional[str] = ..., derived_roles: _Optional[_Iterable[_Union[InspectPoliciesResponse.DerivedRole, _Mapping]]] = ..., attributes: _Optional[_Iterable[_Union[InspectPoliciesResponse.Attribute, _Mapping]]] = ..., constants: _Optional[_Iterable[_Union[InspectPoliciesResponse.Constant, _Mapping]]] = ...) -> None: ...
+    class ResultsEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: InspectPoliciesResponse.Result
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[InspectPoliciesResponse.Result, _Mapping]] = ...) -> None: ...
+    RESULTS_FIELD_NUMBER: _ClassVar[int]
+    results: _containers.MessageMap[str, InspectPoliciesResponse.Result]
+    def __init__(self, results: _Optional[_Mapping[str, InspectPoliciesResponse.Result]] = ...) -> None: ...
 
 class AddOrUpdateSchemaResponse(_message.Message):
     __slots__ = []

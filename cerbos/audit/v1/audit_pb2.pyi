@@ -9,7 +9,7 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class AccessLogEntry(_message.Message):
-    __slots__ = ["call_id", "timestamp", "peer", "metadata", "method", "status_code"]
+    __slots__ = ["call_id", "timestamp", "peer", "metadata", "method", "status_code", "oversized"]
     class MetadataEntry(_message.Message):
         __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -23,16 +23,18 @@ class AccessLogEntry(_message.Message):
     METADATA_FIELD_NUMBER: _ClassVar[int]
     METHOD_FIELD_NUMBER: _ClassVar[int]
     STATUS_CODE_FIELD_NUMBER: _ClassVar[int]
+    OVERSIZED_FIELD_NUMBER: _ClassVar[int]
     call_id: str
     timestamp: _timestamp_pb2.Timestamp
     peer: Peer
     metadata: _containers.MessageMap[str, MetaValues]
     method: str
     status_code: int
-    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., method: _Optional[str] = ..., status_code: _Optional[int] = ...) -> None: ...
+    oversized: bool
+    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., method: _Optional[str] = ..., status_code: _Optional[int] = ..., oversized: bool = ...) -> None: ...
 
 class DecisionLogEntry(_message.Message):
-    __slots__ = ["call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata", "audit_trail"]
+    __slots__ = ["call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata", "audit_trail", "oversized"]
     class CheckResources(_message.Message):
         __slots__ = ["inputs", "outputs", "error"]
         INPUTS_FIELD_NUMBER: _ClassVar[int]
@@ -68,6 +70,7 @@ class DecisionLogEntry(_message.Message):
     PLAN_RESOURCES_FIELD_NUMBER: _ClassVar[int]
     METADATA_FIELD_NUMBER: _ClassVar[int]
     AUDIT_TRAIL_FIELD_NUMBER: _ClassVar[int]
+    OVERSIZED_FIELD_NUMBER: _ClassVar[int]
     call_id: str
     timestamp: _timestamp_pb2.Timestamp
     peer: Peer
@@ -78,7 +81,8 @@ class DecisionLogEntry(_message.Message):
     plan_resources: DecisionLogEntry.PlanResources
     metadata: _containers.MessageMap[str, MetaValues]
     audit_trail: AuditTrail
-    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., audit_trail: _Optional[_Union[AuditTrail, _Mapping]] = ...) -> None: ...
+    oversized: bool
+    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., audit_trail: _Optional[_Union[AuditTrail, _Mapping]] = ..., oversized: bool = ...) -> None: ...
 
 class MetaValues(_message.Message):
     __slots__ = ["values"]

@@ -19,27 +19,27 @@ class CerbosServiceStub(object):
                 '/cerbos.svc.v1.CerbosService/CheckResourceSet',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourceSetRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourceSetResponse.FromString,
-                )
+                _registered_method=True)
         self.CheckResourceBatch = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosService/CheckResourceBatch',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourceBatchRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourceBatchResponse.FromString,
-                )
+                _registered_method=True)
         self.CheckResources = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosService/CheckResources',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourcesRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourcesResponse.FromString,
-                )
+                _registered_method=True)
         self.ServerInfo = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosService/ServerInfo',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ServerInfoRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ServerInfoResponse.FromString,
-                )
+                _registered_method=True)
         self.PlanResources = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosService/PlanResources',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PlanResourcesRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PlanResourcesResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class CerbosServiceServicer(object):
@@ -107,6 +107,7 @@ def add_CerbosServiceServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'cerbos.svc.v1.CerbosService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('cerbos.svc.v1.CerbosService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -124,11 +125,21 @@ class CerbosService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosService/CheckResourceSet',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosService/CheckResourceSet',
             cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourceSetRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourceSetResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def CheckResourceBatch(request,
@@ -141,11 +152,21 @@ class CerbosService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosService/CheckResourceBatch',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosService/CheckResourceBatch',
             cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourceBatchRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourceBatchResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def CheckResources(request,
@@ -158,11 +179,21 @@ class CerbosService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosService/CheckResources',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosService/CheckResources',
             cerbos_dot_request_dot_v1_dot_request__pb2.CheckResourcesRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.CheckResourcesResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ServerInfo(request,
@@ -175,11 +206,21 @@ class CerbosService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosService/ServerInfo',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosService/ServerInfo',
             cerbos_dot_request_dot_v1_dot_request__pb2.ServerInfoRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.ServerInfoResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def PlanResources(request,
@@ -192,11 +233,21 @@ class CerbosService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosService/PlanResources',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosService/PlanResources',
             cerbos_dot_request_dot_v1_dot_request__pb2.PlanResourcesRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.PlanResourcesResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class CerbosAdminServiceStub(object):
@@ -212,63 +263,74 @@ class CerbosAdminServiceStub(object):
                 '/cerbos.svc.v1.CerbosAdminService/AddOrUpdatePolicy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.AddOrUpdatePolicyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.AddOrUpdatePolicyResponse.FromString,
-                )
+                _registered_method=True)
+        self.InspectPolicies = channel.unary_unary(
+                '/cerbos.svc.v1.CerbosAdminService/InspectPolicies',
+                request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.InspectPoliciesRequest.SerializeToString,
+                response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.InspectPoliciesResponse.FromString,
+                _registered_method=True)
         self.ListPolicies = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/ListPolicies',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ListPoliciesRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ListPoliciesResponse.FromString,
-                )
+                _registered_method=True)
         self.GetPolicy = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/GetPolicy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.GetPolicyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.GetPolicyResponse.FromString,
-                )
+                _registered_method=True)
         self.DisablePolicy = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/DisablePolicy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.DisablePolicyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.DisablePolicyResponse.FromString,
-                )
+                _registered_method=True)
         self.EnablePolicy = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/EnablePolicy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.EnablePolicyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.EnablePolicyResponse.FromString,
-                )
+                _registered_method=True)
         self.ListAuditLogEntries = channel.unary_stream(
                 '/cerbos.svc.v1.CerbosAdminService/ListAuditLogEntries',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ListAuditLogEntriesRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ListAuditLogEntriesResponse.FromString,
-                )
+                _registered_method=True)
         self.AddOrUpdateSchema = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/AddOrUpdateSchema',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.AddOrUpdateSchemaRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.AddOrUpdateSchemaResponse.FromString,
-                )
+                _registered_method=True)
         self.ListSchemas = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/ListSchemas',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ListSchemasRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ListSchemasResponse.FromString,
-                )
+                _registered_method=True)
         self.GetSchema = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/GetSchema',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.GetSchemaRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.GetSchemaResponse.FromString,
-                )
+                _registered_method=True)
         self.DeleteSchema = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/DeleteSchema',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.DeleteSchemaRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.DeleteSchemaResponse.FromString,
-                )
+                _registered_method=True)
         self.ReloadStore = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/ReloadStore',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ReloadStoreRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ReloadStoreResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class CerbosAdminServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def AddOrUpdatePolicy(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def InspectPolicies(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -342,6 +404,11 @@ def add_CerbosAdminServiceServicer_to_server(servicer, server):
                     request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.AddOrUpdatePolicyRequest.FromString,
                     response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.AddOrUpdatePolicyResponse.SerializeToString,
             ),
+            'InspectPolicies': grpc.unary_unary_rpc_method_handler(
+                    servicer.InspectPolicies,
+                    request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.InspectPoliciesRequest.FromString,
+                    response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.InspectPoliciesResponse.SerializeToString,
+            ),
             'ListPolicies': grpc.unary_unary_rpc_method_handler(
                     servicer.ListPolicies,
                     request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.ListPoliciesRequest.FromString,
@@ -396,6 +463,7 @@ def add_CerbosAdminServiceServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'cerbos.svc.v1.CerbosAdminService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('cerbos.svc.v1.CerbosAdminService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -413,11 +481,48 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/AddOrUpdatePolicy',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/AddOrUpdatePolicy',
             cerbos_dot_request_dot_v1_dot_request__pb2.AddOrUpdatePolicyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.AddOrUpdatePolicyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def InspectPolicies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/InspectPolicies',
+            cerbos_dot_request_dot_v1_dot_request__pb2.InspectPoliciesRequest.SerializeToString,
+            cerbos_dot_response_dot_v1_dot_response__pb2.InspectPoliciesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ListPolicies(request,
@@ -430,11 +535,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/ListPolicies',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/ListPolicies',
             cerbos_dot_request_dot_v1_dot_request__pb2.ListPoliciesRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.ListPoliciesResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def GetPolicy(request,
@@ -447,11 +562,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/GetPolicy',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/GetPolicy',
             cerbos_dot_request_dot_v1_dot_request__pb2.GetPolicyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.GetPolicyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def DisablePolicy(request,
@@ -464,11 +589,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/DisablePolicy',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/DisablePolicy',
             cerbos_dot_request_dot_v1_dot_request__pb2.DisablePolicyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.DisablePolicyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def EnablePolicy(request,
@@ -481,11 +616,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/EnablePolicy',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/EnablePolicy',
             cerbos_dot_request_dot_v1_dot_request__pb2.EnablePolicyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.EnablePolicyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ListAuditLogEntries(request,
@@ -498,11 +643,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/cerbos.svc.v1.CerbosAdminService/ListAuditLogEntries',
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/ListAuditLogEntries',
             cerbos_dot_request_dot_v1_dot_request__pb2.ListAuditLogEntriesRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.ListAuditLogEntriesResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def AddOrUpdateSchema(request,
@@ -515,11 +670,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/AddOrUpdateSchema',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/AddOrUpdateSchema',
             cerbos_dot_request_dot_v1_dot_request__pb2.AddOrUpdateSchemaRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.AddOrUpdateSchemaResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ListSchemas(request,
@@ -532,11 +697,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/ListSchemas',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/ListSchemas',
             cerbos_dot_request_dot_v1_dot_request__pb2.ListSchemasRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.ListSchemasResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def GetSchema(request,
@@ -549,11 +724,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/GetSchema',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/GetSchema',
             cerbos_dot_request_dot_v1_dot_request__pb2.GetSchemaRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.GetSchemaResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def DeleteSchema(request,
@@ -566,11 +751,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/DeleteSchema',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/DeleteSchema',
             cerbos_dot_request_dot_v1_dot_request__pb2.DeleteSchemaRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.DeleteSchemaResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ReloadStore(request,
@@ -583,11 +778,21 @@ class CerbosAdminService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosAdminService/ReloadStore',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/ReloadStore',
             cerbos_dot_request_dot_v1_dot_request__pb2.ReloadStoreRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.ReloadStoreResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
 
 class CerbosPlaygroundServiceStub(object):
@@ -603,22 +808,22 @@ class CerbosPlaygroundServiceStub(object):
                 '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundValidate',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundValidateRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundValidateResponse.FromString,
-                )
+                _registered_method=True)
         self.PlaygroundTest = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundTest',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundTestRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundTestResponse.FromString,
-                )
+                _registered_method=True)
         self.PlaygroundEvaluate = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundEvaluate',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundEvaluateRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundEvaluateResponse.FromString,
-                )
+                _registered_method=True)
         self.PlaygroundProxy = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundProxy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundProxyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundProxyResponse.FromString,
-                )
+                _registered_method=True)
 
 
 class CerbosPlaygroundServiceServicer(object):
@@ -675,6 +880,7 @@ def add_CerbosPlaygroundServiceServicer_to_server(servicer, server):
     generic_handler = grpc.method_handlers_generic_handler(
             'cerbos.svc.v1.CerbosPlaygroundService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('cerbos.svc.v1.CerbosPlaygroundService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -692,11 +898,21 @@ class CerbosPlaygroundService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundValidate',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundValidate',
             cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundValidateRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundValidateResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def PlaygroundTest(request,
@@ -709,11 +925,21 @@ class CerbosPlaygroundService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundTest',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundTest',
             cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundTestRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundTestResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def PlaygroundEvaluate(request,
@@ -726,11 +952,21 @@ class CerbosPlaygroundService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundEvaluate',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundEvaluate',
             cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundEvaluateRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundEvaluateResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def PlaygroundProxy(request,
@@ -743,8 +979,18 @@ class CerbosPlaygroundService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundProxy',
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosPlaygroundService/PlaygroundProxy',
             cerbos_dot_request_dot_v1_dot_request__pb2.PlaygroundProxyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.PlaygroundProxyResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

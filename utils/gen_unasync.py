@@ -7,8 +7,8 @@ from pathlib import Path
 if __name__ == "__main__":
     rules = [
         unasync.Rule(
-            fromdir="/cerbos/sdk/_async/",
-            todir="/cerbos/sdk/_sync/",
+            fromdir="/src/cerbos/sdk/_async/",
+            todir="/src/cerbos/sdk/_sync/",
             additional_replacements={
                 "AsyncCerbosAdminClient": "CerbosAdminClient",
                 "AsyncCerbosClient": "CerbosClient",
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         )
     ]
 
-    root = Path(__file__).absolute().parent.parent / "cerbos/sdk/_async/**/*.py"
+    root = Path(__file__).absolute().parent.parent / "src/cerbos/sdk/_async/**/*.py"
     files = glob.glob(str(root), recursive=True)
 
     unasync.unasync_files(files, rules)
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # TODO(saml) annoyingly, `unasync` doesn't seem to support replacing object
     # attributes, e.g. `grpc.aio` -> `grpc`, so we do it manually here
     # Consider alternative methods to generate sync code
-    sync_root = Path(__file__).absolute().parent.parent / "cerbos/sdk/_sync/**/*.py"
+    sync_root = Path(__file__).absolute().parent.parent / "src/cerbos/sdk/_sync/**/*.py"
     sync_files = glob.glob(str(sync_root), recursive=True)
     for file_path in sync_files:
         temp_file_path = ""

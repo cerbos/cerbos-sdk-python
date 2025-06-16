@@ -23,7 +23,7 @@ def anyio_backend():
 
 # Only include UDS tests on non-macOS platforms due to Docker limitations
 if platform.system() == "Darwin":
-    _params = [("http")]
+    _params = ["http"]
 else:
     _params = [("http"), ("uds")]
 
@@ -41,7 +41,6 @@ def cerbos_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,
@@ -68,7 +67,6 @@ def cerbos_grpc_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,
@@ -97,7 +95,6 @@ def cerbos_admin_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,

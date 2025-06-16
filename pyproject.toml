@@ -36,6 +36,12 @@ testcontainers = ["testcontainers>=3.5.3"]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pyprojectx]
 pdm = "pdm"
 black = "black"
@@ -63,6 +69,7 @@ extraPaths = ["__pypackages__/3.10/lib/"]
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "INFO"
+pythonpath = "src/"
 
 [tool.isort]
 profile = 'black'
@@ -88,11 +95,11 @@ test = ["pytest>=7.3.1"]
 
 
 [tool.pdm.build]
-includes = ["cerbos/", "google/", "buf/"]
+includes = ["src/cerbos/", "src/google/", "src/buf/"]
 
 [tool.pdm.scripts]
-isort = { cmd = "isort cerbos/sdk tests" }
-black = { cmd = "black cerbos/sdk tests" }
+isort = { cmd = "isort src/cerbos/sdk tests" }
+black = { cmd = "black src/cerbos/sdk tests" }
 format = { composite = ["isort", "black"] }
 unasync = { cmd = "python utils/gen_unasync.py" }
 test = { cmd = "pytest" }

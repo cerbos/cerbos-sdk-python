@@ -55,7 +55,7 @@ def test_operand_decode():
 
     value1 = expr1.expression.operands[0]
     assert isinstance(value1, PlanResourcesValue)
-    assert value1.value == True
+    assert value1.value
 
     expr2 = expr1.expression.operands[1]
     assert isinstance(expr2, PlanResourcesExpression)
@@ -64,7 +64,7 @@ def test_operand_decode():
 
     value2 = expr2.expression.operands[0]
     assert isinstance(value2, PlanResourcesValue)
-    assert value2.value == True
+    assert value2.value
 
     expr3 = expr2.expression.operands[1]
     assert isinstance(expr3, PlanResourcesExpression)

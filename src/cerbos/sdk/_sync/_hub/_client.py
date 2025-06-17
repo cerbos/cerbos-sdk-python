@@ -1,6 +1,5 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
 from typing import Any, Dict, Optional
@@ -56,25 +55,19 @@ class CerbosHubClientBase:
         target = os.getenv("CERBOS_HUB_API_ENDPOINT", "dns:///api.cerbos.cloud")
         if api_endpoint:
             target = api_endpoint
-
         options = [
             ("grpc.enable_retries", 1),
             ("grpc.service_config_disable_resolution", 0),
             ("grpc.service_config", json.dumps(_METHOD_CONFIG)),
         ]
-
         if timeout_secs:
             self._timeout_secs = timeout_secs
-
         channel = grpc.secure_channel(
-            target,
-            credentials=grpc.ssl_channel_credentials(),
-            options=options,
+            target, credentials=grpc.ssl_channel_credentials(), options=options
         )
         auth_interceptor = _AuthInterceptor(
             _AuthClient(channel, self._timeout_secs, credentials)
         )
-
         # We have to create a new channel here because aio.channels have no way to add interceptors after creation.
         self._channel = grpc.secure_channel(
             target,

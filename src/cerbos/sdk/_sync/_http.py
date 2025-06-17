@@ -1,6 +1,5 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-
 import logging
 import ssl
 import uuid
@@ -17,10 +16,9 @@ from cerbos.sdk.model import *
 TLSVerify = Union[str, bool, ssl.SSLContext]
 
 
-class SyncRetryClient(httpx.Client):
+class RetryClient(httpx.Client):
     def __init__(self, request_retries: int = 0, *args, **kwargs):
         self._client = httpx.Client(*args, **kwargs)
-
         fn = self._client.post
         if request_retries:
             # 1+n because 1 == the initial attempt
@@ -34,6 +32,7 @@ class SyncRetryClient(httpx.Client):
     # By coincidence, we only want to allow retries on both of the `post` use cases on the http client, and
     # not any other methods. Therefore, we can conveniently globally wrap the `post` method.
     # We'll need to adapt this if we want more specificity in the future.
+
     def post(self, *args, **kwargs):
         return self._post_fn(*args, **kwargs)
 
@@ -82,23 +81,17 @@ class CerbosClient:
     ):
         self._logger = logger
         self._raise_on_error = raise_on_error
-
         ua = user_agent("cerbos-python", cerbos.__version__)
         headers = {"User-Agent": ua}
-
         if playground_instance is not None:
             headers.update({"playground-instance": playground_instance})
-
         event_hooks = {"response": []}
         if debug:
             event_hooks["response"].append(self._log_response)
-
         if raise_on_error:
             event_hooks["response"].append(self._raise_on_status)
-
         transport_params = {}
         base_url = host
-
         url = urlparse(host)
         if url.scheme == "unix" or url.scheme == "unix+http":
             transport_params["uds"] = url.path
@@ -106,15 +99,12 @@ class CerbosClient:
         elif url.scheme == "unix+https":
             transport_params |= {"uds": url.path, "verify": tls_verify}
             base_url = "https://cerbos.sock"
-
         if connection_retries:
             transport_params["retries"] = connection_retries
-
         transport = None
         if transport_params:
             transport = httpx.HTTPTransport(**transport_params)
-
-        self._http = SyncRetryClient(
+        self._http = RetryClient(
             base_url=base_url,
             headers=headers,
             timeout=timeout_secs,
@@ -127,43 +117,30 @@ class CerbosClient:
     def _raise_on_status(self, response: httpx.Response):
         if response is None:
             return
-
         response.raise_for_status()
 
     def _log_response(self, response: httpx.Response):
         if response is None:
             return
-
         req_prefix = "< "
         res_prefix = "> "
         request = response.request
         output = []
-
         response.read()
-
         output.append(f"{req_prefix}{request.method} {request.url}")
-
         for name, value in request.headers.items():
             output.append(f"{req_prefix}{name}: {value}")
-
         output.append(req_prefix)
-
         if isinstance(request.content, (str, bytes)):
             output.append(f"{req_prefix}{request.content}")
         else:
             output.append("<< Request body is not a string-like type >>")
-
         output.append("")
-
         output.append(f"{res_prefix}{response.status_code} {response.reason_phrase}")
-
         for name, value in response.headers.items():
             output.append(f"{res_prefix}{name}: {value}")
-
         output.append(res_prefix)
-
         output.append(f"{res_prefix}{response.text}")
-
         msg = "\n".join(output)
         self._logger.debug(msg)
 
@@ -188,7 +165,6 @@ class CerbosClient:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
-
         req_id = _get_request_id(request_id)
         req = CheckResourcesRequest(
             request_id=req_id,
@@ -196,7 +172,6 @@ class CerbosClient:
             resources=resources.resources,
             aux_data=aux_data,
         )
-
         # omit keys with `None` values
         resp = self._http.post(
             "/api/check/resources",
@@ -205,13 +180,11 @@ class CerbosClient:
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
-
             return CheckResourcesResponse(
                 request_id=req_id,
                 status_code=resp.status_code,
                 status_msg=APIError.from_dict(resp.json()),
             )
-
         return CheckResourcesResponse.from_dict(resp.json())
 
     def is_allowed(
@@ -237,10 +210,8 @@ class CerbosClient:
             request_id=request_id,
             aux_data=aux_data,
         )
-
         if (r := resp.get_resource(resource.id)) is not None:
             return r.is_allowed(action)
-
         return False
 
     def plan_resources(
@@ -260,7 +231,6 @@ class CerbosClient:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
-
         req_id = _get_request_id(request_id)
         req = PlanResourcesRequest(
             request_id=req_id,
@@ -269,7 +239,6 @@ class CerbosClient:
             resource=resource,
             aux_data=aux_data,
         )
-
         resp = self._http.post(
             "/api/plan/resources",
             json={k: v for k, v in req.to_dict().items() if v is not None},
@@ -277,7 +246,6 @@ class CerbosClient:
         if resp.is_error:
             if self._raise_on_error:
                 raise CerbosRequestException(APIError.from_dict(resp.json()))
-
             return PlanResourcesResponse(
                 request_id=req_id,
                 status_code=resp.status_code,
@@ -286,12 +254,10 @@ class CerbosClient:
                 resource_kind=resource.kind,
                 policy_version=resource.policy_version,
             )
-
         return PlanResourcesResponse.from_dict(resp.json())
 
     def is_healthy(self, svc: Optional[str] = None) -> bool:
         """Checks the health of the Cerbos endpoint"""
-
         params = None if svc is None else {"service": svc}
         try:
             resp = self._http.get("/_cerbos/health", params=params)
@@ -303,7 +269,6 @@ class CerbosClient:
         self, principal: Principal, aux_data: Optional[AuxData] = None
     ) -> "PrincipalContext":
         """Fixes the principal for subsequent requests"""
-
         return PrincipalContext(self, principal, aux_data)
 
     def close(self):
@@ -336,7 +301,6 @@ class PrincipalContext:
             resources (ResourceList): list of resources to check permissions for
             request_id (None|str): request ID for the request (default None)
         """
-
         return self._client.check_resources(
             principal=self._principal,
             resources=resources,
@@ -359,7 +323,6 @@ class PrincipalContext:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
-
         return self._client.plan_resources(
             action=action,
             principal=self._principal,
@@ -378,7 +341,6 @@ class PrincipalContext:
             resource (Resource): resource on which the action is being performed
             request_id (None|str): request ID for the request (default None)
         """
-
         return self._client.is_allowed(
             action=action,
             principal=self._principal,
@@ -391,5 +353,4 @@ class PrincipalContext:
 def _get_request_id(request_id: Optional[str]) -> str:
     if request_id is None:
         return str(uuid.uuid4())
-
     return request_id

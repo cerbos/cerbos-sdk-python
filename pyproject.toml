@@ -100,8 +100,8 @@ includes = ["src/cerbos/", "src/google/", "src/buf/"]
 
 [tool.pdm.scripts]
 isort = { cmd = "isort src/cerbos/sdk tests" }
-ruff_format = { cmd = "ruff format src/cerbos/sdk tests" }
-lint = { cmd = "ruff check --fix src/cerbos/sdk tests" }
+ruff_format = { cmd = "ruff format src/cerbos/sdk tests utils" }
+lint = { cmd = "ruff check --fix src/cerbos/sdk tests utils" }
 format = { composite = ["isort", "ruff_format"] }
 unasync = { cmd = "python utils/gen_unasync.py" }
 test = { cmd = "pytest" }
@@ -120,4 +120,5 @@ tools = [
     "pyyaml>=6.0.1",
     "ruff>=0.11.13",
     "jedi-language-server>=0.45.1",
+    "ast-comments>=1.2.2",
 ]

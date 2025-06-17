@@ -1,10 +1,9 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-
 import asyncio
 import os
 from datetime import datetime, timedelta
-from typing import Any, Callable, NamedTuple, Optional, Union
+from typing import Optional
 
 import grpc
 from google.rpc import code_pb2
@@ -40,10 +39,8 @@ class _AuthClient:
         if credentials:
             if credentials.client_id != "":
                 self._client_id = credentials.client_id
-
             if credentials.client_secret != "":
                 self._client_secret = credentials.client_secret
-
         self._client = apikey_pb2_grpc.ApiKeyServiceStub(channel)
         self._lock = asyncio.Lock()
         self._timeout_secs = timeout_secs
@@ -52,10 +49,8 @@ class _AuthClient:
         with self._lock:
             if self._invalid_credentials:
                 raise InvalidCredentialsError("Invalid credentials")
-
             if self._token and self._expiry > datetime.now():
                 return self._token
-
             req = apikey_pb2.IssueAccessTokenRequest(
                 client_id=self._client_id, client_secret=self._client_secret
             )
@@ -67,7 +62,6 @@ class _AuthClient:
                 expires_in = resp.expires_in.ToTimedelta()
                 if expires_in > self._EARLY_EXPIRY:
                     expires_in = expires_in - self._EARLY_EXPIRY
-
                 self._expiry = datetime.now() + expires_in
                 return self._token
             except grpc.RpcError as rpc_error:
@@ -75,94 +69,4 @@ class _AuthClient:
                 if status and status.code == code_pb2.UNAUTHENTICATED:
                     self._invalid_credentials = True
                     raise InvalidCredentialsError("Invalid credentials")
-
                 raise rpc_error
-
-
-class ClientCallDetails(NamedTuple):
-    method: str
-    timeout: Optional[float]
-    metadata: Optional[grpc.Metadata]
-    credentials: Optional[grpc.CallCredentials]
-    wait_for_ready: Optional[bool]
-
-
-class ClientCallDetailsWrapper(ClientCallDetails, grpc.ClientCallDetails):
-    pass
-
-
-class _AuthInterceptor(
-    grpc.UnaryUnaryClientInterceptor,
-    grpc.UnaryStreamClientInterceptor,
-    grpc.StreamUnaryClientInterceptor,
-    grpc.StreamStreamClientInterceptor,
-):
-    _auth_client: _AuthClient
-
-    def __init__(
-        self,
-        auth_client: _AuthClient,
-    ):
-        self._auth_client = auth_client
-
-    def _intercept(
-        self,
-        continuation: Callable[..., Any],
-        client_call_details: grpc.ClientCallDetails,
-        request: Any,
-    ):
-        token = self._auth_client.authenticate()
-        metadata = client_call_details.metadata or grpc.Metadata()
-        metadata.add("x-cerbos-auth", token)
-        new_client_call_details = ClientCallDetailsWrapper(
-            client_call_details.method,
-            client_call_details.timeout,
-            metadata,
-            client_call_details.credentials,
-            client_call_details.wait_for_ready,
-        )
-        return continuation(new_client_call_details, request)
-
-    def intercept_unary_unary(
-        self,
-        continuation: Callable[
-            [grpc.ClientCallDetails, grpc._typing.RequestType],
-            grpc.UnaryUnaryCall,
-        ],
-        client_call_details: grpc.ClientCallDetails,
-        request: grpc._typing.RequestType,
-    ) -> Union[grpc.UnaryUnaryCall, object]:
-        return self._intercept(continuation, client_call_details, request)
-
-    def intercept_unary_stream(
-        self,
-        continuation: Callable[
-            [grpc.ClientCallDetails, grpc._typing.RequestType],
-            grpc.UnaryStreamCall,
-        ],
-        client_call_details: grpc.ClientCallDetails,
-        request: grpc._typing.RequestType,
-    ) -> Union[grpc._typing.ResponseIterableType, grpc.UnaryStreamCall]:
-        return self._intercept(continuation, client_call_details, request)
-
-    def intercept_stream_unary(
-        self,
-        continuation: Callable[
-            [grpc.ClientCallDetails, grpc._typing.RequestType],
-            grpc.StreamUnaryCall,
-        ],
-        client_call_details: grpc.ClientCallDetails,
-        request_iterator: grpc._typing.RequestIterableType,
-    ) -> grpc._call.StreamUnaryCall:
-        return self._intercept(continuation, client_call_details, request_iterator)
-
-    def intercept_stream_stream(
-        self,
-        continuation: Callable[
-            [grpc.ClientCallDetails, grpc._typing.RequestType],
-            grpc.StreamStreamCall,
-        ],
-        client_call_details: grpc.ClientCallDetails,
-        request_iterator: grpc._typing.RequestIterableType,
-    ) -> Union[grpc._typing.ResponseIterableType, grpc.StreamStreamCall]:
-        return self._intercept(continuation, client_call_details, request_iterator)

@@ -1,6 +1,5 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-
 import json
 import os
 import ssl
@@ -20,15 +19,14 @@ from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
 from cerbos.svc.v1 import svc_pb2_grpc
 
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
-
 _default_paths = ssl.get_default_verify_paths()
 TLSVerify = Union[str, bool]
-
-
 # TODO(saml) type errors generated from passing incorrect types to proto generated code currently
 # aren't great, e.g. passing the incorrect Principal type to CheckResourcesRequest results in:
 #     "Message must be initialized with a dict: cerbos.request.v1.CheckResourcesRequest".
 # Investigate more useful TypeError returns.
+
+
 def handle_errors(method):
     @wraps(method)
     def wrapper(*args, **kwargs):
@@ -57,7 +55,6 @@ def get_cert(c: TLSVerify) -> Union[bytes, None]:
         raise CerbosTLSError(f"Error reading certificate from file: {c}")
     except Exception:
         raise CerbosTLSError("Error retrieving certificate")
-
     raise TypeError("TLSVerify should be a string or boolean")
 
 
@@ -73,7 +70,7 @@ class PlaygroundInstanceCredentials(grpc.AuthMetadataPlugin):
         callback(((_PLAYGROUND_INSTANCE_KEY, self._playground_instance),), None)
 
 
-class SyncClientBase:
+class ClientBase:
     _channel: grpc.Channel
 
     def __init__(
@@ -87,25 +84,19 @@ class SyncClientBase:
         wait_for_ready: bool = False,
         channel_options: Union[Dict[str, Any], None] = None,
     ):
-        if timeout_secs and not isinstance(timeout_secs, (int, float)):
+        if timeout_secs and (not isinstance(timeout_secs, (int, float))):
             raise TypeError("timeout_secs must be a number type")
-
-        if request_retries and not isinstance(request_retries, (int, float)):
+        if request_retries and (not isinstance(request_retries, (int, float))):
             raise TypeError(
                 "request_retries must be a number type. anything below 2 is treated as 0 (disabled)"
             )
-
         if request_retries < 2:
             request_retries = 0
-
         method_config: Dict[str, Any] = {}
-
         if methods:
             method_config["name"] = methods
-
         if timeout_secs:
             method_config["timeout"] = f"{timeout_secs}s"
-
         if request_retries:
             method_config["retryPolicy"] = {
                 "maxAttempts": request_retries,
@@ -114,24 +105,14 @@ class SyncClientBase:
                 "backoffMultiplier": 2,
                 "retryableStatusCodes": ["UNAVAILABLE"],
             }
-
         if wait_for_ready:
             method_config["waitForReady"] = wait_for_ready
-
-        options = {
-            "grpc.service_config": json.dumps({"methodConfig": [method_config]}),
-        }
-
+        options = {"grpc.service_config": json.dumps({"methodConfig": [method_config]})}
         if channel_options:
             options = {**options, **channel_options}
-
         opts = [(k, v) for k, v in options.items()]
         if tls_verify and creds:
-            self._channel = grpc.secure_channel(
-                host,
-                credentials=creds,
-                options=opts,
-            )
+            self._channel = grpc.secure_channel(host, credentials=creds, options=opts)
         else:
             self._channel = grpc.insecure_channel(host, options=opts)
 
@@ -145,7 +126,7 @@ class SyncClientBase:
         self._channel.close()
 
 
-class CerbosClient(SyncClientBase):
+class CerbosClient(ClientBase):
     """Client for accessing the Cerbos API
 
     Args:
@@ -183,7 +164,6 @@ class CerbosClient(SyncClientBase):
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
-
         if playground_instance:
             # insecure creds required for playground without TLS
             if not creds:
@@ -192,12 +172,10 @@ class CerbosClient(SyncClientBase):
                 PlaygroundInstanceCredentials(playground_instance)
             )
             creds = grpc.composite_channel_credentials(creds, call_credentials)
-
         methods = [
             {"service": "svc.CerbosService", "method": "CheckResources"},
             {"service": "svc.CerbosService", "method": "PlanResources"},
         ]
-
         super().__init__(
             host,
             creds,
@@ -208,7 +186,6 @@ class CerbosClient(SyncClientBase):
             wait_for_ready,
             channel_options,
         )
-
         self._client = svc_pb2_grpc.CerbosServiceStub(self._channel)
 
     @handle_errors
@@ -227,7 +204,6 @@ class CerbosClient(SyncClientBase):
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-
         req_id = _get_request_id(request_id)
         req = request_pb2.CheckResourcesRequest(
             request_id=req_id,
@@ -235,7 +211,6 @@ class CerbosClient(SyncClientBase):
             resources=resources,
             aux_data=aux_data,
         )
-
         return self._client.CheckResources(req)
 
     def is_allowed(
@@ -267,7 +242,6 @@ class CerbosClient(SyncClientBase):
         )
         if (res := get_resource(resp, resource.id)) is not None:
             return is_allowed(res, action)
-
         return False
 
     @handle_errors
@@ -288,7 +262,6 @@ class CerbosClient(SyncClientBase):
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-
         req_id = _get_request_id(request_id)
         req = request_pb2.PlanResourcesRequest(
             request_id=req_id,
@@ -297,12 +270,9 @@ class CerbosClient(SyncClientBase):
             resource=resource,
             aux_data=aux_data,
         )
-
         return self._client.PlanResources(req)
 
-    def server_info(
-        self,
-    ) -> response_pb2.ServerInfoResponse:
+    def server_info(self) -> response_pb2.ServerInfoResponse:
         """Retrieve server info for the running PDP"""
         return self._client.ServerInfo(request_pb2.ServerInfoRequest())
 
@@ -312,12 +282,7 @@ class CerbosClient(SyncClientBase):
         aux_data: Union[request_pb2.AuxData, None] = None,
     ) -> "PrincipalContext":
         """Fixes the principal for subsequent requests"""
-
-        return PrincipalContext(
-            client=self,
-            principal=principal,
-            aux_data=aux_data,
-        )
+        return PrincipalContext(client=self, principal=principal, aux_data=aux_data)
 
 
 class PrincipalContext:
@@ -348,7 +313,6 @@ class PrincipalContext:
             resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
             request_id (None|str): request ID for the request (default None)
         """
-
         return self._client.check_resources(
             principal=self._principal,
             resources=resources,
@@ -371,7 +335,6 @@ class PrincipalContext:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-
         return self._client.plan_resources(
             action=action,
             principal=self._principal,
@@ -393,7 +356,6 @@ class PrincipalContext:
             resource (engine_pb2.Resource): resource on which the action is being performed
             request_id (None|str): request ID for the request (default None)
         """
-
         return self._client.is_allowed(
             action=action,
             principal=self._principal,
@@ -406,11 +368,10 @@ class PrincipalContext:
 def _get_request_id(request_id: Union[str, None]) -> str:
     if request_id is None:
         return str(uuid.uuid4())
-
     return request_id
 
 
-class CerbosAdminClient(SyncClientBase):
+class CerbosAdminClient(ClientBase):
     """Client for accessing the Cerbos Admin API
 
     Args:
@@ -447,12 +408,11 @@ class CerbosAdminClient(SyncClientBase):
     ):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
-
         creds: Optional[grpc.ChannelCredentials] = None
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
-
+        # {"service": "svc.CerbosAdminService", "method": "AuditLogs"},
         methods = [
             {"service": "svc.CerbosAdminService", "method": "AddOrUpdatePolicy"},
             {"service": "svc.CerbosAdminService", "method": "ListPolicies"},
@@ -464,9 +424,7 @@ class CerbosAdminClient(SyncClientBase):
             {"service": "svc.CerbosAdminService", "method": "ListSchemas"},
             {"service": "svc.CerbosAdminService", "method": "GetSchema"},
             {"service": "svc.CerbosAdminService", "method": "ReloadStore"},
-            # {"service": "svc.CerbosAdminService", "method": "AuditLogs"},
         ]
-
         super().__init__(
             host,
             creds,
@@ -477,7 +435,6 @@ class CerbosAdminClient(SyncClientBase):
             wait_for_ready,
             channel_options,
         )
-
         self._client = svc_pb2_grpc.CerbosAdminServiceStub(self._channel)
 
     def _call(self, method, *args, **kwargs):
@@ -580,9 +537,7 @@ class CerbosAdminClient(SyncClientBase):
         return self._call(self._client.DeleteSchema, req)
 
     @handle_errors
-    def list_schemas(
-        self,
-    ) -> response_pb2.ListSchemasResponse:
+    def list_schemas(self) -> response_pb2.ListSchemasResponse:
         """List schemas"""
         req = request_pb2.ListSchemasRequest()
         return self._call(self._client.ListSchemas, req)
@@ -607,45 +562,42 @@ class CerbosAdminClient(SyncClientBase):
         req = request_pb2.ReloadStoreRequest(wait=wait)
         return self._call(self._client.ReloadStore, req)
 
-    # TODO(saml) basic auth is handled differently with the streaming API, figure out how and re-enable
-    # @handle_errors
-    # async def list_audit_logs(
-    #     self,
-    #     start_time: Union[datetime, None] = None,
-    #     end_time: Union[datetime, None] = None,
-    #     lookup: str = "",
-    #     tail: int = 0,
-    #     kind: request_pb2.ListAuditLogEntriesRequest.Kind = request_pb2.ListAuditLogEntriesRequest.KIND_ACCESS,
-    # ) -> response_pb2.CheckResourcesResponse:
-    #     """Check permissions for a list of resources
 
-    #     Args:
-    #         resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
-    #         request_id (None|str): request ID for the request (default None)
-    #     """
-    #     req = request_pb2.ListAuditLogEntriesRequest(
-    #         kind=kind,
-    #     )
-
-    #     if tail > 0:
-    #         # req.tail = struct_pb2.Value(number_value=tail)
-    #         req.tail = tail
-    #     elif start_time:
-    #         if not end_time:
-    #             end_time = datetime.now()
-    #         req.between = request_pb2.ListAuditLogEntriesRequest.TimeRange(
-    #             start=timestamp_pb2.Timestamp(seconds=start_time.timestamp()),
-    #             end=timestamp_pb2.Timestamp(seconds=end_time),
-    #         )
-    #     elif lookup != "":
-    #         req.lookup = lookup
-
-    #     # UnaryStreamCall can't be used in 'await' expression
-    #     log_stream = self._client.ListAuditLogEntries(req)
-    #     while True:
-    #         resp = await log_stream.read()
-    #         if resp == grpc.EOF:
-    #             break
-    #         print(resp.message)
-
-    #     return self._client.ListAuditLogEntries(req)
+# TODO(saml) basic auth is handled differently with the streaming API, figure out how and re-enable
+# @handle_errors
+# async def list_audit_logs(
+#     self,
+#     start_time: Union[datetime, None] = None,
+#     end_time: Union[datetime, None] = None,
+#     lookup: str = "",
+#     tail: int = 0,
+#     kind: request_pb2.ListAuditLogEntriesRequest.Kind = request_pb2.ListAuditLogEntriesRequest.KIND_ACCESS,
+# ) -> response_pb2.CheckResourcesResponse:
+#     """Check permissions for a list of resources
+#     Args:
+#         resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
+#         request_id (None|str): request ID for the request (default None)
+#     """
+#     req = request_pb2.ListAuditLogEntriesRequest(
+#         kind=kind,
+#     )
+#     if tail > 0:
+#         # req.tail = struct_pb2.Value(number_value=tail)
+#         req.tail = tail
+#     elif start_time:
+#         if not end_time:
+#             end_time = datetime.now()
+#         req.between = request_pb2.ListAuditLogEntriesRequest.TimeRange(
+#             start=timestamp_pb2.Timestamp(seconds=start_time.timestamp()),
+#             end=timestamp_pb2.Timestamp(seconds=end_time),
+#         )
+#     elif lookup != "":
+#         req.lookup = lookup
+#     # UnaryStreamCall can't be used in 'await' expression
+#     log_stream = self._client.ListAuditLogEntries(req)
+#     while True:
+#         resp = await log_stream.read()
+#         if resp == grpc.EOF:
+#             break
+#         print(resp.message)
+#     return self._client.ListAuditLogEntries(req)

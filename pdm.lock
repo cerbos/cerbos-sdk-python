@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:ee4444c1fe499f5da93f34f9b10c353baa50c94b5c8685d7d2bc8f81d7240037"
+content_hash = "sha256:500d192b0fa4dcdb89cebb757d2c77aa6155c08e38406939db6e054befb4b063"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -43,6 +43,16 @@ summary = "Bash tab completion for argparse"
 files = [
     {file = "argcomplete-3.5.3-py3-none-any.whl", hash = "sha256:2ab2c4a215c59fd6caaff41a869480a23e8f6a5f910b266c1808037f4e375b61"},
     {file = "argcomplete-3.5.3.tar.gz", hash = "sha256:c12bf50eded8aebb298c7b7da7a5ff3ee24dffd9f5281867dfe1424b58c55392"},
+]
+
+[[package]]
+name = "ast-comments"
+version = "1.2.2"
+requires_python = "<4.0,>=3.8"
+summary = ""
+files = [
+    {file = "ast_comments-1.2.2-py3-none-any.whl", hash = "sha256:6468c6b91d971b3fca2e3cd6f7a6d52e7385b6e4d25809444372960c74a8cbc2"},
+    {file = "ast_comments-1.2.2.tar.gz", hash = "sha256:04f86e0a8010569ea279d470b4dcb86f0913a8a39bd80e0fe358e11aa5bfa8d6"},
 ]
 
 [[package]]

@@ -2,6 +2,7 @@
 # MIT Licence: https://github.com/python-trio/unasync/blob/3d7a3695099f8e5772631025c0b32909527437fb/LICENSE.MIT
 
 import ast
+import ast_comments
 import glob
 import shutil
 import tempfile
@@ -33,9 +34,12 @@ _ASYNC_TO_SYNC = {
 class Rule:
     """A single set of rules for 'unasync'ing file(s)"""
 
-    def __init__(self, fromdir, todir, additional_replacements=None):
+    def __init__(
+        self, fromdir, todir, additional_replacements=None, ignore_classes=None
+    ):
         self.fromdir = fromdir.replace("/", os.sep)
         self.todir = todir.replace("/", os.sep)
+        self.ignore_classes = ignore_classes
 
         # Add any additional user-defined token replacements to our list.
         self.token_replacements = _ASYNC_TO_SYNC.copy()
@@ -74,27 +78,13 @@ class Rule:
                 f.write(result.encode(encoding))
 
     def _preprocess(self, filename, contents):
-        tokens = tokenize_rt.src_to_tokens(contents)
-        ignored_lines = set()
-        for token in tokens:
-            if token.name == "COMMENT" and "unasync:ignore" in token.src:
-                ignored_lines.add(token.line)
+        tree = ast_comments.parse(contents, filename=filename)
+        transformer = _TransformAST(self.ignore_classes)
+        transformer.visit(tree)
+        tree = ast.fix_missing_locations(tree)
 
-        if len(ignored_lines) > 0:
-            to_delete = set()
-            tree = ast.parse(contents, filename=filename)
-            for node in ast.walk(tree):
-                if hasattr(node, "lineno") and getattr(node, "lineno") in ignored_lines:
-                    for lineno in range(
-                        getattr(node, "lineno"), getattr(node, "end_lineno") + 1
-                    ):
-                        to_delete.add(lineno)
-
-            for i, token in tokenize_rt.reversed_enumerate(tokens):
-                if token.line in to_delete:
-                    tokens.pop(i)
-
-        return tokens
+        transformed_contents = ast_comments.unparse(tree)
+        return tokenize_rt.src_to_tokens(transformed_contents)
 
     def _unasync_tokens(self, tokens):
         skip_next = False
@@ -198,26 +188,33 @@ def cmdclass_build_py(rules=(_DEFAULT_RULE,)):
     return _custom_build_py
 
 
+class _TransformAST(ast.NodeTransformer):
+    def __init__(self, ignore_classes):
+        super(_TransformAST, self).__init__()
+        self.ignore_classes = ignore_classes
+
+    def visit_ClassDef(self, node):
+        if self.ignore_classes and node.name in self.ignore_classes:
+            self.generic_visit(node)
+            return None
+
+        return node
+
+
 if __name__ == "__main__":
     rules = [
         Rule(
             fromdir="/src/cerbos/sdk/_async/",
             todir="/src/cerbos/sdk/_sync/",
             additional_replacements={
-                "AsyncCerbosAdminClient": "CerbosAdminClient",
-                "AsyncCerbosClient": "CerbosClient",
-                "AsyncPrincipalContext": "PrincipalContext",
-                "AsyncClient": "Client",
-                "AsyncHTTPTransport": "HTTPTransport",
-                "AsyncCerbosHubClientBase": "CerbosHubClientBase",
-                "AsyncCerbosHubStoreClient": "CerbosHubStoreClient",
-                "_AsyncAuthInterceptor": "_AuthInterceptor",
-                "_AsyncAuthClient": "_AuthClient",
-                "_AsyncClientCallDetails": "ClientCallDetails",
-                "_AsyncClientCallDetailsWrapper": "ClientCallDetailsWrapper",
                 "aread": "read",
                 "aclose": "close",
                 "AioRpcError": "RpcError",
+            },
+            ignore_classes={
+                "_AsyncClientCallDetails",
+                "_AsyncClientCallDetailsWrapper",
+                "_AsyncAuthInterceptor",
             },
         )
     ]

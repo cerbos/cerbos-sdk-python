@@ -1,6 +1,5 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-
 from functools import wraps
 from typing import Optional
 
@@ -32,7 +31,6 @@ def handle_store_errors(method):
             status = rpc_status.from_call(e)
             if status is None:
                 raise UnknownError(e)
-
             if status.code == code_pb2.ABORTED:
                 raise AbortedError(e)
             elif status.code == code_pb2.ALREADY_EXISTS:
@@ -41,7 +39,6 @@ def handle_store_errors(method):
                         info = store_pb2.ErrDetailOperationDiscarded()
                         detail.Unpack(info)
                         raise OperationDiscardedError(e, info)
-
                 raise OperationDiscardedError(e)
 
     return wrapper

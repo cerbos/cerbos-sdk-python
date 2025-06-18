@@ -10,7 +10,7 @@ from grpc_status import rpc_status
 
 from cerbos.cloud.store.v1 import store_pb2, store_pb2_grpc
 from cerbos.sdk._async._hub._auth import InvalidCredentialsError
-from cerbos.sdk._async._hub._client import AsyncCerbosHubClientBase
+from cerbos.sdk._async._hub._client import _AsyncCerbosHubClientBase
 from cerbos.sdk.hub.model import Credentials
 from cerbos.sdk.hub.store_model import (
     AbortedError,
@@ -47,7 +47,7 @@ def handle_store_errors(method):
     return wrapper
 
 
-class AsyncCerbosHubStoreClient(AsyncCerbosHubClientBase):
+class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
     _store_stub: store_pb2_grpc.CerbosStoreServiceStub
 
     def __init__(

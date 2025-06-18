@@ -2,25 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 from functools import wraps
 from typing import Optional
-
 import grpc
 from google.rpc import code_pb2
 from grpc_status import rpc_status
-
 from cerbos.cloud.store.v1 import store_pb2, store_pb2_grpc
-from cerbos.sdk._async._hub._auth import InvalidCredentialsError
-from cerbos.sdk._async._hub._client import CerbosHubClientBase
+from cerbos.sdk._sync._hub._auth import InvalidCredentialsError
+from cerbos.sdk._sync._hub._client import _CerbosHubClientBase
 from cerbos.sdk.hub.model import Credentials
-from cerbos.sdk.hub.store_model import (
-    AbortedError,
-    AuthenticationFailedError,
-    ListFilesResponse,
-    OperationDiscardedError,
-    UnknownError,
-)
-
+from cerbos.sdk.hub.store_model import AbortedError, AuthenticationFailedError, ListFilesResponse, OperationDiscardedError, UnknownError
 
 def handle_store_errors(method):
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         try:
@@ -40,22 +32,13 @@ def handle_store_errors(method):
                         detail.Unpack(info)
                         raise OperationDiscardedError(e, info)
                 raise OperationDiscardedError(e)
-
     return wrapper
 
-
-class CerbosHubStoreClient(CerbosHubClientBase):
+class CerbosHubStoreClient(_CerbosHubClientBase):
     _store_stub: store_pb2_grpc.CerbosStoreServiceStub
 
-    def __init__(
-        self,
-        credentials: Optional[Credentials] = None,
-        api_endpoint: Optional[str] = None,
-        timeout_secs: Optional[float] = None,
-    ):
-        super(CerbosHubStoreClient, self).__init__(
-            credentials, api_endpoint, timeout_secs
-        )
+    def __init__(self, credentials: Optional[Credentials]=None, api_endpoint: Optional[str]=None, timeout_secs: Optional[float]=None):
+        super(CerbosHubStoreClient, self).__init__(credentials, api_endpoint, timeout_secs)
         self._store_stub = store_pb2_grpc.CerbosStoreServiceStub(self._channel)
 
     @handle_store_errors

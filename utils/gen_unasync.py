@@ -4,8 +4,6 @@
 import ast
 import ast_comments
 import glob
-import shutil
-import tempfile
 from pathlib import Path
 import collections
 import os
@@ -28,7 +26,22 @@ _ASYNC_TO_SYNC = {
     # is 'raise StopAsyncIteration' -> 'return' since we want to use unasynced
     # code in Python 3.7+
     "StopAsyncIteration": "StopIteration",
+    "asyncio": "threading",
+    "_async": "_sync",
 }
+
+
+class _TransformAST(ast.NodeTransformer):
+    def __init__(self, ignore_classes):
+        super(_TransformAST, self).__init__()
+        self.ignore_classes = ignore_classes
+
+    def visit_ClassDef(self, node):
+        if self.ignore_classes and node.name in self.ignore_classes:
+            self.generic_visit(node)
+            return None
+
+        return node
 
 
 class Rule:
@@ -80,9 +93,7 @@ class Rule:
     def _preprocess(self, filename, contents):
         tree = ast_comments.parse(contents, filename=filename)
         transformer = _TransformAST(self.ignore_classes)
-        transformer.visit(tree)
-        tree = ast.fix_missing_locations(tree)
-
+        tree = transformer.visit(tree)
         transformed_contents = ast_comments.unparse(tree)
         return tokenize_rt.src_to_tokens(transformed_contents)
 
@@ -93,9 +104,10 @@ class Rule:
                 skip_next = False
                 continue
 
-            if token.src in ["async", "await"]:
+            if token.src in ["async", "await", "aio"]:
                 # When removing async or await, we want to skip the following whitespace
                 # so that `print(await stuff)` becomes `print(stuff)` and not `print( stuff)`
+                # When removing aio, we want to skip the next period so that grpc.aio.Channel becomes grpc.Channel.
                 skip_next = True
             else:
                 if token.name == "NAME":
@@ -188,19 +200,6 @@ def cmdclass_build_py(rules=(_DEFAULT_RULE,)):
     return _custom_build_py
 
 
-class _TransformAST(ast.NodeTransformer):
-    def __init__(self, ignore_classes):
-        super(_TransformAST, self).__init__()
-        self.ignore_classes = ignore_classes
-
-    def visit_ClassDef(self, node):
-        if self.ignore_classes and node.name in self.ignore_classes:
-            self.generic_visit(node)
-            return None
-
-        return node
-
-
 if __name__ == "__main__":
     rules = [
         Rule(
@@ -212,9 +211,11 @@ if __name__ == "__main__":
                 "AioRpcError": "RpcError",
             },
             ignore_classes={
+                "_AsyncAuthInterceptor",
+                "_AsyncCerbosHubClientBase",
                 "_AsyncClientCallDetails",
                 "_AsyncClientCallDetailsWrapper",
-                "_AsyncAuthInterceptor",
+                "_AuthClient",
             },
         )
     ]
@@ -223,18 +224,3 @@ if __name__ == "__main__":
     files = glob.glob(str(root), recursive=True)
 
     unasync_files(files, rules)
-
-    # TODO(saml) annoyingly, `unasync` doesn't seem to support replacing object
-    # attributes, e.g. `grpc.aio` -> `grpc`, so we do it manually here
-    # Consider alternative methods to generate sync code
-    sync_root = Path(__file__).absolute().parent.parent / "src/cerbos/sdk/_sync/**/*.py"
-    sync_files = glob.glob(str(sync_root), recursive=True)
-    for file_path in sync_files:
-        temp_file_path = ""
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
-            temp_file_name = temp_file.name
-            with open(file_path, "r") as original_file:
-                for line in original_file:
-                    temp_file.write(line.replace("grpc.aio", "grpc"))
-
-        shutil.move(temp_file.name, file_path)

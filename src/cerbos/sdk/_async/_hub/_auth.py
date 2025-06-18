@@ -4,7 +4,7 @@
 import asyncio
 import os
 from datetime import datetime, timedelta
-from typing import Any, Callable, NamedTuple, Optional, Union
+from typing import Any, Callable, List, NamedTuple, Optional, Union
 
 import grpc
 from google.rpc import code_pb2
@@ -23,9 +23,9 @@ class _AsyncAuthClient:
     _client: apikey_pb2_grpc.ApiKeyServiceStub
     _client_id: str
     _client_secret: str
-    _lock: asyncio.Lock
     _timeout_secs: float
     _expiry: datetime
+    _lock: asyncio.Lock
     _token: Optional[str] = None
     _invalid_credentials: bool = False
 
@@ -45,8 +45,8 @@ class _AsyncAuthClient:
                 self._client_secret = credentials.client_secret
 
         self._client = apikey_pb2_grpc.ApiKeyServiceStub(channel)
-        self._lock = asyncio.Lock()
         self._timeout_secs = timeout_secs
+        self._lock = asyncio.Lock()
 
     async def authenticate(self) -> str:
         async with self._lock:
@@ -172,3 +172,89 @@ class _AsyncAuthInterceptor(
         return await self._intercept(
             continuation, client_call_details, request_iterator
         )
+
+
+# grpc.aio classes are different from the sync version so we need a second definition here.
+
+
+class _AuthClient:
+    pass
+
+
+class _ClientCallDetails(NamedTuple):
+    method: str
+    timeout: Optional[float]
+    metadata: Optional[List]
+    credentials: Optional[grpc.CallCredentials]
+    wait_for_ready: Optional[bool]
+    compression: Optional[grpc.Compression]
+
+
+class _ClientCallDetailsWrapper(_ClientCallDetails, grpc.ClientCallDetails):
+    pass
+
+
+class _AuthInterceptor(
+    grpc.UnaryUnaryClientInterceptor,
+    grpc.UnaryStreamClientInterceptor,
+    grpc.StreamUnaryClientInterceptor,
+    grpc.StreamStreamClientInterceptor,
+):
+    _auth_client: _AuthClient
+
+    def __init__(
+        self,
+        auth_client: _AuthClient,
+    ):
+        self._auth_client = auth_client
+
+    async def _intercept(
+        self,
+        continuation: Callable[..., Any],
+        client_call_details: grpc.ClientCallDetails,
+        request: Any,
+    ):
+        token = await self._auth_client.authenticate()
+        metadata = client_call_details.metadata or []
+        metadata.append(("x-cerbos-auth", token))
+        new_client_call_details = _ClientCallDetailsWrapper(
+            client_call_details.method,
+            client_call_details.timeout,
+            metadata,
+            client_call_details.credentials,
+            client_call_details.wait_for_ready,
+            client_call_details.compression,
+        )
+        return continuation(new_client_call_details, request)
+
+    def intercept_unary_unary(
+        self,
+        continuation,
+        client_call_details,
+        request,
+    ):
+        return self._intercept(continuation, client_call_details, request)
+
+    def intercept_unary_stream(
+        self,
+        continuation,
+        client_call_details,
+        request,
+    ):
+        return self._intercept(continuation, client_call_details, request)
+
+    def intercept_stream_unary(
+        self,
+        continuation,
+        client_call_details,
+        request_iterator,
+    ):
+        return self._intercept(continuation, client_call_details, request_iterator)
+
+    def intercept_stream_stream(
+        self,
+        continuation,
+        client_call_details,
+        request_iterator,
+    ):
+        return self._intercept(continuation, client_call_details, request_iterator)

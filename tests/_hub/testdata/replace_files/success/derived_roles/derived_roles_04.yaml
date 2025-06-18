@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: api.cerbos.dev/v1
+derivedRoles:
+  name: import_variables
+  constants:
+    import:
+      - bazqux
+  variables:
+    import:
+      - foobar
+  definitions:
+    - name: bar
+      parentRoles:
+        - user
+      condition:
+        match:
+          expr: V.bar

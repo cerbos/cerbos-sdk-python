@@ -22,6 +22,7 @@ dependencies = [
     "googleapis-common-protos>=1.62.0",
     "protobuf>=6.31.0",
     "grpcio-status>=1.73.0",
+    "circuitbreaker>=2.1.3",
 ]
 requires-python = ">=3.9"
 dynamic = ["version"]

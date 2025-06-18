@@ -185,21 +185,28 @@ class ModifyFilesResponse(_message.Message):
     def __init__(self, new_store_version: _Optional[int] = ...) -> None: ...
 
 class ReplaceFilesRequest(_message.Message):
-    __slots__ = ["store_id", "condition", "zipped_contents", "change_details"]
+    __slots__ = ["store_id", "condition", "zipped_contents", "files", "change_details"]
     class Condition(_message.Message):
         __slots__ = ["store_version_must_equal"]
         STORE_VERSION_MUST_EQUAL_FIELD_NUMBER: _ClassVar[int]
         store_version_must_equal: int
         def __init__(self, store_version_must_equal: _Optional[int] = ...) -> None: ...
+    class Files(_message.Message):
+        __slots__ = ["files"]
+        FILES_FIELD_NUMBER: _ClassVar[int]
+        files: _containers.RepeatedCompositeFieldContainer[File]
+        def __init__(self, files: _Optional[_Iterable[_Union[File, _Mapping]]] = ...) -> None: ...
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     CONDITION_FIELD_NUMBER: _ClassVar[int]
     ZIPPED_CONTENTS_FIELD_NUMBER: _ClassVar[int]
+    FILES_FIELD_NUMBER: _ClassVar[int]
     CHANGE_DETAILS_FIELD_NUMBER: _ClassVar[int]
     store_id: str
     condition: ReplaceFilesRequest.Condition
     zipped_contents: bytes
+    files: ReplaceFilesRequest.Files
     change_details: ChangeDetails
-    def __init__(self, store_id: _Optional[str] = ..., condition: _Optional[_Union[ReplaceFilesRequest.Condition, _Mapping]] = ..., zipped_contents: _Optional[bytes] = ..., change_details: _Optional[_Union[ChangeDetails, _Mapping]] = ...) -> None: ...
+    def __init__(self, store_id: _Optional[str] = ..., condition: _Optional[_Union[ReplaceFilesRequest.Condition, _Mapping]] = ..., zipped_contents: _Optional[bytes] = ..., files: _Optional[_Union[ReplaceFilesRequest.Files, _Mapping]] = ..., change_details: _Optional[_Union[ChangeDetails, _Mapping]] = ...) -> None: ...
 
 class ErrDetailValidationFailure(_message.Message):
     __slots__ = ["errors"]

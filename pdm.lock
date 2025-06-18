@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:500d192b0fa4dcdb89cebb757d2c77aa6155c08e38406939db6e054befb4b063"
+content_hash = "sha256:295d842d0356576f0fff1ef7296bfe3af4e803cb95facb0845b4ab7cc264f022"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -176,6 +176,15 @@ files = [
     {file = "charset_normalizer-3.4.1-cp39-cp39-win_amd64.whl", hash = "sha256:49402233c892a461407c512a19435d1ce275543138294f7ef013f0b63d5d3765"},
     {file = "charset_normalizer-3.4.1-py3-none-any.whl", hash = "sha256:d98b1668f06378c6dbefec3b92299716b931cd4e6061f3c875a71ced1780ab85"},
     {file = "charset_normalizer-3.4.1.tar.gz", hash = "sha256:44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"},
+]
+
+[[package]]
+name = "circuitbreaker"
+version = "2.1.3"
+summary = "Python Circuit Breaker pattern implementation"
+files = [
+    {file = "circuitbreaker-2.1.3-py3-none-any.whl", hash = "sha256:87ba6a3ed03fdc7032bc175561c2b04d52ade9d5faf94ca2b035fbdc5e6b1dd1"},
+    {file = "circuitbreaker-2.1.3.tar.gz", hash = "sha256:1a4baee510f7bea3c91b194dcce7c07805fe96c4423ed5594b75af438531d084"},
 ]
 
 [[package]]

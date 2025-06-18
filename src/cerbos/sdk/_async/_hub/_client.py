@@ -5,6 +5,7 @@ import json
 import os
 from typing import Any, Dict, Optional
 
+import circuitbreaker
 import grpc
 
 from cerbos.sdk._async._hub._auth import _AsyncAuthClient, _AsyncAuthInterceptor

@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: api.cerbos.dev/v1
+rolePolicy:
+  role: acme_creator
+  scope: acme.hr.uk.brighton
+  parentRoles:
+    - "acme_jr_admin"
+  rules:
+    - resource: "*"
+      allowActions: ["create", "make"]

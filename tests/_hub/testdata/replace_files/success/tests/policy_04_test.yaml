@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/TestSuite.schema.json
+---
+name: album_object resource policy tests
+
+principals:
+  user:
+    id: user
+    roles:
+      - user
+
+resources:
+  album:
+    id: album
+    kind: album:object
+    attr:
+      public: true
+
+tests:
+  - name: User can view public album
+    input:
+      principals:
+        - user
+      resources:
+        - album
+      actions:
+        - view
+    expected:
+      - principal: user
+        resource: album
+        actions:
+          view: EFFECT_ALLOW

@@ -116,6 +116,20 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
     Client for working with Cerbos Hub stores.
     Requires a set of credentials which can be generated using the Cerbos Hub interface.
     Provide the credentials using the environment variables CERBOS_HUB_CLIENT_ID and CERBOS_HUB_CLIENT_SECRET.
+
+    For well-known errors, the methods of this class raise errors that are subclasses of cerbos.sdk.hub.store_model.RpcError.
+    Some of the error subclasses contain additional details about the error such as validation failures and ignored files.
+    - AbortedError: call cancelled or timed out
+    - AuthenticationFailedError: invalid credentials
+    - CannotModifyGitConnectedStoreError: attempting to modify a store connected to Git
+    - ConditionUnsatisfiedError: the condition attached to the call wasn't satisfied
+    - InvalidRequestError: the arguments passed to the call are invalid
+    - NoUsableFilesError: none of the provided files can be stored
+    - OperationDiscardedError: the operation does not modify store state
+    - PermissionDeniedError: permission denied for the action
+    - TooManyFailuresError: the client has had too many failed requests and should cool down
+    - UnknownError: catch-all for errors that are not specifically handled
+    - ValidationFailureError: the request was rejected due to validation failures
     """
 
     _store_stub: store_pb2_grpc.CerbosStoreServiceStub
@@ -328,6 +342,9 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
     async def get_files(
         self, store_id: str, file_paths: Iterable[str]
     ) -> GetFilesResponse:
+        """
+        Retrieve the contents of the given files.
+        """
         if not (store_id and store_id.strip()):
             raise InvalidRequestError(ValueError("store_id is required"))
 
@@ -342,6 +359,13 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
         store_id: str,
         filter: Optional[Union[FilterPathEqual, FilterPathLike, FilterPathIn]] = None,
     ) -> ListFilesResponse:
+        """
+        List the files available on the remote store.
+        The listing can be filtered by providing an optional `filter` argument which can be one of the following types.
+          - FilterPathEqual: Match a path exactly
+          - FilterPathLike: Match a path partially
+          - FilterPathIn: Match any or all of the paths in the given list
+        """
         path_filter: Optional[store_pb2.FileFilter] = None
         if filter:
             if isinstance(filter, FilterPathEqual):

@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:295d842d0356576f0fff1ef7296bfe3af4e803cb95facb0845b4ab7cc264f022"
+content_hash = "sha256:eb40bf16c21e25749e40c9c0f1066752c42474eaf87b32409413de016531ad7d"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -1055,6 +1055,16 @@ dependencies = [
 files = [
     {file = "testcontainers-4.10.0-py3-none-any.whl", hash = "sha256:31ed1a81238c7e131a2a29df6db8f23717d892b592fa5a1977fd0dcd0c23fc23"},
     {file = "testcontainers-4.10.0.tar.gz", hash = "sha256:03f85c3e505d8b4edeb192c72a961cebbcba0dd94344ae778b4a159cb6dcf8d3"},
+]
+
+[[package]]
+name = "tokenize-rt"
+version = "6.2.0"
+requires_python = ">=3.9"
+summary = "A wrapper around the stdlib `tokenize` which roundtrips."
+files = [
+    {file = "tokenize_rt-6.2.0-py2.py3-none-any.whl", hash = "sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44"},
+    {file = "tokenize_rt-6.2.0.tar.gz", hash = "sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6"},
 ]
 
 [[package]]

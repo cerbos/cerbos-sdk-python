@@ -151,6 +151,10 @@ class ValidationFailureError(RpcError):
 
 
 class ChangeDetails:
+    """
+    Provide detailed metadata about the change being commited to the store.
+    """
+
     raw: store_pb2.ChangeDetails
 
     def __init__(self, description: str):
@@ -159,12 +163,23 @@ class ChangeDetails:
     def with_uploader(
         self, name: str, metadata: Optional[Mapping[str, struct_pb2.Value]] = None
     ) -> Self:
+        """
+        Set the name and any custom metadata about the uploader.
+        """
         if metadata:
-            self.raw.uploader = store_pb2.ChangeDetails.Uploader(
-                name=name, metadata=metadata
+            self.raw.MergeFrom(
+                store_pb2.ChangeDetails(
+                    uploader=store_pb2.ChangeDetails.Uploader(
+                        name=name, metadata=metadata
+                    )
+                )
             )
         else:
-            self.raw.uploader = store_pb2.ChangeDetails.Uploader(name=name)
+            self.raw.MergeFrom(
+                store_pb2.ChangeDetails(
+                    uploader=store_pb2.ChangeDetails.Uploader(name=name)
+                )
+            )
 
         return self
 
@@ -179,6 +194,10 @@ class ChangeDetails:
         author: Optional[str] = None,
         author_date: Optional[datetime.datetime] = None,
     ) -> Self:
+        """
+        Attach information about the underlying git commit.
+        Mutually exclusive with internal source.
+        """
         _commit_date: Optional[timestamp_pb2.Timestamp] = None
         if commit_date:
             _commit_date = timestamp_pb2.Timestamp()
@@ -189,15 +208,19 @@ class ChangeDetails:
             _author_date = timestamp_pb2.Timestamp()
             _author_date.FromDatetime(author_date)
 
-        self.raw.git = store_pb2.ChangeDetails.Git(
-            repo=repo,
-            ref=ref,
-            hash=hash,
-            message=message,
-            committer=committer,
-            commit_date=_commit_date,
-            author=author,
-            author_date=_author_date,
+        self.raw.MergeFrom(
+            store_pb2.ChangeDetails(
+                git=store_pb2.ChangeDetails.Git(
+                    repo=repo,
+                    ref=ref,
+                    hash=hash,
+                    message=message,
+                    committer=committer,
+                    commit_date=_commit_date,
+                    author=author,
+                    author_date=_author_date,
+                )
+            )
         )
 
         return self
@@ -205,8 +228,16 @@ class ChangeDetails:
     def with_internal_source(
         self, source: str, metadata: Optional[Mapping[str, struct_pb2.Value]] = None
     ) -> Self:
-        self.raw.internal = store_pb2.ChangeDetails.Internal(
-            source=source, metadata=metadata
+        """
+        Attach information about the internal data source for this change.
+        Mutually exclusive with git source.
+        """
+        self.raw.MergeFrom(
+            store_pb2.ChangeDetails(
+                internal=store_pb2.ChangeDetails.Internal(
+                    source=source, metadata=metadata
+                )
+            )
         )
         return self
 

@@ -1,17 +1,21 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-import threading
 import os
+import threading
 from datetime import datetime, timedelta
-from typing import Any, Callable, List, NamedTuple, Optional, Union
+from typing import Any, Callable, List, NamedTuple, Optional
+
 import grpc
 from google.rpc import code_pb2
 from grpc_status import rpc_status
+
 from cerbos.cloud.apikey.v1 import apikey_pb2, apikey_pb2_grpc
 from cerbos.sdk.hub.model import Credentials
 
+
 class InvalidCredentialsError(Exception):
     pass
+
 
 class _AuthClient:
     _EARLY_EXPIRY: timedelta = timedelta(minutes=5)
@@ -24,13 +28,18 @@ class _AuthClient:
     _token: Optional[str] = None
     _invalid_credentials: bool = False
 
-    def __init__(self, channel: grpc.Channel, timeout_secs: float, credentials: Optional[Credentials]=None):
-        self._client_id = os.environ['CERBOS_HUB_CLIENT_ID']
-        self._client_secret = os.environ['CERBOS_HUB_CLIENT_SECRET']
+    def __init__(
+        self,
+        channel: grpc.Channel,
+        timeout_secs: float,
+        credentials: Optional[Credentials] = None,
+    ):
+        self._client_id = os.environ["CERBOS_HUB_CLIENT_ID"]
+        self._client_secret = os.environ["CERBOS_HUB_CLIENT_SECRET"]
         if credentials:
-            if credentials.client_id != '':
+            if credentials.client_id != "":
                 self._client_id = credentials.client_id
-            if credentials.client_secret != '':
+            if credentials.client_secret != "":
                 self._client_secret = credentials.client_secret
         self._client = apikey_pb2_grpc.ApiKeyServiceStub(channel)
         self._timeout_secs = timeout_secs
@@ -39,12 +48,16 @@ class _AuthClient:
     def authenticate(self) -> str:
         with self._lock:
             if self._invalid_credentials:
-                raise InvalidCredentialsError('Invalid credentials')
+                raise InvalidCredentialsError("Invalid credentials")
             if self._token and self._expiry > datetime.now():
                 return self._token
-            req = apikey_pb2.IssueAccessTokenRequest(client_id=self._client_id, client_secret=self._client_secret)
+            req = apikey_pb2.IssueAccessTokenRequest(
+                client_id=self._client_id, client_secret=self._client_secret
+            )
             try:
-                resp: apikey_pb2.IssueAccessTokenResponse = self._client.IssueAccessToken(req, timeout=self._timeout_secs)
+                resp: apikey_pb2.IssueAccessTokenResponse = (
+                    self._client.IssueAccessToken(req, timeout=self._timeout_secs)
+                )
                 self._token = resp.access_token
                 expires_in = resp.expires_in.ToTimedelta()
                 if expires_in > self._EARLY_EXPIRY:
@@ -55,9 +68,12 @@ class _AuthClient:
                 status = rpc_status.from_call(rpc_error)
                 if status and status.code == code_pb2.UNAUTHENTICATED:
                     self._invalid_credentials = True
-                    raise InvalidCredentialsError('Invalid credentials')
+                    raise InvalidCredentialsError("Invalid credentials")
                 raise rpc_error
+
+
 # grpc.aio classes are different from the sync version so we need a second definition here.
+
 
 class _ClientCallDetails(NamedTuple):
     method: str
@@ -67,20 +83,39 @@ class _ClientCallDetails(NamedTuple):
     wait_for_ready: Optional[bool]
     compression: Optional[grpc.Compression]
 
+
 class _ClientCallDetailsWrapper(_ClientCallDetails, grpc.ClientCallDetails):
     pass
 
-class _AuthInterceptor(grpc.UnaryUnaryClientInterceptor, grpc.UnaryStreamClientInterceptor, grpc.StreamUnaryClientInterceptor, grpc.StreamStreamClientInterceptor):
+
+class _AuthInterceptor(
+    grpc.UnaryUnaryClientInterceptor,
+    grpc.UnaryStreamClientInterceptor,
+    grpc.StreamUnaryClientInterceptor,
+    grpc.StreamStreamClientInterceptor,
+):
     _auth_client: _AuthClient
 
     def __init__(self, auth_client: _AuthClient):
         self._auth_client = auth_client
 
-    def _intercept(self, continuation: Callable[..., Any], client_call_details: grpc.ClientCallDetails, request: Any):
+    def _intercept(
+        self,
+        continuation: Callable[..., Any],
+        client_call_details: grpc.ClientCallDetails,
+        request: Any,
+    ):
         token = self._auth_client.authenticate()
         metadata = client_call_details.metadata or []
-        metadata.append(('x-cerbos-auth', token))
-        new_client_call_details = _ClientCallDetailsWrapper(client_call_details.method, client_call_details.timeout, metadata, client_call_details.credentials, client_call_details.wait_for_ready, client_call_details.compression)
+        metadata.append(("x-cerbos-auth", token))
+        new_client_call_details = _ClientCallDetailsWrapper(
+            client_call_details.method,
+            client_call_details.timeout,
+            metadata,
+            client_call_details.credentials,
+            client_call_details.wait_for_ready,
+            client_call_details.compression,
+        )
         return continuation(new_client_call_details, request)
 
     def intercept_unary_unary(self, continuation, client_call_details, request):
@@ -89,8 +124,12 @@ class _AuthInterceptor(grpc.UnaryUnaryClientInterceptor, grpc.UnaryStreamClientI
     def intercept_unary_stream(self, continuation, client_call_details, request):
         return self._intercept(continuation, client_call_details, request)
 
-    def intercept_stream_unary(self, continuation, client_call_details, request_iterator):
+    def intercept_stream_unary(
+        self, continuation, client_call_details, request_iterator
+    ):
         return self._intercept(continuation, client_call_details, request_iterator)
 
-    def intercept_stream_stream(self, continuation, client_call_details, request_iterator):
+    def intercept_stream_stream(
+        self, continuation, client_call_details, request_iterator
+    ):
         return self._intercept(continuation, client_call_details, request_iterator)

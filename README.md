@@ -239,6 +239,26 @@ with container:
 
 See the tests available in the `tests` directory for more examples.
 
+### Cerbos Hub
+
+To interact with a [Cerbos Hub](https://www.cerbos.dev/product-cerbos-hub) managed store, obtain a set of credentials for the store from the Cerbos Hub UI. Save the credentials as environment variables named `CERBOS_HUB_CLIENT_ID` and `CERBOS_HUB_CLIENT_SECRET`.
+
+```python
+from cerbos.sdk.hub import util
+from cerbos.sdk.hub.store import AsyncCerbosHubStoreClient
+from cerbos.sdk.hub.store_model import ConditionUnsatisfiedError
+
+# For non-async use cases, use CerbosHubStoreClient instead
+async with AsyncCerbosHubStoreClient() as client:
+    contents = util.zip_directory(Path("your", "policy", "repo"))
+    try:
+        response = await client.replace_files("YOUR_STORE_ID", "Upload policy repo", contents, version_must_equal=42)
+        print(f"New store version is {response.new_store_version()}")
+    except ConditionUnsatisfiedError as e:
+        print(f"Operation failed. Current store version is {e.current_store_version}")
+```
+
+
 ## Contributing
 
 The gRPC client uses protoc generated python classes from definitions retrieved from our [buf registry](https://buf.build/cerbos/cerbos-api).

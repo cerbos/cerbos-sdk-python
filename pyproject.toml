@@ -122,4 +122,5 @@ tools = [
     "ruff>=0.11.13",
     "jedi-language-server>=0.45.1",
     "ast-comments>=1.2.2",
+    "tokenize-rt>=6.2.0",
 ]

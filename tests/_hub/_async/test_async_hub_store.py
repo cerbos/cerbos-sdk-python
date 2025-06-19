@@ -10,6 +10,7 @@ import pytest
 from cerbos.sdk.hub import util
 from cerbos.sdk.hub.store import AsyncCerbosHubStoreClient
 from cerbos.sdk.hub.store_model import (
+    ChangeDetails,
     ConditionUnsatisfiedError,
     FileOps,
     FilterPathEqual,
@@ -201,6 +202,9 @@ class TestAsyncCerbosHubStoreClient:
                 "Test modify",
                 FileOps(
                     add=util.iter_files(Path(testdata_dir, "modify_files", "success"))
+                ),
+                change_details=ChangeDetails("Test modify").with_git_source(
+                    "cerbos/foo", "x"
                 ),
             )
             assert haveAdd.new_store_version() > 0

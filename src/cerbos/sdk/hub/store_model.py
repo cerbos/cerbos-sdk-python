@@ -1,6 +1,7 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
+from collections import namedtuple
 import datetime
 from dataclasses import dataclass
 from enum import Enum, auto
@@ -72,6 +73,13 @@ class ConditionUnsatisfiedError(RpcError):
         )
         if details:
             self.current_store_version = details.current_store_version
+
+
+class InvalidRequestError(RpcError):
+    def __init__(self, underlying: Exception):
+        super(InvalidRequestError, self).__init__(
+            RpcErrorCause.INVALID_REQUEST, underlying
+        )
 
 
 class NoUsableFilesError(RpcError):
@@ -211,6 +219,27 @@ class File:
 
 
 @dataclass
+class FileOps:
+    add: Optional[Iterable[File]] = None
+    delete: Optional[Iterable[str]] = None
+
+
+@dataclass
+class FilterPathEqual:
+    path: str
+
+
+@dataclass
+class FilterPathLike:
+    pattern: str
+
+
+@dataclass
+class FilterPathIn:
+    paths: Iterable[str]
+
+
+@dataclass
 class ListFilesResponse:
     raw: store_pb2.ListFilesResponse
 
@@ -236,6 +265,34 @@ class ReplaceFilesResponse:
             return [f for f in self.raw.ignored_files]
 
         return None
+
+    def __str__(self):
+        return json_format.MessageToJson(self.raw)
+
+
+@dataclass
+class ModifyFilesResponse:
+    raw: store_pb2.ModifyFilesResponse
+
+    def new_store_version(self) -> int:
+        return self.raw.new_store_version
+
+    def __str__(self):
+        return json_format.MessageToJson(self.raw)
+
+
+@dataclass
+class GetFilesResponse:
+    raw: store_pb2.GetFilesResponse
+
+    def store_version(self) -> int:
+        return self.raw.store_version
+
+    def files(self) -> Iterable[File]:
+        return (File(path=f.path, contents=f.contents) for f in self.raw.files)
+
+    def files_as_map(self) -> Mapping[str, bytes]:
+        return {f.path: f.contents for f in self.raw.files}
 
     def __str__(self):
         return json_format.MessageToJson(self.raw)

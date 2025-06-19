@@ -85,7 +85,9 @@ class Rule:
             tokens = self._preprocess(filepath, contents)
             tokens = self._unasync_tokens(tokens)
             result = tokenize_rt.tokens_to_src(tokens)
-            outfilepath = filepath.replace(self.fromdir, self.todir)
+            outfilepath = filepath.replace("async_", "").replace(
+                self.fromdir, self.todir
+            )
             os.makedirs(os.path.dirname(outfilepath), exist_ok=True)
             with open(outfilepath, "wb") as f:
                 f.write(result.encode(encoding))

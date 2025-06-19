@@ -8,7 +8,7 @@ from typing import Any, List, Optional
 import pytest
 
 from cerbos.sdk.hub import util
-from cerbos.sdk.hub.store import AsyncCerbosHubStoreClient, CerbosHubStoreClient
+from cerbos.sdk.hub.store import AsyncCerbosHubStoreClient
 from cerbos.sdk.hub.store_model import (
     ConditionUnsatisfiedError,
     FileOps,
@@ -23,14 +23,8 @@ pytestmark = pytest.mark.anyio
 
 
 @pytest.fixture(scope="module")
-async def async_hub_store_client(anyio_backend):
+async def hub_store_client(anyio_backend):
     async with AsyncCerbosHubStoreClient() as client:
-        yield client
-
-
-@pytest.fixture(scope="module")
-def hub_store_client():
-    with CerbosHubStoreClient() as client:
         yield client
 
 
@@ -44,18 +38,14 @@ def testdata_dir(pytestconfig):
     return Path(pytestconfig.rootdir, "tests", "_hub", "testdata")
 
 
-@pytest.fixture(scope="class")
-async def async_reset_store(async_hub_store_client, store_id, testdata_dir):
-    contents = util.zip_directory(Path(testdata_dir, "replace_files", "success"))
-    await async_hub_store_client.replace_files_lenient(
-        store_id, "Test replace", contents
-    )
+@pytest.fixture(scope="module")
+def zip_data(testdata_dir):
+    return util.zip_directory(Path(testdata_dir, "replace_files", "success"))
 
 
 @pytest.fixture(scope="class")
-def reset_store(hub_store_client, store_id, testdata_dir):
-    contents = util.zip_directory(Path(testdata_dir, "replace_files", "success"))
-    hub_store_client.replace_files_lenient(store_id, "Test replace", contents)
+async def reset_store(hub_store_client, store_id, zip_data):
+    await hub_store_client.replace_files_lenient(store_id, "Test replace", zip_data)
 
 
 _WANT_FILES = [
@@ -132,65 +122,61 @@ class TestAsyncCerbosHubStoreClient:
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(OperationDiscardedError):
                 contents = util.zip_directory(
                     Path(testdata_dir, "replace_files", "success")
                 )
-                await async_hub_store_client.replace_files(
-                    store_id, "Test replace", contents
-                )
-            await async_assert_store_contents(async_hub_store_client, store_id)
+                await hub_store_client.replace_files(store_id, "Test replace", contents)
+            await assert_store_contents(hub_store_client, store_id)
 
         async def test_operation_discarded_with_files(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(OperationDiscardedError):
-                await async_hub_store_client.replace_files(
+                await hub_store_client.replace_files(
                     store_id,
                     "Test replace files",
                     util.iter_files(Path(testdata_dir, "replace_files", "success")),
                 )
-            await async_assert_store_contents(async_hub_store_client, store_id)
+            await assert_store_contents(hub_store_client, store_id)
 
         async def test_invalid_files(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(ValidationFailureError) as validation_error:
                 contents = util.zip_directory(
                     Path(testdata_dir, "replace_files", "invalid")
                 )
-                await async_hub_store_client.replace_files(
-                    store_id, "Test replace", contents
-                )
+                await hub_store_client.replace_files(store_id, "Test replace", contents)
             assert (
                 isinstance(validation_error.value, ValidationFailureError)
                 and validation_error.value.errors is not None
             )
-            await async_assert_store_contents(async_hub_store_client, store_id)
+            await assert_store_contents(hub_store_client, store_id)
 
         async def test_unsuccessful_condition(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(ConditionUnsatisfiedError) as unsatisfied_error:
                 contents = util.zip_directory(
                     Path(testdata_dir, "replace_files", "conditional")
                 )
-                await async_hub_store_client.replace_files(
+                await hub_store_client.replace_files(
                     store_id,
                     "Test replace",
                     contents,
@@ -200,17 +186,17 @@ class TestAsyncCerbosHubStoreClient:
                 isinstance(unsatisfied_error.value, ConditionUnsatisfiedError)
                 and unsatisfied_error.value.current_store_version is not None
             )
-            await async_assert_store_contents(async_hub_store_client, store_id)
+            await assert_store_contents(hub_store_client, store_id)
 
     class TestModifyFiles:
         async def test_success(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
-            haveAdd = await async_hub_store_client.modify_files(
+            haveAdd = await hub_store_client.modify_files(
                 store_id,
                 "Test modify",
                 FileOps(
@@ -218,13 +204,9 @@ class TestAsyncCerbosHubStoreClient:
                 ),
             )
             assert haveAdd.new_store_version() > 0
-            await async_assert_store_contents(
-                async_hub_store_client, store_id, ["example.yaml"]
-            )
+            await assert_store_contents(hub_store_client, store_id, ["example.yaml"])
 
-            haveFiles = await async_hub_store_client.get_files(
-                store_id, ["example.yaml"]
-            )
+            haveFiles = await hub_store_client.get_files(store_id, ["example.yaml"])
             haveFileContents = haveFiles.files_as_map()["example.yaml"]
             assert (
                 Path(
@@ -233,33 +215,31 @@ class TestAsyncCerbosHubStoreClient:
                 == haveFileContents
             )
 
-            haveDelete = await async_hub_store_client.modify_files(
+            haveDelete = await hub_store_client.modify_files(
                 store_id, "Test delete", FileOps(delete=["example.yaml"])
             )
             assert haveDelete.new_store_version() > haveAdd.new_store_version()
-            await async_assert_store_contents(async_hub_store_client, store_id)
+            await assert_store_contents(hub_store_client, store_id)
 
         async def test_invalid_request(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(InvalidRequestError):
-                await async_hub_store_client.modify_files(
-                    store_id, "Test modify", FileOps()
-                )
+                await hub_store_client.modify_files(store_id, "Test modify", FileOps())
 
         async def test_invalid_files(
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(ValidationFailureError) as validation_error:
-                await async_hub_store_client.modify_files(
+                await hub_store_client.modify_files(
                     store_id,
                     "Test modify",
                     FileOps(
@@ -277,11 +257,11 @@ class TestAsyncCerbosHubStoreClient:
             self,
             store_id: str,
             testdata_dir: Path,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
             with pytest.raises(ConditionUnsatisfiedError):
-                await async_hub_store_client.modify_files(
+                await hub_store_client.modify_files(
                     store_id,
                     "Test modify",
                     FileOps(
@@ -296,10 +276,10 @@ class TestAsyncCerbosHubStoreClient:
         async def test_success(
             self,
             store_id: str,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
-            have = await async_hub_store_client.get_files(
+            have = await hub_store_client.get_files(
                 store_id, ["export_constants/export_constants_01.yaml"]
             )
             haveFiles = have.files_as_map()
@@ -309,20 +289,20 @@ class TestAsyncCerbosHubStoreClient:
         async def test_non_existent(
             self,
             store_id: str,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
-            have = await async_hub_store_client.get_files(store_id, ["foobar"])
+            have = await hub_store_client.get_files(store_id, ["foobar"])
             assert len(have.files_as_map()) == 0
 
     class TestListFiles:
         async def test_filter_match(
             self,
             store_id: str,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
-            have = await async_hub_store_client.list_files(
+            have = await hub_store_client.list_files(
                 store_id,
                 FilterPathIn(
                     [
@@ -341,10 +321,10 @@ class TestAsyncCerbosHubStoreClient:
         async def test_no_filter_match(
             self,
             store_id: str,
-            async_hub_store_client: AsyncCerbosHubStoreClient,
-            async_reset_store: Any,
+            hub_store_client: AsyncCerbosHubStoreClient,
+            reset_store: Any,
         ):
-            have = await async_hub_store_client.list_files(
+            have = await hub_store_client.list_files(
                 store_id, FilterPathEqual("foobar")
             )
 
@@ -352,26 +332,14 @@ class TestAsyncCerbosHubStoreClient:
             assert len(haveFiles) == 0
 
 
-async def async_assert_store_contents(
-    async_hub_store_client: AsyncCerbosHubStoreClient,
+async def assert_store_contents(
+    hub_store_client: AsyncCerbosHubStoreClient,
     store_id: str,
     additional: Optional[List[str]] = None,
 ):
-    have = await async_hub_store_client.list_files(store_id)
+    have = await hub_store_client.list_files(store_id)
     assert len(have.files()) > 0
     want = _WANT_FILES.copy()
     if additional:
         want += additional
     assert sorted(have.files()) == sorted(want)
-
-
-@pytest.mark.skipif(
-    os.getenv("CERBOS_HUB_CLIENT_ID") == ""
-    or os.getenv("CERBOS_HUB_CLIENT_SECRET") == ""
-    or os.getenv("CERBOS_HUB_STORE_ID") == "",
-    reason="Cerbos Hub credentials not defined",
-)
-class TestCerbosHubStoreClient:
-    def test_list_files(self, store_id: str, hub_store_client: CerbosHubStoreClient):
-        have = hub_store_client.list_files(store_id)
-        assert len(have.files()) > 0

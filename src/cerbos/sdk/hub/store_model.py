@@ -1,7 +1,6 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections import namedtuple
 import datetime
 from dataclasses import dataclass
 from enum import Enum, auto

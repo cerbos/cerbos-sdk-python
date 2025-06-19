@@ -3,7 +3,6 @@
 import json
 import os
 from typing import Any, Dict, Optional
-import circuitbreaker
 import grpc
 from cerbos.sdk._sync._hub._auth import _AuthClient, _AuthInterceptor
 from cerbos.sdk.hub.model import Credentials
@@ -21,7 +20,8 @@ class _CerbosHubClientBase:
         options = [('grpc.enable_retries', 1), ('grpc.service_config_disable_resolution', 0), ('grpc.service_config', json.dumps(_METHOD_CONFIG))]
         if timeout_secs:
             self._timeout_secs = timeout_secs
-        channel = grpc.secure_channel(target, credentials=grpc.ssl_channel_credentials(), options=options)
+        channel = grpc.secure_channel(target, credentials=grpc.ssl_channel_credentials(), options=options)  # noqa: F821
+        # noqa: F821
         auth_interceptor = _AuthInterceptor(_AuthClient(channel, self._timeout_secs, credentials))
         self._channel = grpc.intercept_channel(channel, auth_interceptor)
 

@@ -201,7 +201,7 @@ def cmdclass_build_py(rules=(_DEFAULT_RULE,)):
 
 
 if __name__ == "__main__":
-    rules = [
+    src_rules = [
         Rule(
             fromdir="/src/cerbos/sdk/_async/",
             todir="/src/cerbos/sdk/_sync/",
@@ -220,7 +220,20 @@ if __name__ == "__main__":
         )
     ]
 
-    root = Path(__file__).absolute().parent.parent / "src/cerbos/sdk/_async/**/*.py"
-    files = glob.glob(str(root), recursive=True)
+    src_root = Path(__file__).absolute().parent.parent / "src/cerbos/sdk/_async/**/*.py"
+    src_files = glob.glob(str(src_root), recursive=True)
+    unasync_files(src_files, src_rules)
 
-    unasync_files(files, rules)
+    test_rules = [
+        Rule(
+            fromdir="/tests/_hub/_async/",
+            todir="/tests/_hub/_sync/",
+            additional_replacements={
+                "TestAsyncCerbosHubStoreClient": "TestCerbosHubStoreClient",
+            },
+        )
+    ]
+
+    test_root = Path(__file__).absolute().parent.parent / "tests/_hub/_async/**/*.py"
+    test_files = glob.glob(str(test_root), recursive=True)
+    unasync_files(test_files, test_rules)

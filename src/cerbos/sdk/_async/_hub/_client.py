@@ -5,7 +5,6 @@ import json
 import os
 from typing import Any, Dict, Optional
 
-import circuitbreaker
 import grpc
 
 from cerbos.sdk._async._hub._auth import _AsyncAuthClient, _AsyncAuthInterceptor
@@ -125,8 +124,8 @@ class _CerbosHubClientBase:
             credentials=grpc.ssl_channel_credentials(),
             options=options,
         )
-        auth_interceptor = _AuthInterceptor(
-            _AuthClient(channel, self._timeout_secs, credentials)
+        auth_interceptor = _AuthInterceptor(  # noqa: F821
+            _AuthClient(channel, self._timeout_secs, credentials)  # noqa: F821
         )
         self._channel = grpc.intercept_channel(channel, auth_interceptor)
 

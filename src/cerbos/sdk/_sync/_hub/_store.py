@@ -3,8 +3,8 @@
 from functools import wraps
 from typing import Iterable, List, Optional, Union
 import circuitbreaker
-from google.protobuf import json_format
 import grpc
+from google.protobuf import json_format
 from google.rpc import code_pb2
 from grpc_status import rpc_status
 from cerbos.cloud.store.v1 import store_pb2, store_pb2_grpc

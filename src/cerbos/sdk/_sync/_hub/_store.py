@@ -44,9 +44,26 @@ _MAX_ZIP_SIZE = 15 * 1024 * 1024
 _MIN_ZIP_SIZE = 22
 
 
+def _exclude_errors(thrown_type, thrown_value):
+    if isinstance(thrown_value, grpc.RpcError):
+        status = rpc_status.from_call(thrown_value)
+        if status is None:
+            return False
+        return status.code in {
+            code_pb2.ABORTED,
+            code_pb2.CANCELLED,
+            code_pb2.DEADLINE_EXCEEDED,
+        }
+    return False
+
+
 class CircuitBreaker(circuitbreaker.CircuitBreaker):
     FAILURE_THRESHOLD = 10
     RECOVERY_TIMEOUT = 60
+    EXPECTED_EXCEPTION = _exclude_errors
+
+
+_CIRCUIT_BREAKER = CircuitBreaker().decorate
 
 
 def handle_store_errors(method):
@@ -140,7 +157,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
         self._store_stub = store_pb2_grpc.CerbosStoreServiceStub(self._channel)
 
     @handle_store_errors
-    @circuitbreaker.circuit(cls=CircuitBreaker)
+    @_CIRCUIT_BREAKER
     def replace_files(
         self,
         store_id: str,
@@ -206,7 +223,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
         return ReplaceFilesResponse(resp)
 
     @handle_store_errors
-    @circuitbreaker.circuit(cls=CircuitBreaker)
+    @_CIRCUIT_BREAKER
     def replace_files_lenient(
         self,
         store_id: str,
@@ -231,7 +248,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
             )
 
     @handle_store_errors
-    @circuitbreaker.circuit(cls=CircuitBreaker)
+    @_CIRCUIT_BREAKER
     def modify_files(
         self,
         store_id: str,
@@ -291,7 +308,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
         return ModifyFilesResponse(resp)
 
     @handle_store_errors
-    @circuitbreaker.circuit(cls=CircuitBreaker)
+    @_CIRCUIT_BREAKER
     def modify_files_lenient(
         self,
         store_id: str,
@@ -314,7 +331,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
             )
 
     @handle_store_errors
-    @circuitbreaker.circuit(cls=CircuitBreaker)
+    @_CIRCUIT_BREAKER
     def get_files(self, store_id: str, file_paths: Iterable[str]) -> GetFilesResponse:
         """
         Retrieve the contents of the given files.

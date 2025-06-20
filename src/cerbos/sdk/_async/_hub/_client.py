@@ -7,7 +7,8 @@ from typing import Any, Dict, Optional
 
 import grpc
 
-from cerbos.sdk._async._hub._auth import _AsyncAuthClient, _AsyncAuthInterceptor
+from cerbos.sdk._async._hub._auth import _AsyncAuthClient
+from cerbos.sdk._async._hub._interceptors import _AsyncAuthInterceptor
 from cerbos.sdk.hub.model import Credentials
 
 _METHOD_CONFIG: Dict[str, Any] = {

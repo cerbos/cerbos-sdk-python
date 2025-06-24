@@ -202,7 +202,7 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
         )
         req: store_pb2.ReplaceFilesRequest
         if isinstance(contents, bytes):
-            if len(contents) < _MIN_ZIP_SIZE or len(contents) > _MAX_ZIP_SIZE:
+            if not (_MIN_ZIP_SIZE <= len(contents) <= _MAX_ZIP_SIZE):
                 raise InvalidRequestError(ValueError("invalid zip contents"))
 
             req = store_pb2.ReplaceFilesRequest(

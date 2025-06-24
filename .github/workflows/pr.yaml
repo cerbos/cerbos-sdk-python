@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-      - 'v*'
+      - "v*"
 jobs:
   test:
     name: Test
@@ -30,6 +30,9 @@ jobs:
       - name: Format
         run: ./pw format
 
+      - name: Lint
+        run: ./pw lint
+
       - name: Generate changelog
         run: ./pw changelog
 
@@ -44,4 +47,9 @@ jobs:
           fi
 
       - name: Test
+        env:
+          CERBOS_HUB_API_ENDPOINT: "${{ secrets.CERBOS_HUB_API_ENDPOINT }}"
+          CERBOS_HUB_CLIENT_ID: "${{ secrets.CERBOS_HUB_CLIENT_ID }}"
+          CERBOS_HUB_CLIENT_SECRET: "${{ secrets.CERBOS_HUB_CLIENT_SECRET }}"
+          CERBOS_HUB_STORE_ID: "${{ secrets.CERBOS_HUB_STORE_ID }}"
         run: ./pw test

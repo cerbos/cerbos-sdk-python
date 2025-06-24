@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: "api.cerbos.dev/v1"
+principalPolicy:
+  principal: daisy_duck
+  version: default
+  rules:
+    - resource: "expenses"
+      actions:
+        - action: "view"
+          effect: EFFECT_ALLOW
+          name: expenses_admin

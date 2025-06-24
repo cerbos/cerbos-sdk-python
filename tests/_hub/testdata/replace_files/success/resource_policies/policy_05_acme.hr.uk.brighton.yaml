@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: api.cerbos.dev/v1
+resourcePolicy:
+  version: "default"
+  scope: "acme.hr.uk.brighton"
+  scopePermissions: SCOPE_PERMISSIONS_REQUIRE_PARENTAL_CONSENT_FOR_ALLOWS
+  resource: leave_request
+  rules:
+    - roles: ["employee"]
+      actions:
+        - defer
+        - invite
+      effect: EFFECT_ALLOW
+      condition:
+        match:
+          expr: P.attr.department == R.attr.department
+
+    - roles: ["organiser"]
+      actions:
+        - party_plan
+      effect: EFFECT_ALLOW
+      condition:
+        match:
+          expr: P.attr.in_party_committee == true

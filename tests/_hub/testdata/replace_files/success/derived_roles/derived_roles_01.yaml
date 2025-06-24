@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: "api.cerbos.dev/v1"
+derivedRoles:
+  name: alpha
+  definitions:
+    - name: admin
+      parentRoles: ["admin"]
+
+    - name: tester
+      parentRoles: ["dev", "qa"]
+
+    - name: employee_that_owns_the_record
+      parentRoles: ["employee"]
+      condition:
+        match:
+          expr: R.attr.owner == P.id
+
+    - name: reader
+      parentRoles: ["*"]
+      condition:
+        match:
+          expr: request.principal.attr.reader == true
+
+    - name: kube_user
+      parentRoles: ["system:basic_user"]

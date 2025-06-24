@@ -2,7 +2,7 @@
 
 ### Async and non-async
 
-[Unasync](https://unasync.readthedocs.io/en/latest/index.html) is used to generate non-async code based on the async implementation. Only make changes to files in `cerbos/sdk/_async`. Then run `./pw generate` to re-generate the code in `cerbos/sdk/_sync`.
+A forked version of [Unasync](https://unasync.readthedocs.io/en/latest/index.html) is used to generate non-async code based on the async implementation. Only make changes to files in `src/cerbos/sdk/_async`. Then run `./pw generate` to re-generate the code in `src/cerbos/sdk/_sync`.
 
 
 ### Package management
@@ -17,8 +17,8 @@ Adding a new dependency
 Adding a tool
 
 ```shell
-# Add black to lint group
-./pw pdm add -dG lint black
+# Add Ruff to tool group
+./pw pdm add -dG tools ruff
 ```
 
 Formatting code
@@ -38,6 +38,13 @@ Running a REPL
 ```shell
 ./pw pdm run python
 ```
+
+### Testing with Podman
+
+```shell
+TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix://${XDG_RUNTIME_DIR}/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true ./pw test
+```
+
 
 ### Releases
 

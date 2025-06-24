@@ -3,6 +3,7 @@
 
 import logging
 import os
+import platform
 
 import pytest
 
@@ -20,7 +21,11 @@ def anyio_backend():
     return "asyncio"
 
 
-_params = [("http"), ("uds")]
+# Only include UDS tests on non-macOS platforms due to Docker limitations
+if platform.system() == "Darwin":
+    _params = ["http"]
+else:
+    _params = [("http"), ("uds")]
 
 
 @pytest.fixture(
@@ -36,7 +41,6 @@ def cerbos_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,
@@ -63,7 +67,6 @@ def cerbos_grpc_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,
@@ -92,7 +95,6 @@ def cerbos_admin_client(request, tmp_path_factory):
         container.stop()
 
 
-@pytest.mark.anyio
 @pytest.fixture(
     scope="module",
     params=_params,
@@ -132,8 +134,6 @@ def start_container(client_type, listener, tmp_path_factory, with_admin=False):
 
         host = container.http_host() if client_type == "http" else container.grpc_host()
     else:
-        # (jul-23 saml) macOS+docker does not play nice when it comes to sharing UDS across the host and container. I've not figured out how to work around
-        # this yet so I tend to comment out `uds` in the fixture params above and rely on CI to test the full suite.
         sock_dir = tmp_path_factory.mktemp("socket")
 
         container.with_volume_mapping(sock_dir, "/socket", "rw")

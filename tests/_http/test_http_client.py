@@ -16,7 +16,7 @@ pytestmark = pytest.mark.anyio
 class TestCerbosClient:
     def test_is_healthy(self, cerbos_client: CerbosClient):
         have = cerbos_client.is_healthy()
-        assert have == True
+        assert have
 
     def test_is_allowed(
         self,
@@ -27,13 +27,13 @@ class TestCerbosClient:
         have = cerbos_client.is_allowed(
             "view:public", principal_john, resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     def test_principal_context_is_allowed(
         self, principal_ctx: PrincipalContext, resource_john_leave_req: Resource
     ):
         have = principal_ctx.is_allowed("view:public", resource_john_leave_req)
-        assert have == True
+        assert have
 
     def test_check_resources(
         self,
@@ -206,7 +206,7 @@ class TestPrincipalContext:
         self, principal_ctx: PrincipalContext, resource_john_leave_req: Resource
     ):
         have = principal_ctx.is_allowed("view:public", resource_john_leave_req)
-        assert have == True
+        assert have
 
     def test_check_resources(
         self, principal_ctx: PrincipalContext, resource_list: ResourceList
@@ -234,7 +234,7 @@ class TestPrincipalContext:
 class TestAsyncCerbosClient:
     async def test_is_healthy(self, cerbos_async_client: AsyncCerbosClient):
         have = await cerbos_async_client.is_healthy()
-        assert have == True
+        assert have
 
     async def test_is_allowed(
         self,
@@ -245,7 +245,7 @@ class TestAsyncCerbosClient:
         have = await cerbos_async_client.is_allowed(
             "view:public", principal_john, resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_principal_context_is_allowed(
         self,
@@ -255,7 +255,7 @@ class TestAsyncCerbosClient:
         have = await async_principal_ctx.is_allowed(
             "view:public", resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_check_resources(
         self,
@@ -430,7 +430,7 @@ class TestAsyncAsyncPrincipalContext:
         have = await async_principal_ctx.is_allowed(
             "view:public", resource_john_leave_req
         )
-        assert have == True
+        assert have
 
     async def test_check_resources(
         self, async_principal_ctx: AsyncPrincipalContext, resource_list: ResourceList
@@ -462,40 +462,40 @@ class TestAsyncAsyncPrincipalContext:
 
 
 def _assert_check_resources(have: CheckResourcesResponse):
-    assert have.failed() == False
+    assert not have.failed()
 
     xx125 = have.get_resource(
         "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert xx125.is_allowed("view:public") == True
-    assert xx125.is_allowed("approve") == False
+    assert xx125.is_allowed("view:public")
+    assert not xx125.is_allowed("approve")
 
     xx225 = have.get_resource("XX225")
     assert xx225 is not None
-    assert xx225.is_allowed("view:public") == False
-    assert xx225.is_allowed("approve") == False
+    assert not xx225.is_allowed("view:public")
+    assert not xx225.is_allowed("approve")
 
     zz225 = have.get_resource("ZZ225")
     assert zz225 is None
 
 
 def _assert_check_resources_validation(have: CheckResourcesResponse):
-    assert have.failed() == False
+    assert not have.failed()
 
     xx125 = have.get_resource(
         "XX125", predicate=lambda r: r.policy_version == "20210210"
     )
     assert xx125 is not None
-    assert xx125.is_allowed("view:public") == False
-    assert xx125.is_allowed("approve") == False
+    assert not xx125.is_allowed("view:public")
+    assert not xx125.is_allowed("approve")
     assert xx125.validation_errors is not None
     assert len(xx125.validation_errors) == 1
 
     xx225 = have.get_resource("XX225")
     assert xx225 is not None
-    assert xx225.is_allowed("view:public") == False
-    assert xx225.is_allowed("approve") == False
+    assert not xx225.is_allowed("view:public")
+    assert not xx225.is_allowed("approve")
     assert xx225.validation_errors is not None
     assert len(xx225.validation_errors) == 1
 
@@ -504,7 +504,7 @@ def _assert_check_resources_validation(have: CheckResourcesResponse):
 
 
 def _assert_check_resources_empty_resources(have: CheckResourcesResponse):
-    assert have.failed() == True
+    assert have.failed()
     assert have.status_msg.code == 3
 
     with pytest.raises(CerbosRequestException):
@@ -512,7 +512,7 @@ def _assert_check_resources_empty_resources(have: CheckResourcesResponse):
 
 
 def _assert_plan_resources(have: PlanResourcesResponse):
-    assert have.failed() == False
+    assert not have.failed()
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
     assert have.filter.kind == PlanResourcesFilterKind.CONDITIONAL
@@ -521,7 +521,7 @@ def _assert_plan_resources(have: PlanResourcesResponse):
 
 
 def _assert_plan_resources_validation(have: PlanResourcesResponse):
-    assert have.failed() == False
+    assert not have.failed()
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
     assert have.filter.kind == PlanResourcesFilterKind.ALWAYS_DENIED

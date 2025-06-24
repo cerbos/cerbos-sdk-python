@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../../../schema/jsonschema/cerbos/policy/v1/Policy.schema.json
+---
+apiVersion: "api.cerbos.dev/v1"
+principalPolicy:
+  principal: terry_tibbs
+  version: "default"
+  rules:
+    - resource: equipment_request
+      actions:
+        - name: reject-rule
+          action: "reject"
+          effect: EFFECT_ALLOW
+          output:
+            when:
+              ruleActivated: |-
+                ["foo"]  
+
+        - name: create-rule
+          action: "create"
+          effect: EFFECT_ALLOW
+          output:
+            when:
+              ruleActivated: |-
+                ["foo", ["bar", true]]

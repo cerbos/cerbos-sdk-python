@@ -97,6 +97,7 @@ class NoUsableFilesError(RpcError):
 
 class OperationDiscardedError(RpcError):
     current_store_version: Optional[int] = None
+    ignored_files: Optional[Iterable[str]] = None
 
     def __init__(
         self,
@@ -108,6 +109,7 @@ class OperationDiscardedError(RpcError):
         )
         if details:
             self.current_store_version = details.current_store_version
+            self.ignored_files = details.ignored_files
 
 
 class PermissionDeniedError(RpcError):

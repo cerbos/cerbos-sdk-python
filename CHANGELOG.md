@@ -1,5 +1,13 @@
 ## Unreleased
 
+### Chores
+
+- Update Hub protobufs
+
+### Features
+
+- Hub store client (#58)
+
 ## v0.12.0 (2025-02-20)
 
 ### Chores

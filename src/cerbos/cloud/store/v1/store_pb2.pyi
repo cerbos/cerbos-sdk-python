@@ -227,10 +227,12 @@ class ErrDetailConditionUnsatisfied(_message.Message):
     def __init__(self, current_store_version: _Optional[int] = ...) -> None: ...
 
 class ErrDetailOperationDiscarded(_message.Message):
-    __slots__ = ["current_store_version"]
+    __slots__ = ["current_store_version", "ignored_files"]
     CURRENT_STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
+    IGNORED_FILES_FIELD_NUMBER: _ClassVar[int]
     current_store_version: int
-    def __init__(self, current_store_version: _Optional[int] = ...) -> None: ...
+    ignored_files: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, current_store_version: _Optional[int] = ..., ignored_files: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ErrDetailCannotModifyGitConnectedStore(_message.Message):
     __slots__ = []

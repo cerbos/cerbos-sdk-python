@@ -2,7 +2,8 @@
 
 ### Chores
 
-- Update Hub protobufs
+- Rename Hub list_files `like` filter to `contains`
+- Update Hub protobufs (#59)
 
 ### Features
 

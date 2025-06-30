@@ -262,8 +262,8 @@ class FilterPathEqual:
 
 
 @dataclass
-class FilterPathLike:
-    pattern: str
+class FilterPathContains:
+    fragment: str
 
 
 @dataclass

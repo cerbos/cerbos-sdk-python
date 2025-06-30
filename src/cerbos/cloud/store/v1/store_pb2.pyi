@@ -11,18 +11,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StringMatch(_message.Message):
-    __slots__ = ["equals", "like"]
+    __slots__ = ["equals", "contains"]
     class InList(_message.Message):
         __slots__ = ["values"]
         VALUES_FIELD_NUMBER: _ClassVar[int]
         values: _containers.RepeatedScalarFieldContainer[str]
         def __init__(self, values: _Optional[_Iterable[str]] = ...) -> None: ...
     EQUALS_FIELD_NUMBER: _ClassVar[int]
-    LIKE_FIELD_NUMBER: _ClassVar[int]
+    CONTAINS_FIELD_NUMBER: _ClassVar[int]
     IN_FIELD_NUMBER: _ClassVar[int]
     equals: str
-    like: str
-    def __init__(self, equals: _Optional[str] = ..., like: _Optional[str] = ..., **kwargs) -> None: ...
+    contains: str
+    def __init__(self, equals: _Optional[str] = ..., contains: _Optional[str] = ..., **kwargs) -> None: ...
 
 class FileFilter(_message.Message):
     __slots__ = ["path"]

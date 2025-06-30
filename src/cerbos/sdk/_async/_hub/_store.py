@@ -22,9 +22,9 @@ from cerbos.sdk.hub.store_model import (
     ConditionUnsatisfiedError,
     File,
     FileOps,
+    FilterPathContains,
     FilterPathEqual,
     FilterPathIn,
-    FilterPathLike,
     GetFilesResponse,
     InvalidRequestError,
     ListFilesResponse,
@@ -376,7 +376,9 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
     async def list_files(
         self,
         store_id: str,
-        filter: Optional[Union[FilterPathEqual, FilterPathLike, FilterPathIn]] = None,
+        filter: Optional[
+            Union[FilterPathEqual, FilterPathContains, FilterPathIn]
+        ] = None,
     ) -> ListFilesResponse:
         """
         List the files available on the remote store.
@@ -391,9 +393,9 @@ class AsyncCerbosHubStoreClient(_AsyncCerbosHubClientBase):
                 path_filter = store_pb2.FileFilter(
                     path=store_pb2.StringMatch(equals=filter.path)
                 )
-            elif isinstance(filter, FilterPathLike):
+            elif isinstance(filter, FilterPathContains):
                 path_filter = store_pb2.FileFilter(
-                    path=store_pb2.StringMatch(like=filter.pattern)
+                    path=store_pb2.StringMatch(contains=filter.fragment)
                 )
             elif isinstance(filter, FilterPathIn):
                 # "in" is a Python keyword  :(

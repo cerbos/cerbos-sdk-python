@@ -1,8 +1,8 @@
-## Unreleased
+## v0.13.0 (2025-07-18)
 
 ### Chores
 
-- Rename Hub list_files `like` filter to `contains`
+- Rename Hub list_files `like` filter to `contains` (#60)
 - Update Hub protobufs (#59)
 
 ### Features

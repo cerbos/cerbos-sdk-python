@@ -106,8 +106,8 @@ lint = { cmd = "ruff check --fix src/cerbos/sdk tests utils" }
 format = { composite = ["isort", "ruff_format"] }
 unasync = { cmd = "python utils/gen_unasync.py" }
 test = { cmd = "pytest" }
-pre_build = { composite = ["unasync", "format"] }
-pre_test = { composite = ["unasync", "format"] }
+pre_build = { composite = ["unasync", "format", "lint"] }
+pre_test = { composite = ["unasync", "format", "lint"] }
 
 [tool.ruff.lint]
 ignore = ["F403", "F405"]

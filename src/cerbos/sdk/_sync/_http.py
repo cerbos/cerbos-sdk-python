@@ -216,7 +216,7 @@ class CerbosClient:
 
     def plan_resources(
         self,
-        action: str,
+        actions: List[str],
         principal: Principal,
         resource: ResourceDesc,
         request_id: Optional[str] = None,
@@ -225,7 +225,7 @@ class CerbosClient:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:
-            action (str): Action to perform
+            actions (List[str]): Actions to perform
             principal (Principal): principal who is performing the action
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
@@ -234,7 +234,7 @@ class CerbosClient:
         req_id = _get_request_id(request_id)
         req = PlanResourcesRequest(
             request_id=req_id,
-            action=action,
+            actions=actions,
             principal=principal,
             resource=resource,
             aux_data=aux_data,
@@ -250,7 +250,7 @@ class CerbosClient:
                 request_id=req_id,
                 status_code=resp.status_code,
                 status_msg=APIError.from_dict(resp.json()),
-                action=action,
+                actions=actions,
                 resource_kind=resource.kind,
                 policy_version=resource.policy_version,
             )
@@ -310,7 +310,7 @@ class PrincipalContext:
 
     def plan_resources(
         self,
-        action: str,
+        actions: List[str],
         resource: ResourceDesc,
         request_id: Optional[str] = None,
         aux_data: Optional[AuxData] = None,
@@ -318,13 +318,13 @@ class PrincipalContext:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:
-            action (str): Action to perform
+            actions (List[str]): Actions to perform
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
         return self._client.plan_resources(
-            action=action,
+            actions=actions,
             principal=self._principal,
             resource=resource,
             request_id=request_id,

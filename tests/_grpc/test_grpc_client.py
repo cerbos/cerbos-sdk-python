@@ -80,6 +80,17 @@ class TestCerbosClient:
         )
         _assert_plan_resources(have)
 
+    def test_plan_resources_multiple_actions(
+        self,
+        cerbos_grpc_client: CerbosClient,
+        principal_maggie: engine_pb2.Principal,
+        resourcedesc_leave_req: engine_pb2.PlanResourcesInput.Resource,
+    ):
+        have = cerbos_grpc_client.plan_resources(
+            ["approve", "view:*"], principal_maggie, resourcedesc_leave_req
+        )
+        _assert_plan_resources_multiple_actions(have)
+
     def test_plan_resources_validation(
         self,
         cerbos_grpc_client: CerbosClient,
@@ -318,6 +329,14 @@ def _assert_check_resources_validation(have: response_pb2.CheckResourcesResponse
 
 
 def _assert_plan_resources(have: response_pb2.PlanResourcesResponse):
+    assert have.resource_kind == "leave_request"
+    assert have.policy_version == "20210210"
+    assert have.filter.kind == engine_pb2.PlanResourcesFilter.KIND_CONDITIONAL
+    assert have.filter.condition is not None
+    assert len(have.validation_errors) == 0
+
+
+def _assert_plan_resources_multiple_actions(have: response_pb2.PlanResourcesResponse):
     assert have.resource_kind == "leave_request"
     assert have.policy_version == "20210210"
     assert have.filter.kind == engine_pb2.PlanResourcesFilter.KIND_CONDITIONAL

@@ -290,7 +290,7 @@ class TestAsyncCerbosClient:
         resourcedesc_leave_req_invalid: ResourceDesc,
     ):
         have = await cerbos_async_client.plan_resources(
-            ["approve"], principal_maggie_invalid, resourcedesc_leave_req_invalid
+            "approve", principal_maggie_invalid, resourcedesc_leave_req_invalid
         )
         _assert_plan_resources_validation(have)
 

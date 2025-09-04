@@ -1,4 +1,8 @@
-## Unreleased
+## v0.14.0 (2025-09-04)
+
+### Enhancements
+
+- Multiple actions support for PlanResources (#66)
 
 ## v0.13.0 (2025-07-18)
 

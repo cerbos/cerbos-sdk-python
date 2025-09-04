@@ -4,7 +4,7 @@
 import logging
 import ssl
 import uuid
-from typing import Optional, Union
+from typing import List, Optional, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -245,16 +245,16 @@ class AsyncCerbosClient:
 
     async def plan_resources(
         self,
-        actions: List[str],
+        actions: Union[str, List[str]],
         principal: Principal,
         resource: ResourceDesc,
         request_id: Optional[str] = None,
         aux_data: Optional[AuxData] = None,
     ) -> PlanResourcesResponse:
-        """Create a query plan for performing the given action on resources of the given kind
+        """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
-            actions (List[str]): Actions to perform
+            action (str|List[str]): Action or actions to perform
             principal (Principal): principal who is performing the action
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
@@ -264,7 +264,7 @@ class AsyncCerbosClient:
         req_id = _get_request_id(request_id)
         req = PlanResourcesRequest(
             request_id=req_id,
-            actions=actions,
+            actions=[actions] if isinstance(actions, str) else list(actions),
             principal=principal,
             resource=resource,
             aux_data=aux_data,
@@ -282,12 +282,15 @@ class AsyncCerbosClient:
                 request_id=req_id,
                 status_code=resp.status_code,
                 status_msg=APIError.from_dict(resp.json()),
-                actions=actions,
+                action=actions,
                 resource_kind=resource.kind,
                 policy_version=resource.policy_version,
             )
 
-        return PlanResourcesResponse.from_dict(resp.json())
+        data = resp.json()
+        if "actions" in data and "action" not in data:
+            data["action"] = data["actions"]
+        return PlanResourcesResponse.from_dict(data)
 
     async def is_healthy(self, svc: Optional[str] = None) -> bool:
         """Checks the health of the Cerbos endpoint"""
@@ -346,15 +349,15 @@ class AsyncPrincipalContext:
 
     async def plan_resources(
         self,
-        actions: List[str],
+        actions: Union[str, List[str]],
         resource: ResourceDesc,
         request_id: Optional[str] = None,
         aux_data: Optional[AuxData] = None,
     ) -> PlanResourcesResponse:
-        """Create a query plan for performing the given action on resources of the given kind
+        """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
-            actions (List[str]): Actions to perform
+            action (str|List[str]): Action or actions to perform
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request

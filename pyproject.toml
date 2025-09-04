@@ -123,4 +123,5 @@ tools = [
     "jedi-language-server>=0.45.1",
     "ast-comments>=1.2.2",
     "tokenize-rt>=6.2.0",
+    "mypy>=1.17.1",
 ]

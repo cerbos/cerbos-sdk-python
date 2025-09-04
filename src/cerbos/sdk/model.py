@@ -169,7 +169,7 @@ class ResourceDesc:
 @dataclass
 class PlanResourcesRequest:
     request_id: str
-    action: str
+    actions: List[str]
     principal: Principal
     resource: ResourceDesc
     aux_data: Optional[AuxData] = None
@@ -246,7 +246,8 @@ class PlanResourcesFilter:
 @dataclass
 class PlanResourcesResponse:
     request_id: str
-    action: str
+    # `action` can be a list of strings, but we maintain the singular name for backwards compatibility
+    action: Union[str, List[str]]
     resource_kind: str
     policy_version: str
     filter: Optional[PlanResourcesFilter] = None

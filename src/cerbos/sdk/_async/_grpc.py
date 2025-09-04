@@ -273,7 +273,7 @@ class AsyncCerbosClient(AsyncClientBase):
     @handle_errors
     async def plan_resources(
         self,
-        action: str,
+        action: Union[str, List[str]],
         principal: engine_pb2.Principal,
         resource: engine_pb2.PlanResourcesInput.Resource,
         request_id: Union[str, None] = None,
@@ -290,9 +290,20 @@ class AsyncCerbosClient(AsyncClientBase):
         """
 
         req_id = _get_request_id(request_id)
+        if isinstance(action, str):
+            req = request_pb2.PlanResourcesRequest(
+                request_id=req_id,
+                action=action,
+                principal=principal,
+                resource=resource,
+                aux_data=aux_data,
+            )
+
+            return await self._client.PlanResources(req)
+
         req = request_pb2.PlanResourcesRequest(
             request_id=req_id,
-            action=action,
+            actions=action,
             principal=principal,
             resource=resource,
             aux_data=aux_data,
@@ -358,7 +369,7 @@ class AsyncPrincipalContext:
 
     async def plan_resources(
         self,
-        action: str,
+        action: Union[str, List[str]],
         resource: engine_pb2.PlanResourcesInput.Resource,
         request_id: Union[str, None] = None,
         aux_data: Union[request_pb2.AuxData, None] = None,

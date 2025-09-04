@@ -111,9 +111,9 @@ _WANT_FILES = [
 
 
 @pytest.mark.skipif(
-    os.getenv("CERBOS_HUB_CLIENT_ID") == ""
-    or os.getenv("CERBOS_HUB_CLIENT_SECRET") == ""
-    or os.getenv("CERBOS_HUB_STORE_ID") == "",
+    os.getenv("CERBOS_HUB_CLIENT_ID", "") == ""
+    or os.getenv("CERBOS_HUB_CLIENT_SECRET", "") == ""
+    or os.getenv("CERBOS_HUB_STORE_ID", "") == "",
     reason="Cerbos Hub credentials not defined",
 )
 class TestCerbosHubStoreClient:

@@ -66,7 +66,7 @@ class TestCerbosClient:
         resourcedesc_leave_req: ResourceDesc,
     ):
         have = cerbos_client.plan_resources(
-            "approve", principal_maggie, resourcedesc_leave_req
+            ["approve", "view:*"], principal_maggie, resourcedesc_leave_req
         )
         _assert_plan_resources(have)
 
@@ -77,7 +77,7 @@ class TestCerbosClient:
         resourcedesc_leave_req_invalid: ResourceDesc,
     ):
         have = cerbos_client.plan_resources(
-            "approve", principal_maggie_invalid, resourcedesc_leave_req_invalid
+            ["approve"], principal_maggie_invalid, resourcedesc_leave_req_invalid
         )
         _assert_plan_resources_validation(have)
 
@@ -227,7 +227,7 @@ class TestPrincipalContext:
     def test_plan_resources(
         self, principal_ctx: PrincipalContext, resourcedesc_leave_req: ResourceDesc
     ):
-        have = principal_ctx.plan_resources("view:*", resourcedesc_leave_req)
+        have = principal_ctx.plan_resources(["view:*"], resourcedesc_leave_req)
         _assert_plan_resources(have)
 
 
@@ -279,7 +279,7 @@ class TestAsyncCerbosClient:
         resourcedesc_leave_req: ResourceDesc,
     ):
         have = await cerbos_async_client.plan_resources(
-            "approve", principal_maggie, resourcedesc_leave_req
+            ["approve"], principal_maggie, resourcedesc_leave_req
         )
         _assert_plan_resources(have)
 
@@ -456,7 +456,7 @@ class TestAsyncAsyncPrincipalContext:
         resourcedesc_leave_req: ResourceDesc,
     ):
         have = await async_principal_ctx.plan_resources(
-            "view:*", resourcedesc_leave_req
+            ["view:*"], resourcedesc_leave_req
         )
         _assert_plan_resources(have)
 

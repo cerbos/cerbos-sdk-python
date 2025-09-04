@@ -3,7 +3,7 @@
 import logging
 import ssl
 import uuid
-from typing import Optional, Union
+from typing import List, Optional, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -216,16 +216,16 @@ class CerbosClient:
 
     def plan_resources(
         self,
-        action: str,
+        actions: Union[str, List[str]],
         principal: Principal,
         resource: ResourceDesc,
         request_id: Optional[str] = None,
         aux_data: Optional[AuxData] = None,
     ) -> PlanResourcesResponse:
-        """Create a query plan for performing the given action on resources of the given kind
+        """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
-            action (str): Action to perform
+            action (str|List[str]): Action or actions to perform
             principal (Principal): principal who is performing the action
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
@@ -234,7 +234,7 @@ class CerbosClient:
         req_id = _get_request_id(request_id)
         req = PlanResourcesRequest(
             request_id=req_id,
-            action=action,
+            actions=[actions] if isinstance(actions, str) else list(actions),
             principal=principal,
             resource=resource,
             aux_data=aux_data,
@@ -250,11 +250,14 @@ class CerbosClient:
                 request_id=req_id,
                 status_code=resp.status_code,
                 status_msg=APIError.from_dict(resp.json()),
-                action=action,
+                action=actions,
                 resource_kind=resource.kind,
                 policy_version=resource.policy_version,
             )
-        return PlanResourcesResponse.from_dict(resp.json())
+        data = resp.json()
+        if "actions" in data and "action" not in data:
+            data["action"] = data["actions"]
+        return PlanResourcesResponse.from_dict(data)
 
     def is_healthy(self, svc: Optional[str] = None) -> bool:
         """Checks the health of the Cerbos endpoint"""
@@ -310,21 +313,21 @@ class PrincipalContext:
 
     def plan_resources(
         self,
-        action: str,
+        actions: Union[str, List[str]],
         resource: ResourceDesc,
         request_id: Optional[str] = None,
         aux_data: Optional[AuxData] = None,
     ) -> PlanResourcesResponse:
-        """Create a query plan for performing the given action on resources of the given kind
+        """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
-            action (str): Action to perform
+            action (str|List[str]): Action or actions to perform
             resource (ResourceDesc): information about the resource kind
             request_id (None|str): request ID for the request (default None)
             aux_data (None|AuxData): auxiliary data for the request
         """
         return self._client.plan_resources(
-            action=action,
+            actions=actions,
             principal=self._principal,
             resource=resource,
             request_id=request_id,

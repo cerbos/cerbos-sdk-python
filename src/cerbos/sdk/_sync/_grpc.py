@@ -6,9 +6,7 @@ import ssl
 import uuid
 from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Union
-
 import grpc
-
 from cerbos.engine.v1 import engine_pb2
 from cerbos.policy.v1 import policy_pb2
 from cerbos.request.v1 import request_pb2
@@ -17,8 +15,7 @@ from cerbos.schema.v1 import schema_pb2
 from cerbos.sdk.grpc.utils import AdminCredentials, get_resource, is_allowed
 from cerbos.sdk.model import CerbosTLSError, CerbosTypeError
 from cerbos.svc.v1 import svc_pb2_grpc
-
-_PLAYGROUND_INSTANCE_KEY = "playground-instance"
+_PLAYGROUND_INSTANCE_KEY = 'playground-instance'
 _default_paths = ssl.get_default_verify_paths()
 TLSVerify = Union[str, bool]
 # TODO(saml) type errors generated from passing incorrect types to proto generated code currently
@@ -26,88 +23,63 @@ TLSVerify = Union[str, bool]
 #     "Message must be initialized with a dict: cerbos.request.v1.CheckResourcesRequest".
 # Investigate more useful TypeError returns.
 
-
 def handle_errors(method):
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         try:
             return method(*args, **kwargs)
         except TypeError as e:
             raise CerbosTypeError(str(e))
-
     return wrapper
-
 
 def get_cert(c: TLSVerify) -> Union[bytes, None]:
     try:
         if isinstance(c, str):
-            with open(c, "rb") as f:
+            with open(c, 'rb') as f:
                 return f.read()
         elif isinstance(c, bool):
             # Attempt to retrieve the cert from the location specified at `SSL_CERT_FILE`
             # or the default location if not specified.
             filename = _default_paths.cafile
-            if cf := os.getenv("SSL_CERT_FILE"):
+            if (cf := os.getenv('SSL_CERT_FILE')):
                 filename = cf
-            with open(filename, "rb") as f:
+            with open(filename, 'rb') as f:
                 return f.read()
     except IOError:
-        raise CerbosTLSError(f"Error reading certificate from file: {c}")
+        raise CerbosTLSError(f'Error reading certificate from file: {c}')
     except Exception:
-        raise CerbosTLSError("Error retrieving certificate")
-    raise TypeError("TLSVerify should be a string or boolean")
-
+        raise CerbosTLSError('Error retrieving certificate')
+    raise TypeError('TLSVerify should be a string or boolean')
 
 class PlaygroundInstanceCredentials(grpc.AuthMetadataPlugin):
+
     def __init__(self, playground_instance: str):
         self._playground_instance = playground_instance
 
-    def __call__(
-        self,
-        context: grpc.AuthMetadataContext,
-        callback: grpc.AuthMetadataPluginCallback,
-    ) -> None:
+    def __call__(self, context: grpc.AuthMetadataContext, callback: grpc.AuthMetadataPluginCallback) -> None:
         callback(((_PLAYGROUND_INSTANCE_KEY, self._playground_instance),), None)
-
 
 class ClientBase:
     _channel: grpc.Channel
 
-    def __init__(
-        self,
-        host: str,
-        creds: Optional[grpc.ChannelCredentials],
-        methods: Optional[List[Dict[str, str]]] = None,
-        tls_verify: TLSVerify = False,
-        timeout_secs: Union[float, None] = None,
-        request_retries: int = 0,
-        wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
-    ):
+    def __init__(self, host: str, creds: Optional[grpc.ChannelCredentials], methods: Optional[List[Dict[str, str]]]=None, tls_verify: TLSVerify=False, timeout_secs: Union[float, None]=None, request_retries: int=0, wait_for_ready: bool=False, channel_options: Union[Dict[str, Any], None]=None):
         if timeout_secs and (not isinstance(timeout_secs, (int, float))):
-            raise TypeError("timeout_secs must be a number type")
+            raise TypeError('timeout_secs must be a number type')
         if request_retries and (not isinstance(request_retries, (int, float))):
-            raise TypeError(
-                "request_retries must be a number type. anything below 2 is treated as 0 (disabled)"
-            )
+            raise TypeError('request_retries must be a number type. anything below 2 is treated as 0 (disabled)')
         if request_retries < 2:
             request_retries = 0
         method_config: Dict[str, Any] = {}
         if methods:
-            method_config["name"] = methods
+            method_config['name'] = methods
         if timeout_secs:
-            method_config["timeout"] = f"{timeout_secs}s"
+            method_config['timeout'] = f'{timeout_secs}s'
         if request_retries:
-            method_config["retryPolicy"] = {
-                "maxAttempts": request_retries,
-                "initialBackoff": "1s",
-                "maxBackoff": "10s",
-                "backoffMultiplier": 2,
-                "retryableStatusCodes": ["UNAVAILABLE"],
-            }
+            method_config['retryPolicy'] = {'maxAttempts': request_retries, 'initialBackoff': '1s', 'maxBackoff': '10s', 'backoffMultiplier': 2, 'retryableStatusCodes': ['UNAVAILABLE']}
         if wait_for_ready:
-            method_config["waitForReady"] = wait_for_ready
-        options = {"grpc.service_config": json.dumps({"methodConfig": [method_config]})}
+            method_config['waitForReady'] = wait_for_ready
+        options = {'grpc.service_config': json.dumps({'methodConfig': [method_config]})}
         if channel_options:
             options = {**options, **channel_options}
         opts = [(k, v) for k, v in options.items()]
@@ -124,7 +96,6 @@ class ClientBase:
 
     def close(self):
         self._channel.close()
-
 
 class CerbosClient(ClientBase):
     """Client for accessing the Cerbos API
@@ -147,19 +118,9 @@ class CerbosClient(ClientBase):
                 ):
                 do_thing()
     """
-
     _client: svc_pb2_grpc.CerbosServiceStub
 
-    def __init__(
-        self,
-        host: str,
-        tls_verify: TLSVerify = False,
-        playground_instance: str = "",
-        timeout_secs: Union[float, None] = None,
-        request_retries: int = 0,
-        wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
-    ):
+    def __init__(self, host: str, tls_verify: TLSVerify=False, playground_instance: str='', timeout_secs: Union[float, None]=None, request_retries: int=0, wait_for_ready: bool=False, channel_options: Union[Dict[str, Any], None]=None):
         creds: Optional[grpc.ChannelCredentials] = None
         if tls_verify:
             cert = get_cert(tls_verify)
@@ -168,34 +129,14 @@ class CerbosClient(ClientBase):
             # insecure creds required for playground without TLS
             if not creds:
                 creds = grpc.ssl_channel_credentials()
-            call_credentials = grpc.metadata_call_credentials(
-                PlaygroundInstanceCredentials(playground_instance)
-            )
+            call_credentials = grpc.metadata_call_credentials(PlaygroundInstanceCredentials(playground_instance))
             creds = grpc.composite_channel_credentials(creds, call_credentials)
-        methods = [
-            {"service": "svc.CerbosService", "method": "CheckResources"},
-            {"service": "svc.CerbosService", "method": "PlanResources"},
-        ]
-        super().__init__(
-            host,
-            creds,
-            methods,
-            tls_verify,
-            timeout_secs,
-            request_retries,
-            wait_for_ready,
-            channel_options,
-        )
+        methods = [{'service': 'svc.CerbosService', 'method': 'CheckResources'}, {'service': 'svc.CerbosService', 'method': 'PlanResources'}]
+        super().__init__(host, creds, methods, tls_verify, timeout_secs, request_retries, wait_for_ready, channel_options)
         self._client = svc_pb2_grpc.CerbosServiceStub(self._channel)
 
     @handle_errors
-    def check_resources(
-        self,
-        principal: engine_pb2.Principal,
-        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ) -> response_pb2.CheckResourcesResponse:
+    def check_resources(self, principal: engine_pb2.Principal, resources: List[request_pb2.CheckResourcesRequest.ResourceEntry], request_id: Union[str, None]=None, aux_data: Union[request_pb2.AuxData, None]=None) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
@@ -205,22 +146,10 @@ class CerbosClient(ClientBase):
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
         req_id = _get_request_id(request_id)
-        req = request_pb2.CheckResourcesRequest(
-            request_id=req_id,
-            principal=principal,
-            resources=resources,
-            aux_data=aux_data,
-        )
+        req = request_pb2.CheckResourcesRequest(request_id=req_id, principal=principal, resources=resources, aux_data=aux_data)
         return self._client.CheckResources(req)
 
-    def is_allowed(
-        self,
-        action: str,
-        principal: engine_pb2.Principal,
-        resource: engine_pb2.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ) -> bool:
+    def is_allowed(self, action: str, principal: engine_pb2.Principal, resource: engine_pb2.Resource, request_id: Union[str, None]=None, aux_data: Union[request_pb2.AuxData, None]=None) -> bool:
         """Check permission for a single action
 
         Args:
@@ -230,29 +159,13 @@ class CerbosClient(ClientBase):
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-        resp = self.check_resources(
-            principal=principal,
-            resources=[
-                request_pb2.CheckResourcesRequest.ResourceEntry(
-                    actions=[action], resource=resource
-                )
-            ],
-            request_id=request_id,
-            aux_data=aux_data,
-        )
+        resp = self.check_resources(principal=principal, resources=[request_pb2.CheckResourcesRequest.ResourceEntry(actions=[action], resource=resource)], request_id=request_id, aux_data=aux_data)
         if (res := get_resource(resp, resource.id)) is not None:
             return is_allowed(res, action)
         return False
 
     @handle_errors
-    def plan_resources(
-        self,
-        action: Union[str, List[str]],
-        principal: engine_pb2.Principal,
-        resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ) -> response_pb2.PlanResourcesResponse:
+    def plan_resources(self, action: Union[str, List[str]], principal: engine_pb2.Principal, resource: engine_pb2.PlanResourcesInput.Resource, request_id: Union[str, None]=None, aux_data: Union[request_pb2.AuxData, None]=None) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:
@@ -264,78 +177,40 @@ class CerbosClient(ClientBase):
         """
         req_id = _get_request_id(request_id)
         if isinstance(action, str):
-            req = request_pb2.PlanResourcesRequest(
-                request_id=req_id,
-                action=action,
-                principal=principal,
-                resource=resource,
-                aux_data=aux_data,
-            )
+            req = request_pb2.PlanResourcesRequest(request_id=req_id, action=action, principal=principal, resource=resource, aux_data=aux_data)
             return self._client.PlanResources(req)
-        req = request_pb2.PlanResourcesRequest(
-            request_id=req_id,
-            actions=action,
-            principal=principal,
-            resource=resource,
-            aux_data=aux_data,
-        )
+        req = request_pb2.PlanResourcesRequest(request_id=req_id, actions=action, principal=principal, resource=resource, aux_data=aux_data)
         return self._client.PlanResources(req)
 
     def server_info(self) -> response_pb2.ServerInfoResponse:
         """Retrieve server info for the running PDP"""
         return self._client.ServerInfo(request_pb2.ServerInfoRequest())
 
-    def with_principal(
-        self,
-        principal: engine_pb2.Principal,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ) -> "PrincipalContext":
+    def with_principal(self, principal: engine_pb2.Principal, aux_data: Union[request_pb2.AuxData, None]=None) -> 'PrincipalContext':
         """Fixes the principal for subsequent requests"""
         return PrincipalContext(client=self, principal=principal, aux_data=aux_data)
 
-
 class PrincipalContext:
     """A special Cerbos client where the principal and auxData are fixed"""
-
     _client: CerbosClient
     _principal: engine_pb2.Principal
     _aux_data: Union[request_pb2.AuxData, None]
 
-    def __init__(
-        self,
-        client: CerbosClient,
-        principal: engine_pb2.Principal,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ):
+    def __init__(self, client: CerbosClient, principal: engine_pb2.Principal, aux_data: Union[request_pb2.AuxData, None]=None):
         self._client = client
         self._principal = principal
         self._aux_data = aux_data
 
-    def check_resources(
-        self,
-        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: Union[str, None] = None,
-    ) -> response_pb2.CheckResourcesResponse:
+    def check_resources(self, resources: List[request_pb2.CheckResourcesRequest.ResourceEntry], request_id: Union[str, None]=None) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
             resources (List[request_pb2.CheckResourcesRequest.ResourceEntry]): list of resources to check permissions for
             request_id (None|str): request ID for the request (default None)
         """
-        return self._client.check_resources(
-            principal=self._principal,
-            resources=resources,
-            request_id=request_id,
-            aux_data=self._aux_data,
-        )
+        return self._client.check_resources(principal=self._principal, resources=resources, request_id=request_id, aux_data=self._aux_data)
 
-    def plan_resources(
-        self,
-        action: Union[str, List[str]],
-        resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
-    ) -> response_pb2.PlanResourcesResponse:
+    def plan_resources(self, action: Union[str, List[str]], resource: engine_pb2.PlanResourcesInput.Resource, request_id: Union[str, None]=None, aux_data: Union[request_pb2.AuxData, None]=None) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
         Args:
@@ -344,20 +219,9 @@ class PrincipalContext:
             request_id (None|str): request ID for the request (default None)
             aux_data (None|request_pb2.AuxData): auxiliary data for the request
         """
-        return self._client.plan_resources(
-            action=action,
-            principal=self._principal,
-            resource=resource,
-            request_id=request_id,
-            aux_data=aux_data,
-        )
+        return self._client.plan_resources(action=action, principal=self._principal, resource=resource, request_id=request_id, aux_data=aux_data)
 
-    def is_allowed(
-        self,
-        action: str,
-        resource: engine_pb2.Resource,
-        request_id: Union[str, None] = None,
-    ) -> bool:
+    def is_allowed(self, action: str, resource: engine_pb2.Resource, request_id: Union[str, None]=None) -> bool:
         """Check permission for a single action
 
         Args:
@@ -365,20 +229,12 @@ class PrincipalContext:
             resource (engine_pb2.Resource): resource on which the action is being performed
             request_id (None|str): request ID for the request (default None)
         """
-        return self._client.is_allowed(
-            action=action,
-            principal=self._principal,
-            resource=resource,
-            request_id=request_id,
-            aux_data=self._aux_data,
-        )
-
+        return self._client.is_allowed(action=action, principal=self._principal, resource=resource, request_id=request_id, aux_data=self._aux_data)
 
 def _get_request_id(request_id: Union[str, None]) -> str:
     if request_id is None:
         return str(uuid.uuid4())
     return request_id
-
 
 class CerbosAdminClient(ClientBase):
     """Client for accessing the Cerbos Admin API
@@ -401,20 +257,10 @@ class CerbosAdminClient(ClientBase):
                 ):
                 do_thing()
     """
-
     _client: svc_pb2_grpc.CerbosAdminServiceStub
     _creds_metadata: Tuple[Tuple[str, str]]
 
-    def __init__(
-        self,
-        host: str,
-        admin_credentials: Union[AdminCredentials, None] = None,
-        tls_verify: TLSVerify = False,
-        timeout_secs: Union[float, None] = None,
-        request_retries: int = 0,
-        wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
-    ):
+    def __init__(self, host: str, admin_credentials: Union[AdminCredentials, None]=None, tls_verify: TLSVerify=False, timeout_secs: Union[float, None]=None, request_retries: int=0, wait_for_ready: bool=False, channel_options: Union[Dict[str, Any], None]=None):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
         creds: Optional[grpc.ChannelCredentials] = None
@@ -422,28 +268,8 @@ class CerbosAdminClient(ClientBase):
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
         # {"service": "svc.CerbosAdminService", "method": "AuditLogs"},
-        methods = [
-            {"service": "svc.CerbosAdminService", "method": "AddOrUpdatePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "ListPolicies"},
-            {"service": "svc.CerbosAdminService", "method": "GetPolicy"},
-            {"service": "svc.CerbosAdminService", "method": "DisablePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "EnablePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "AddOrUpdateSchema"},
-            {"service": "svc.CerbosAdminService", "method": "DeleteSchema"},
-            {"service": "svc.CerbosAdminService", "method": "ListSchemas"},
-            {"service": "svc.CerbosAdminService", "method": "GetSchema"},
-            {"service": "svc.CerbosAdminService", "method": "ReloadStore"},
-        ]
-        super().__init__(
-            host,
-            creds,
-            methods,
-            tls_verify,
-            timeout_secs,
-            request_retries,
-            wait_for_ready,
-            channel_options,
-        )
+        methods = [{'service': 'svc.CerbosAdminService', 'method': 'AddOrUpdatePolicy'}, {'service': 'svc.CerbosAdminService', 'method': 'ListPolicies'}, {'service': 'svc.CerbosAdminService', 'method': 'GetPolicy'}, {'service': 'svc.CerbosAdminService', 'method': 'DisablePolicy'}, {'service': 'svc.CerbosAdminService', 'method': 'EnablePolicy'}, {'service': 'svc.CerbosAdminService', 'method': 'AddOrUpdateSchema'}, {'service': 'svc.CerbosAdminService', 'method': 'DeleteSchema'}, {'service': 'svc.CerbosAdminService', 'method': 'ListSchemas'}, {'service': 'svc.CerbosAdminService', 'method': 'GetSchema'}, {'service': 'svc.CerbosAdminService', 'method': 'ReloadStore'}]
+        super().__init__(host, creds, methods, tls_verify, timeout_secs, request_retries, wait_for_ready, channel_options)
         self._client = svc_pb2_grpc.CerbosAdminServiceStub(self._channel)
 
     def _call(self, method, *args, **kwargs):
@@ -458,9 +284,7 @@ class CerbosAdminClient(ClientBase):
         return method(*args, metadata=self._creds_metadata, **kwargs)
 
     @handle_errors
-    def add_or_update_policy(
-        self, policies: List[policy_pb2.Policy]
-    ) -> response_pb2.AddOrUpdatePolicyResponse:
+    def add_or_update_policy(self, policies: List[policy_pb2.Policy]) -> response_pb2.AddOrUpdatePolicyResponse:
         """Add or update a set of policies in the mutable store
 
         Args:
@@ -470,13 +294,7 @@ class CerbosAdminClient(ClientBase):
         return self._call(self._client.AddOrUpdatePolicy, req)
 
     @handle_errors
-    def list_policies(
-        self,
-        include_disabled: bool = False,
-        name_regexp: str = "",
-        scope_regexp: str = "",
-        version_regexp: str = "",
-    ) -> response_pb2.ListPoliciesResponse:
+    def list_policies(self, include_disabled: bool=False, name_regexp: str='', scope_regexp: str='', version_regexp: str='') -> response_pb2.ListPoliciesResponse:
         """List policies with optional filters
 
         Args:
@@ -485,12 +303,7 @@ class CerbosAdminClient(ClientBase):
             scope_regexp (str): filter the policy scope with case insensitive regular expression
             version_regexp (str): filter the policy version with case insensitive regular expression
         """
-        req = request_pb2.ListPoliciesRequest(
-            include_disabled=include_disabled,
-            name_regexp=name_regexp,
-            scope_regexp=scope_regexp,
-            version_regexp=version_regexp,
-        )
+        req = request_pb2.ListPoliciesRequest(include_disabled=include_disabled, name_regexp=name_regexp, scope_regexp=scope_regexp, version_regexp=version_regexp)
         return self._call(self._client.ListPolicies, req)
 
     @handle_errors
@@ -524,9 +337,7 @@ class CerbosAdminClient(ClientBase):
         return self._call(self._client.EnablePolicy, req)
 
     @handle_errors
-    def add_or_update_schema(
-        self, schemas: List[schema_pb2.Schema]
-    ) -> response_pb2.AddOrUpdateSchemaResponse:
+    def add_or_update_schema(self, schemas: List[schema_pb2.Schema]) -> response_pb2.AddOrUpdateSchemaResponse:
         """Add or update a set of schemas in the mutable store
 
         Args:
@@ -562,7 +373,7 @@ class CerbosAdminClient(ClientBase):
         return self._call(self._client.GetSchema, req)
 
     @handle_errors
-    def reload_store(self, wait: bool = False) -> response_pb2.ReloadStoreResponse:
+    def reload_store(self, wait: bool=False) -> response_pb2.ReloadStoreResponse:
         """Reload the store
 
         Args:
@@ -570,8 +381,6 @@ class CerbosAdminClient(ClientBase):
         """
         req = request_pb2.ReloadStoreRequest(wait=wait)
         return self._call(self._client.ReloadStore, req)
-
-
 # TODO(saml) basic auth is handled differently with the streaming API, figure out how and re-enable
 # @handle_errors
 # async def list_audit_logs(

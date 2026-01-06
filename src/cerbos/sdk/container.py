@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from testcontainers.core.container import DockerContainer
+from testcontainers.core.wait_strategies import LogMessageWaitStrategy
 from testcontainers.core.waiting_utils import wait_for_logs
 
 
@@ -20,4 +21,8 @@ class CerbosContainer(DockerContainer):
         return f"{self.get_container_host_ip()}:{self.get_exposed_port(self.GRPC_PORT)}"
 
     def wait_until_ready(self, timeout_secs: float = 30):
-        wait_for_logs(self, r"Starting HTTP server at", timeout=timeout_secs)
+        wait_for_logs(
+            self,
+            LogMessageWaitStrategy(r"Starting HTTP server at"),
+            timeout=timeout_secs,
+        )

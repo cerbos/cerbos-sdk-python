@@ -29,7 +29,7 @@ def get_resource(
 ) -> Union[CheckResourcesResponse.ResultEntry, None]:
     return next(
         filter(
-            lambda r: (r.resource.id == resource_id and predicate(r.resource)),
+            lambda r: r.resource.id == resource_id and predicate(r.resource),
             resp.results,
         ),
         None,

@@ -67,6 +67,7 @@ _CIRCUIT_BREAKER = CircuitBreaker().decorate
 
 
 def handle_store_errors(method):
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         try:

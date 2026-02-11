@@ -28,6 +28,7 @@ TLSVerify = Union[str, bool]
 
 
 def handle_errors(method):
+
     @wraps(method)
     def wrapper(*args, **kwargs):
         try:

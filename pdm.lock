@@ -200,7 +200,7 @@ files = [
 
 [[package]]
 name = "commitizen"
-version = "4.13.10"
+version = "4.15.0"
 requires_python = "<4.0,>=3.10"
 summary = "Python commitizen client tool"
 dependencies = [
@@ -220,8 +220,8 @@ dependencies = [
     "typing-extensions<5.0.0,>=4.0.1; python_full_version < \"3.11\"",
 ]
 files = [
-    {file = "commitizen-4.13.10-py3-none-any.whl", hash = "sha256:95a281317990ac613501fdfe65745cec1fa4042bc5d003a72d332a74926e3039"},
-    {file = "commitizen-4.13.10.tar.gz", hash = "sha256:402b5bcd466be69ba79a3f380be6ba5b55ac658c7d2a93e82fc99668a6eb2673"},
+    {file = "commitizen-4.15.0-py3-none-any.whl", hash = "sha256:01803238c1d5f3ea9ff9de5f994984860ee38d496dae8cdc15772f046f55cb3d"},
+    {file = "commitizen-4.15.0.tar.gz", hash = "sha256:80e6df74fd2ccbfa175273cfb53ca361178ae70be5314017e84359e24d172d5f"},
 ]
 
 [[package]]
@@ -852,22 +852,22 @@ files = [
 
 [[package]]
 name = "parso"
-version = "0.8.6"
+version = "0.8.7"
 requires_python = ">=3.6"
 summary = "A Python Parser"
 files = [
-    {file = "parso-0.8.6-py2.py3-none-any.whl", hash = "sha256:2c549f800b70a5c4952197248825584cb00f033b29c692671d3bf08bf380baff"},
-    {file = "parso-0.8.6.tar.gz", hash = "sha256:2b9a0332696df97d454fa67b81618fd69c35a7b90327cbe6ba5c92d2c68a7bfd"},
+    {file = "parso-0.8.7-py2.py3-none-any.whl", hash = "sha256:a8926eb2a1b915486941fdbd31e86a4baf88fe8c210f25f2f35ecec5b574ca1c"},
+    {file = "parso-0.8.7.tar.gz", hash = "sha256:eaaac4c9fdd5e9e8852dc778d2d7405897ec510f2a298071453e5e3a07914bb1"},
 ]
 
 [[package]]
 name = "pathspec"
-version = "1.1.0"
+version = "1.1.1"
 requires_python = ">=3.9"
 summary = "Utility library for gitignore style pattern matching of file paths."
 files = [
-    {file = "pathspec-1.1.0-py3-none-any.whl", hash = "sha256:574b128f7456bd899045ccd142dd446af7e6cfd0072d63ad73fbc55fbb4aaa42"},
-    {file = "pathspec-1.1.0.tar.gz", hash = "sha256:f5d7c555da02fd8dde3e4a2354b6aba817a89112fa8f333f7917a2a4834dd080"},
+    {file = "pathspec-1.1.1-py3-none-any.whl", hash = "sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189"},
+    {file = "pathspec-1.1.1.tar.gz", hash = "sha256:17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a"},
 ]
 
 [[package]]
@@ -1205,12 +1205,12 @@ files = [
 
 [[package]]
 name = "types-protobuf"
-version = "7.34.1.20260408"
+version = "7.34.1.20260503"
 requires_python = ">=3.10"
 summary = "Typing stubs for protobuf"
 files = [
-    {file = "types_protobuf-7.34.1.20260408-py3-none-any.whl", hash = "sha256:ebbcd4e27b145aef6a59bc0cb6c013b3528151c1ba5e7f7337aeee355d276a5e"},
-    {file = "types_protobuf-7.34.1.20260408.tar.gz", hash = "sha256:e2c0a0430e08c75b52671a6f0035abfdcc791aad12af16274282de1b721758ab"},
+    {file = "types_protobuf-7.34.1.20260503-py3-none-any.whl", hash = "sha256:75fd66121d56785c91828b8bf7b511f39ba847f11e682573e41847f01e9cd1de"},
+    {file = "types_protobuf-7.34.1.20260503.tar.gz", hash = "sha256:effbc819aa17e02448dde99f089c6794662d66f4b2797e922f185ffe0b24e766"},
 ]
 
 [[package]]
@@ -1249,12 +1249,12 @@ files = [
 
 [[package]]
 name = "wcwidth"
-version = "0.6.0"
+version = "0.7.0"
 requires_python = ">=3.8"
 summary = "Measures the displayed width of unicode strings in a terminal"
 files = [
-    {file = "wcwidth-0.6.0-py3-none-any.whl", hash = "sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad"},
-    {file = "wcwidth-0.6.0.tar.gz", hash = "sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159"},
+    {file = "wcwidth-0.7.0-py3-none-any.whl", hash = "sha256:5d69154c429a82910e241c738cd0e2976fac8a2dd47a1a805f4afed1c0f136f2"},
+    {file = "wcwidth-0.7.0.tar.gz", hash = "sha256:90e3a7ea092341c44b99562e75d09e4d5160fe7a3974c6fb842a101a95e7eed0"},
 ]
 
 [[package]]

@@ -39,7 +39,7 @@ jobs:
         run: ./pw changelog
 
       - name: Check repo status
-        uses: cerbos/actions/check-repo-status@b65bfbd7621d9a89a06901a7daaed0cfc72eb690 # main
+        uses: cerbos/actions/check-repo-status@025d2a858c99b1e9c062351376d0b42988c5e52c # main
 
       - name: Test
         env:

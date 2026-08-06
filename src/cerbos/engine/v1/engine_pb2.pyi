@@ -9,16 +9,17 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PlanResourcesInput(_message.Message):
-    __slots__ = ["request_id", "action", "actions", "principal", "resource", "aux_data", "include_meta"]
+    __slots__ = ("request_id", "action", "actions", "principal", "resource", "aux_data", "include_meta")
     class Resource(_message.Message):
-        __slots__ = ["kind", "attr", "policy_version", "scope"]
+        __slots__ = ("kind", "attr", "policy_version", "scope")
         class AttrEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -47,21 +48,21 @@ class PlanResourcesInput(_message.Message):
     resource: PlanResourcesInput.Resource
     aux_data: AuxData
     include_meta: bool
-    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., actions: _Optional[_Iterable[str]] = ..., principal: _Optional[_Union[Principal, _Mapping]] = ..., resource: _Optional[_Union[PlanResourcesInput.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ..., include_meta: bool = ...) -> None: ...
+    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., actions: _Optional[_Iterable[str]] = ..., principal: _Optional[_Union[Principal, _Mapping]] = ..., resource: _Optional[_Union[PlanResourcesInput.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ..., include_meta: _Optional[bool] = ...) -> None: ...
 
 class PlanResourcesAst(_message.Message):
-    __slots__ = ["filter_ast"]
+    __slots__ = ("filter_ast",)
     class Node(_message.Message):
-        __slots__ = ["logical_operation", "expression"]
+        __slots__ = ("logical_operation", "expression")
         LOGICAL_OPERATION_FIELD_NUMBER: _ClassVar[int]
         EXPRESSION_FIELD_NUMBER: _ClassVar[int]
         logical_operation: PlanResourcesAst.LogicalOperation
         expression: _checked_pb2.CheckedExpr
         def __init__(self, logical_operation: _Optional[_Union[PlanResourcesAst.LogicalOperation, _Mapping]] = ..., expression: _Optional[_Union[_checked_pb2.CheckedExpr, _Mapping]] = ...) -> None: ...
     class LogicalOperation(_message.Message):
-        __slots__ = ["operator", "nodes"]
+        __slots__ = ("operator", "nodes")
         class Operator(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             OPERATOR_UNSPECIFIED: _ClassVar[PlanResourcesAst.LogicalOperation.Operator]
             OPERATOR_AND: _ClassVar[PlanResourcesAst.LogicalOperation.Operator]
             OPERATOR_OR: _ClassVar[PlanResourcesAst.LogicalOperation.Operator]
@@ -80,9 +81,9 @@ class PlanResourcesAst(_message.Message):
     def __init__(self, filter_ast: _Optional[_Union[PlanResourcesAst.Node, _Mapping]] = ...) -> None: ...
 
 class PlanResourcesFilter(_message.Message):
-    __slots__ = ["kind", "condition"]
+    __slots__ = ("kind", "condition")
     class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = []
+        __slots__ = ()
         KIND_UNSPECIFIED: _ClassVar[PlanResourcesFilter.Kind]
         KIND_ALWAYS_ALLOWED: _ClassVar[PlanResourcesFilter.Kind]
         KIND_ALWAYS_DENIED: _ClassVar[PlanResourcesFilter.Kind]
@@ -92,9 +93,9 @@ class PlanResourcesFilter(_message.Message):
     KIND_ALWAYS_DENIED: PlanResourcesFilter.Kind
     KIND_CONDITIONAL: PlanResourcesFilter.Kind
     class Expression(_message.Message):
-        __slots__ = ["operator", "operands"]
+        __slots__ = ("operator", "operands")
         class Operand(_message.Message):
-            __slots__ = ["value", "expression", "variable"]
+            __slots__ = ("value", "expression", "variable")
             VALUE_FIELD_NUMBER: _ClassVar[int]
             EXPRESSION_FIELD_NUMBER: _ClassVar[int]
             VARIABLE_FIELD_NUMBER: _ClassVar[int]
@@ -114,9 +115,9 @@ class PlanResourcesFilter(_message.Message):
     def __init__(self, kind: _Optional[_Union[PlanResourcesFilter.Kind, str]] = ..., condition: _Optional[_Union[PlanResourcesFilter.Expression.Operand, _Mapping]] = ...) -> None: ...
 
 class PlanResourcesOutput(_message.Message):
-    __slots__ = ["request_id", "action", "kind", "policy_version", "scope", "filter", "filter_debug", "validation_errors", "actions", "matched_scopes"]
+    __slots__ = ("request_id", "action", "kind", "policy_version", "scope", "filter", "filter_debug", "validation_errors", "actions", "matched_scopes")
     class MatchedScopesEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -145,7 +146,7 @@ class PlanResourcesOutput(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., scope: _Optional[str] = ..., filter: _Optional[_Union[PlanResourcesFilter, _Mapping]] = ..., filter_debug: _Optional[str] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., actions: _Optional[_Iterable[str]] = ..., matched_scopes: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class CheckInput(_message.Message):
-    __slots__ = ["request_id", "resource", "principal", "actions", "aux_data"]
+    __slots__ = ("request_id", "resource", "principal", "actions", "aux_data")
     REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_FIELD_NUMBER: _ClassVar[int]
     PRINCIPAL_FIELD_NUMBER: _ClassVar[int]
@@ -159,9 +160,9 @@ class CheckInput(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., resource: _Optional[_Union[Resource, _Mapping]] = ..., principal: _Optional[_Union[Principal, _Mapping]] = ..., actions: _Optional[_Iterable[str]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ...) -> None: ...
 
 class CheckOutput(_message.Message):
-    __slots__ = ["request_id", "resource_id", "actions", "effective_derived_roles", "validation_errors", "outputs"]
+    __slots__ = ("request_id", "resource_id", "actions", "effective_derived_roles", "validation_errors", "outputs")
     class ActionEffect(_message.Message):
-        __slots__ = ["effect", "policy", "scope"]
+        __slots__ = ("effect", "policy", "scope")
         EFFECT_FIELD_NUMBER: _ClassVar[int]
         POLICY_FIELD_NUMBER: _ClassVar[int]
         SCOPE_FIELD_NUMBER: _ClassVar[int]
@@ -170,7 +171,7 @@ class CheckOutput(_message.Message):
         scope: str
         def __init__(self, effect: _Optional[_Union[_effect_pb2.Effect, str]] = ..., policy: _Optional[str] = ..., scope: _Optional[str] = ...) -> None: ...
     class ActionsEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -191,7 +192,7 @@ class CheckOutput(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., resource_id: _Optional[str] = ..., actions: _Optional[_Mapping[str, CheckOutput.ActionEffect]] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[OutputEntry, _Mapping]]] = ...) -> None: ...
 
 class OutputEntry(_message.Message):
-    __slots__ = ["src", "val"]
+    __slots__ = ("src", "val")
     SRC_FIELD_NUMBER: _ClassVar[int]
     VAL_FIELD_NUMBER: _ClassVar[int]
     src: str
@@ -199,9 +200,9 @@ class OutputEntry(_message.Message):
     def __init__(self, src: _Optional[str] = ..., val: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
 
 class Resource(_message.Message):
-    __slots__ = ["kind", "policy_version", "id", "attr", "scope"]
+    __slots__ = ("kind", "policy_version", "id", "attr", "scope")
     class AttrEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -220,9 +221,9 @@ class Resource(_message.Message):
     def __init__(self, kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., id: _Optional[str] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., scope: _Optional[str] = ...) -> None: ...
 
 class Principal(_message.Message):
-    __slots__ = ["id", "policy_version", "roles", "attr", "scope"]
+    __slots__ = ("id", "policy_version", "roles", "attr", "scope")
     class AttrEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -241,9 +242,9 @@ class Principal(_message.Message):
     def __init__(self, id: _Optional[str] = ..., policy_version: _Optional[str] = ..., roles: _Optional[_Iterable[str]] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., scope: _Optional[str] = ...) -> None: ...
 
 class AuxData(_message.Message):
-    __slots__ = ["jwt"]
+    __slots__ = ("jwt",)
     class JwtEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -254,11 +255,11 @@ class AuxData(_message.Message):
     def __init__(self, jwt: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
 
 class Trace(_message.Message):
-    __slots__ = ["components", "event"]
+    __slots__ = ("components", "event")
     class Component(_message.Message):
-        __slots__ = ["kind", "action", "derived_role", "expr", "index", "policy", "resource", "rule", "scope", "variable", "output", "role_policy_scope", "role"]
+        __slots__ = ("kind", "action", "derived_role", "expr", "index", "policy", "resource", "rule", "scope", "variable", "output", "role_policy_scope", "role")
         class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             KIND_UNSPECIFIED: _ClassVar[Trace.Component.Kind]
             KIND_ACTION: _ClassVar[Trace.Component.Kind]
             KIND_CONDITION_ALL: _ClassVar[Trace.Component.Kind]
@@ -294,7 +295,7 @@ class Trace(_message.Message):
         KIND_ROLE_POLICY_SCOPE: Trace.Component.Kind
         KIND_ROLE: Trace.Component.Kind
         class Variable(_message.Message):
-            __slots__ = ["name", "expr"]
+            __slots__ = ("name", "expr")
             NAME_FIELD_NUMBER: _ClassVar[int]
             EXPR_FIELD_NUMBER: _ClassVar[int]
             name: str
@@ -328,9 +329,9 @@ class Trace(_message.Message):
         role: str
         def __init__(self, kind: _Optional[_Union[Trace.Component.Kind, str]] = ..., action: _Optional[str] = ..., derived_role: _Optional[str] = ..., expr: _Optional[str] = ..., index: _Optional[int] = ..., policy: _Optional[str] = ..., resource: _Optional[str] = ..., rule: _Optional[str] = ..., scope: _Optional[str] = ..., variable: _Optional[_Union[Trace.Component.Variable, _Mapping]] = ..., output: _Optional[str] = ..., role_policy_scope: _Optional[str] = ..., role: _Optional[str] = ...) -> None: ...
     class Event(_message.Message):
-        __slots__ = ["status", "effect", "error", "message", "result"]
+        __slots__ = ("status", "effect", "error", "message", "result")
         class Status(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             STATUS_UNSPECIFIED: _ClassVar[Trace.Event.Status]
             STATUS_ACTIVATED: _ClassVar[Trace.Event.Status]
             STATUS_SKIPPED: _ClassVar[Trace.Event.Status]
@@ -355,11 +356,11 @@ class Trace(_message.Message):
     def __init__(self, components: _Optional[_Iterable[_Union[Trace.Component, _Mapping]]] = ..., event: _Optional[_Union[Trace.Event, _Mapping]] = ...) -> None: ...
 
 class Request(_message.Message):
-    __slots__ = ["principal", "resource", "aux_data"]
+    __slots__ = ("principal", "resource", "aux_data")
     class Principal(_message.Message):
-        __slots__ = ["id", "roles", "attr", "policy_version", "scope"]
+        __slots__ = ("id", "roles", "attr", "policy_version", "scope")
         class AttrEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -377,9 +378,9 @@ class Request(_message.Message):
         scope: str
         def __init__(self, id: _Optional[str] = ..., roles: _Optional[_Iterable[str]] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., policy_version: _Optional[str] = ..., scope: _Optional[str] = ...) -> None: ...
     class Resource(_message.Message):
-        __slots__ = ["kind", "id", "attr", "policy_version", "scope"]
+        __slots__ = ("kind", "id", "attr", "policy_version", "scope")
         class AttrEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -405,7 +406,7 @@ class Request(_message.Message):
     def __init__(self, principal: _Optional[_Union[Request.Principal, _Mapping]] = ..., resource: _Optional[_Union[Request.Resource, _Mapping]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ...) -> None: ...
 
 class Runtime(_message.Message):
-    __slots__ = ["effective_derived_roles"]
+    __slots__ = ("effective_derived_roles",)
     EFFECTIVE_DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
     effective_derived_roles: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, effective_derived_roles: _Optional[_Iterable[str]] = ...) -> None: ...

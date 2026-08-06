@@ -1,3 +1,5 @@
+import datetime
+
 from buf.validate import validate_pb2 as _validate_pb2
 from google.api import visibility_pb2 as _visibility_pb2
 from google.protobuf import struct_pb2 as _struct_pb2
@@ -6,14 +8,15 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StringMatch(_message.Message):
-    __slots__ = ["equals", "contains"]
+    __slots__ = ("equals", "contains")
     class InList(_message.Message):
-        __slots__ = ["values"]
+        __slots__ = ("values",)
         VALUES_FIELD_NUMBER: _ClassVar[int]
         values: _containers.RepeatedScalarFieldContainer[str]
         def __init__(self, values: _Optional[_Iterable[str]] = ...) -> None: ...
@@ -25,13 +28,13 @@ class StringMatch(_message.Message):
     def __init__(self, equals: _Optional[str] = ..., contains: _Optional[str] = ..., **kwargs) -> None: ...
 
 class FileFilter(_message.Message):
-    __slots__ = ["path"]
+    __slots__ = ("path",)
     PATH_FIELD_NUMBER: _ClassVar[int]
     path: StringMatch
     def __init__(self, path: _Optional[_Union[StringMatch, _Mapping]] = ...) -> None: ...
 
 class ListFilesRequest(_message.Message):
-    __slots__ = ["store_id", "filter"]
+    __slots__ = ("store_id", "filter")
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     FILTER_FIELD_NUMBER: _ClassVar[int]
     store_id: str
@@ -39,7 +42,7 @@ class ListFilesRequest(_message.Message):
     def __init__(self, store_id: _Optional[str] = ..., filter: _Optional[_Union[FileFilter, _Mapping]] = ...) -> None: ...
 
 class ListFilesResponse(_message.Message):
-    __slots__ = ["store_version", "files"]
+    __slots__ = ("store_version", "files")
     STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     FILES_FIELD_NUMBER: _ClassVar[int]
     store_version: int
@@ -47,7 +50,7 @@ class ListFilesResponse(_message.Message):
     def __init__(self, store_version: _Optional[int] = ..., files: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GetFilesRequest(_message.Message):
-    __slots__ = ["store_id", "files"]
+    __slots__ = ("store_id", "files")
     STORE_ID_FIELD_NUMBER: _ClassVar[int]
     FILES_FIELD_NUMBER: _ClassVar[int]
     store_id: str
@@ -55,7 +58,7 @@ class GetFilesRequest(_message.Message):
     def __init__(self, store_id: _Optional[str] = ..., files: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class File(_message.Message):
-    __slots__ = ["path", "contents"]
+    __slots__ = ("path", "contents")
     PATH_FIELD_NUMBER: _ClassVar[int]
     CONTENTS_FIELD_NUMBER: _ClassVar[int]
     path: str
@@ -63,17 +66,31 @@ class File(_message.Message):
     def __init__(self, path: _Optional[str] = ..., contents: _Optional[bytes] = ...) -> None: ...
 
 class GetFilesResponse(_message.Message):
-    __slots__ = ["store_version", "files"]
+    __slots__ = ("store_version", "files")
     STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     FILES_FIELD_NUMBER: _ClassVar[int]
     store_version: int
     files: _containers.RepeatedCompositeFieldContainer[File]
     def __init__(self, store_version: _Optional[int] = ..., files: _Optional[_Iterable[_Union[File, _Mapping]]] = ...) -> None: ...
 
+class GetCurrentVersionRequest(_message.Message):
+    __slots__ = ("store_id",)
+    STORE_ID_FIELD_NUMBER: _ClassVar[int]
+    store_id: str
+    def __init__(self, store_id: _Optional[str] = ...) -> None: ...
+
+class GetCurrentVersionResponse(_message.Message):
+    __slots__ = ("store_version", "change_details")
+    STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
+    CHANGE_DETAILS_FIELD_NUMBER: _ClassVar[int]
+    store_version: int
+    change_details: ChangeDetails
+    def __init__(self, store_version: _Optional[int] = ..., change_details: _Optional[_Union[ChangeDetails, _Mapping]] = ...) -> None: ...
+
 class ChangeDetails(_message.Message):
-    __slots__ = ["description", "uploader", "git", "internal"]
+    __slots__ = ("description", "uploader", "git", "internal")
     class Git(_message.Message):
-        __slots__ = ["repo", "ref", "hash", "message", "committer", "commit_date", "author", "author_date"]
+        __slots__ = ("repo", "ref", "hash", "message", "committer", "commit_date", "author", "author_date")
         REPO_FIELD_NUMBER: _ClassVar[int]
         REF_FIELD_NUMBER: _ClassVar[int]
         HASH_FIELD_NUMBER: _ClassVar[int]
@@ -90,11 +107,11 @@ class ChangeDetails(_message.Message):
         commit_date: _timestamp_pb2.Timestamp
         author: str
         author_date: _timestamp_pb2.Timestamp
-        def __init__(self, repo: _Optional[str] = ..., ref: _Optional[str] = ..., hash: _Optional[str] = ..., message: _Optional[str] = ..., committer: _Optional[str] = ..., commit_date: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., author: _Optional[str] = ..., author_date: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+        def __init__(self, repo: _Optional[str] = ..., ref: _Optional[str] = ..., hash: _Optional[str] = ..., message: _Optional[str] = ..., committer: _Optional[str] = ..., commit_date: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., author: _Optional[str] = ..., author_date: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
     class Internal(_message.Message):
-        __slots__ = ["source", "metadata"]
+        __slots__ = ("source", "metadata")
         class MetadataEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -106,9 +123,9 @@ class ChangeDetails(_message.Message):
         metadata: _containers.MessageMap[str, _struct_pb2.Value]
         def __init__(self, source: _Optional[str] = ..., metadata: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
     class Uploader(_message.Message):
-        __slots__ = ["name", "metadata"]
+        __slots__ = ("name", "metadata")
         class MetadataEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -130,7 +147,7 @@ class ChangeDetails(_message.Message):
     def __init__(self, description: _Optional[str] = ..., uploader: _Optional[_Union[ChangeDetails.Uploader, _Mapping]] = ..., git: _Optional[_Union[ChangeDetails.Git, _Mapping]] = ..., internal: _Optional[_Union[ChangeDetails.Internal, _Mapping]] = ...) -> None: ...
 
 class FileOp(_message.Message):
-    __slots__ = ["add_or_update", "delete"]
+    __slots__ = ("add_or_update", "delete")
     ADD_OR_UPDATE_FIELD_NUMBER: _ClassVar[int]
     DELETE_FIELD_NUMBER: _ClassVar[int]
     add_or_update: File
@@ -138,9 +155,9 @@ class FileOp(_message.Message):
     def __init__(self, add_or_update: _Optional[_Union[File, _Mapping]] = ..., delete: _Optional[str] = ...) -> None: ...
 
 class ModifyFilesRequest(_message.Message):
-    __slots__ = ["store_id", "condition", "operations", "change_details"]
+    __slots__ = ("store_id", "condition", "operations", "change_details")
     class Condition(_message.Message):
-        __slots__ = ["store_version_must_equal"]
+        __slots__ = ("store_version_must_equal",)
         STORE_VERSION_MUST_EQUAL_FIELD_NUMBER: _ClassVar[int]
         store_version_must_equal: int
         def __init__(self, store_version_must_equal: _Optional[int] = ...) -> None: ...
@@ -155,9 +172,9 @@ class ModifyFilesRequest(_message.Message):
     def __init__(self, store_id: _Optional[str] = ..., condition: _Optional[_Union[ModifyFilesRequest.Condition, _Mapping]] = ..., operations: _Optional[_Iterable[_Union[FileOp, _Mapping]]] = ..., change_details: _Optional[_Union[ChangeDetails, _Mapping]] = ...) -> None: ...
 
 class FileError(_message.Message):
-    __slots__ = ["file", "cause", "details"]
+    __slots__ = ("file", "cause", "details")
     class Cause(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = []
+        __slots__ = ()
         CAUSE_UNSPECIFIED: _ClassVar[FileError.Cause]
         CAUSE_INVALID_FILE_PATH: _ClassVar[FileError.Cause]
         CAUSE_UNSUPPORTED_FILE_EXTENSION: _ClassVar[FileError.Cause]
@@ -179,20 +196,20 @@ class FileError(_message.Message):
     def __init__(self, file: _Optional[str] = ..., cause: _Optional[_Union[FileError.Cause, str]] = ..., details: _Optional[str] = ...) -> None: ...
 
 class ModifyFilesResponse(_message.Message):
-    __slots__ = ["new_store_version"]
+    __slots__ = ("new_store_version",)
     NEW_STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     new_store_version: int
     def __init__(self, new_store_version: _Optional[int] = ...) -> None: ...
 
 class ReplaceFilesRequest(_message.Message):
-    __slots__ = ["store_id", "condition", "zipped_contents", "files", "change_details"]
+    __slots__ = ("store_id", "condition", "zipped_contents", "files", "change_details")
     class Condition(_message.Message):
-        __slots__ = ["store_version_must_equal"]
+        __slots__ = ("store_version_must_equal",)
         STORE_VERSION_MUST_EQUAL_FIELD_NUMBER: _ClassVar[int]
         store_version_must_equal: int
         def __init__(self, store_version_must_equal: _Optional[int] = ...) -> None: ...
     class Files(_message.Message):
-        __slots__ = ["files"]
+        __slots__ = ("files",)
         FILES_FIELD_NUMBER: _ClassVar[int]
         files: _containers.RepeatedCompositeFieldContainer[File]
         def __init__(self, files: _Optional[_Iterable[_Union[File, _Mapping]]] = ...) -> None: ...
@@ -209,25 +226,25 @@ class ReplaceFilesRequest(_message.Message):
     def __init__(self, store_id: _Optional[str] = ..., condition: _Optional[_Union[ReplaceFilesRequest.Condition, _Mapping]] = ..., zipped_contents: _Optional[bytes] = ..., files: _Optional[_Union[ReplaceFilesRequest.Files, _Mapping]] = ..., change_details: _Optional[_Union[ChangeDetails, _Mapping]] = ...) -> None: ...
 
 class ErrDetailValidationFailure(_message.Message):
-    __slots__ = ["errors"]
+    __slots__ = ("errors",)
     ERRORS_FIELD_NUMBER: _ClassVar[int]
     errors: _containers.RepeatedCompositeFieldContainer[FileError]
     def __init__(self, errors: _Optional[_Iterable[_Union[FileError, _Mapping]]] = ...) -> None: ...
 
 class ErrDetailNoUsableFiles(_message.Message):
-    __slots__ = ["ignored_files"]
+    __slots__ = ("ignored_files",)
     IGNORED_FILES_FIELD_NUMBER: _ClassVar[int]
     ignored_files: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, ignored_files: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ErrDetailConditionUnsatisfied(_message.Message):
-    __slots__ = ["current_store_version"]
+    __slots__ = ("current_store_version",)
     CURRENT_STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     current_store_version: int
     def __init__(self, current_store_version: _Optional[int] = ...) -> None: ...
 
 class ErrDetailOperationDiscarded(_message.Message):
-    __slots__ = ["current_store_version", "ignored_files"]
+    __slots__ = ("current_store_version", "ignored_files")
     CURRENT_STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     IGNORED_FILES_FIELD_NUMBER: _ClassVar[int]
     current_store_version: int
@@ -235,11 +252,11 @@ class ErrDetailOperationDiscarded(_message.Message):
     def __init__(self, current_store_version: _Optional[int] = ..., ignored_files: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class ErrDetailCannotModifyGitConnectedStore(_message.Message):
-    __slots__ = []
+    __slots__ = ()
     def __init__(self) -> None: ...
 
 class ReplaceFilesResponse(_message.Message):
-    __slots__ = ["new_store_version", "ignored_files"]
+    __slots__ = ("new_store_version", "ignored_files")
     NEW_STORE_VERSION_FIELD_NUMBER: _ClassVar[int]
     IGNORED_FILES_FIELD_NUMBER: _ClassVar[int]
     new_store_version: int

@@ -9,9 +9,9 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ValidationError(_message.Message):
-    __slots__ = ["path", "message", "source"]
+    __slots__ = ("path", "message", "source")
     class Source(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = []
+        __slots__ = ()
         SOURCE_UNSPECIFIED: _ClassVar[ValidationError.Source]
         SOURCE_PRINCIPAL: _ClassVar[ValidationError.Source]
         SOURCE_RESOURCE: _ClassVar[ValidationError.Source]
@@ -27,7 +27,7 @@ class ValidationError(_message.Message):
     def __init__(self, path: _Optional[str] = ..., message: _Optional[str] = ..., source: _Optional[_Union[ValidationError.Source, str]] = ...) -> None: ...
 
 class Schema(_message.Message):
-    __slots__ = ["id", "definition"]
+    __slots__ = ("id", "definition")
     ID_FIELD_NUMBER: _ClassVar[int]
     DEFINITION_FIELD_NUMBER: _ClassVar[int]
     id: str

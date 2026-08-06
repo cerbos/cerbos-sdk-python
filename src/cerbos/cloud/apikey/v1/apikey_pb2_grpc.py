@@ -5,7 +5,7 @@ import grpc
 from cerbos.cloud.apikey.v1 import apikey_pb2 as cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2
 
 
-class ApiKeyServiceStub(object):
+class ApiKeyServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -19,12 +19,34 @@ class ApiKeyServiceStub(object):
                 request_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenRequest.SerializeToString,
                 response_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenResponse.FromString,
                 _registered_method=True)
+        self.RegisterDevice = channel.unary_stream(
+                '/cerbos.cloud.apikey.v1.ApiKeyService/RegisterDevice',
+                request_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceRequest.SerializeToString,
+                response_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceResponse.FromString,
+                _registered_method=True)
+        self.RefreshDeviceToken = channel.unary_unary(
+                '/cerbos.cloud.apikey.v1.ApiKeyService/RefreshDeviceToken',
+                request_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenRequest.SerializeToString,
+                response_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenResponse.FromString,
+                _registered_method=True)
 
 
-class ApiKeyServiceServicer(object):
+class ApiKeyServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def IssueAccessToken(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RegisterDevice(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RefreshDeviceToken(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -38,6 +60,16 @@ def add_ApiKeyServiceServicer_to_server(servicer, server):
                     request_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenRequest.FromString,
                     response_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenResponse.SerializeToString,
             ),
+            'RegisterDevice': grpc.unary_stream_rpc_method_handler(
+                    servicer.RegisterDevice,
+                    request_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceRequest.FromString,
+                    response_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceResponse.SerializeToString,
+            ),
+            'RefreshDeviceToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.RefreshDeviceToken,
+                    request_deserializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenRequest.FromString,
+                    response_serializer=cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'cerbos.cloud.apikey.v1.ApiKeyService', rpc_method_handlers)
@@ -46,7 +78,7 @@ def add_ApiKeyServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class ApiKeyService(object):
+class ApiKeyService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -66,6 +98,60 @@ class ApiKeyService(object):
             '/cerbos.cloud.apikey.v1.ApiKeyService/IssueAccessToken',
             cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenRequest.SerializeToString,
             cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.IssueAccessTokenResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RegisterDevice(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/cerbos.cloud.apikey.v1.ApiKeyService/RegisterDevice',
+            cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceRequest.SerializeToString,
+            cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RegisterDeviceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RefreshDeviceToken(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.cloud.apikey.v1.ApiKeyService/RefreshDeviceToken',
+            cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenRequest.SerializeToString,
+            cerbos_dot_cloud_dot_apikey_dot_v1_dot_apikey__pb2.RefreshDeviceTokenResponse.FromString,
             options,
             channel_credentials,
             insecure,

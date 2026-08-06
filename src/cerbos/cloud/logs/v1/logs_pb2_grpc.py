@@ -5,7 +5,7 @@ import grpc
 from cerbos.cloud.logs.v1 import logs_pb2 as cerbos_dot_cloud_dot_logs_dot_v1_dot_logs__pb2
 
 
-class CerbosLogsServiceStub(object):
+class CerbosLogsServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -21,7 +21,7 @@ class CerbosLogsServiceStub(object):
                 _registered_method=True)
 
 
-class CerbosLogsServiceServicer(object):
+class CerbosLogsServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def Ingest(self, request, context):
@@ -46,7 +46,7 @@ def add_CerbosLogsServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosLogsService(object):
+class CerbosLogsService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod

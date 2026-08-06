@@ -5,7 +5,7 @@ import grpc
 from cerbos.cloud.store.v1 import store_pb2 as cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2
 
 
-class CerbosStoreServiceStub(object):
+class CerbosStoreServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -18,6 +18,11 @@ class CerbosStoreServiceStub(object):
                 '/cerbos.cloud.store.v1.CerbosStoreService/ListFiles',
                 request_serializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesRequest.SerializeToString,
                 response_deserializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesResponse.FromString,
+                _registered_method=True)
+        self.GetCurrentVersion = channel.unary_unary(
+                '/cerbos.cloud.store.v1.CerbosStoreService/GetCurrentVersion',
+                request_serializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionRequest.SerializeToString,
+                response_deserializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionResponse.FromString,
                 _registered_method=True)
         self.GetFiles = channel.unary_unary(
                 '/cerbos.cloud.store.v1.CerbosStoreService/GetFiles',
@@ -36,10 +41,16 @@ class CerbosStoreServiceStub(object):
                 _registered_method=True)
 
 
-class CerbosStoreServiceServicer(object):
+class CerbosStoreServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def ListFiles(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetCurrentVersion(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -71,6 +82,11 @@ def add_CerbosStoreServiceServicer_to_server(servicer, server):
                     request_deserializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesRequest.FromString,
                     response_serializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesResponse.SerializeToString,
             ),
+            'GetCurrentVersion': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCurrentVersion,
+                    request_deserializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionRequest.FromString,
+                    response_serializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionResponse.SerializeToString,
+            ),
             'GetFiles': grpc.unary_unary_rpc_method_handler(
                     servicer.GetFiles,
                     request_deserializer=cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetFilesRequest.FromString,
@@ -94,7 +110,7 @@ def add_CerbosStoreServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosStoreService(object):
+class CerbosStoreService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -114,6 +130,33 @@ class CerbosStoreService(object):
             '/cerbos.cloud.store.v1.CerbosStoreService/ListFiles',
             cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesRequest.SerializeToString,
             cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.ListFilesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCurrentVersion(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.cloud.store.v1.CerbosStoreService/GetCurrentVersion',
+            cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionRequest.SerializeToString,
+            cerbos_dot_cloud_dot_store_dot_v1_dot_store__pb2.GetCurrentVersionResponse.FromString,
             options,
             channel_credentials,
             insecure,

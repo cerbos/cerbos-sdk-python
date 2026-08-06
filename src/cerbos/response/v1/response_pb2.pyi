@@ -10,16 +10,17 @@ from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PlanResourcesResponse(_message.Message):
-    __slots__ = ["request_id", "action", "actions", "resource_kind", "policy_version", "filter", "meta", "validation_errors", "cerbos_call_id"]
+    __slots__ = ("request_id", "action", "actions", "resource_kind", "policy_version", "filter", "meta", "validation_errors", "cerbos_call_id")
     class Meta(_message.Message):
-        __slots__ = ["filter_debug", "matched_scope", "matched_scopes"]
+        __slots__ = ("filter_debug", "matched_scope", "matched_scopes")
         class MatchedScopesEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -53,11 +54,11 @@ class PlanResourcesResponse(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., actions: _Optional[_Iterable[str]] = ..., resource_kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., filter: _Optional[_Union[_engine_pb2.PlanResourcesFilter, _Mapping]] = ..., meta: _Optional[_Union[PlanResourcesResponse.Meta, _Mapping]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
 
 class CheckResourceSetResponse(_message.Message):
-    __slots__ = ["request_id", "resource_instances", "meta"]
+    __slots__ = ("request_id", "resource_instances", "meta")
     class ActionEffectMap(_message.Message):
-        __slots__ = ["actions", "validation_errors"]
+        __slots__ = ("actions", "validation_errors")
         class ActionsEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -69,18 +70,18 @@ class CheckResourceSetResponse(_message.Message):
         validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
         def __init__(self, actions: _Optional[_Mapping[str, _effect_pb2.Effect]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ...) -> None: ...
     class Meta(_message.Message):
-        __slots__ = ["resource_instances"]
+        __slots__ = ("resource_instances",)
         class EffectMeta(_message.Message):
-            __slots__ = ["matched_policy", "matched_scope"]
+            __slots__ = ("matched_policy", "matched_scope")
             MATCHED_POLICY_FIELD_NUMBER: _ClassVar[int]
             MATCHED_SCOPE_FIELD_NUMBER: _ClassVar[int]
             matched_policy: str
             matched_scope: str
             def __init__(self, matched_policy: _Optional[str] = ..., matched_scope: _Optional[str] = ...) -> None: ...
         class ActionMeta(_message.Message):
-            __slots__ = ["actions", "effective_derived_roles"]
+            __slots__ = ("actions", "effective_derived_roles")
             class ActionsEntry(_message.Message):
-                __slots__ = ["key", "value"]
+                __slots__ = ("key", "value")
                 KEY_FIELD_NUMBER: _ClassVar[int]
                 VALUE_FIELD_NUMBER: _ClassVar[int]
                 key: str
@@ -92,7 +93,7 @@ class CheckResourceSetResponse(_message.Message):
             effective_derived_roles: _containers.RepeatedScalarFieldContainer[str]
             def __init__(self, actions: _Optional[_Mapping[str, CheckResourceSetResponse.Meta.EffectMeta]] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ...) -> None: ...
         class ResourceInstancesEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -102,7 +103,7 @@ class CheckResourceSetResponse(_message.Message):
         resource_instances: _containers.MessageMap[str, CheckResourceSetResponse.Meta.ActionMeta]
         def __init__(self, resource_instances: _Optional[_Mapping[str, CheckResourceSetResponse.Meta.ActionMeta]] = ...) -> None: ...
     class ResourceInstancesEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -117,11 +118,11 @@ class CheckResourceSetResponse(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., resource_instances: _Optional[_Mapping[str, CheckResourceSetResponse.ActionEffectMap]] = ..., meta: _Optional[_Union[CheckResourceSetResponse.Meta, _Mapping]] = ...) -> None: ...
 
 class CheckResourceBatchResponse(_message.Message):
-    __slots__ = ["request_id", "results"]
+    __slots__ = ("request_id", "results")
     class ActionEffectMap(_message.Message):
-        __slots__ = ["resource_id", "actions", "validation_errors"]
+        __slots__ = ("resource_id", "actions", "validation_errors")
         class ActionsEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -141,11 +142,11 @@ class CheckResourceBatchResponse(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., results: _Optional[_Iterable[_Union[CheckResourceBatchResponse.ActionEffectMap, _Mapping]]] = ...) -> None: ...
 
 class CheckResourcesResponse(_message.Message):
-    __slots__ = ["request_id", "results", "cerbos_call_id"]
+    __slots__ = ("request_id", "results", "cerbos_call_id")
     class ResultEntry(_message.Message):
-        __slots__ = ["resource", "actions", "validation_errors", "meta", "outputs"]
+        __slots__ = ("resource", "actions", "validation_errors", "meta", "outputs")
         class Resource(_message.Message):
-            __slots__ = ["id", "kind", "policy_version", "scope"]
+            __slots__ = ("id", "kind", "policy_version", "scope")
             ID_FIELD_NUMBER: _ClassVar[int]
             KIND_FIELD_NUMBER: _ClassVar[int]
             POLICY_VERSION_FIELD_NUMBER: _ClassVar[int]
@@ -156,16 +157,16 @@ class CheckResourcesResponse(_message.Message):
             scope: str
             def __init__(self, id: _Optional[str] = ..., kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., scope: _Optional[str] = ...) -> None: ...
         class Meta(_message.Message):
-            __slots__ = ["actions", "effective_derived_roles"]
+            __slots__ = ("actions", "effective_derived_roles")
             class EffectMeta(_message.Message):
-                __slots__ = ["matched_policy", "matched_scope"]
+                __slots__ = ("matched_policy", "matched_scope")
                 MATCHED_POLICY_FIELD_NUMBER: _ClassVar[int]
                 MATCHED_SCOPE_FIELD_NUMBER: _ClassVar[int]
                 matched_policy: str
                 matched_scope: str
                 def __init__(self, matched_policy: _Optional[str] = ..., matched_scope: _Optional[str] = ...) -> None: ...
             class ActionsEntry(_message.Message):
-                __slots__ = ["key", "value"]
+                __slots__ = ("key", "value")
                 KEY_FIELD_NUMBER: _ClassVar[int]
                 VALUE_FIELD_NUMBER: _ClassVar[int]
                 key: str
@@ -177,7 +178,7 @@ class CheckResourcesResponse(_message.Message):
             effective_derived_roles: _containers.RepeatedScalarFieldContainer[str]
             def __init__(self, actions: _Optional[_Mapping[str, CheckResourcesResponse.ResultEntry.Meta.EffectMeta]] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ...) -> None: ...
         class ActionsEntry(_message.Message):
-            __slots__ = ["key", "value"]
+            __slots__ = ("key", "value")
             KEY_FIELD_NUMBER: _ClassVar[int]
             VALUE_FIELD_NUMBER: _ClassVar[int]
             key: str
@@ -203,9 +204,9 @@ class CheckResourcesResponse(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., results: _Optional[_Iterable[_Union[CheckResourcesResponse.ResultEntry, _Mapping]]] = ..., cerbos_call_id: _Optional[str] = ...) -> None: ...
 
 class PlaygroundFailure(_message.Message):
-    __slots__ = ["errors"]
+    __slots__ = ("errors",)
     class ErrorDetails(_message.Message):
-        __slots__ = ["line", "column", "context"]
+        __slots__ = ("line", "column", "context")
         LINE_FIELD_NUMBER: _ClassVar[int]
         COLUMN_FIELD_NUMBER: _ClassVar[int]
         CONTEXT_FIELD_NUMBER: _ClassVar[int]
@@ -214,7 +215,7 @@ class PlaygroundFailure(_message.Message):
         context: str
         def __init__(self, line: _Optional[int] = ..., column: _Optional[int] = ..., context: _Optional[str] = ...) -> None: ...
     class Error(_message.Message):
-        __slots__ = ["file", "error", "details"]
+        __slots__ = ("file", "error", "details")
         FILE_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
         DETAILS_FIELD_NUMBER: _ClassVar[int]
@@ -227,7 +228,7 @@ class PlaygroundFailure(_message.Message):
     def __init__(self, errors: _Optional[_Iterable[_Union[PlaygroundFailure.Error, _Mapping]]] = ...) -> None: ...
 
 class PlaygroundValidateResponse(_message.Message):
-    __slots__ = ["playground_id", "failure", "success"]
+    __slots__ = ("playground_id", "failure", "success")
     PLAYGROUND_ID_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
@@ -237,9 +238,9 @@ class PlaygroundValidateResponse(_message.Message):
     def __init__(self, playground_id: _Optional[str] = ..., failure: _Optional[_Union[PlaygroundFailure, _Mapping]] = ..., success: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
 
 class PlaygroundTestResponse(_message.Message):
-    __slots__ = ["playground_id", "failure", "success"]
+    __slots__ = ("playground_id", "failure", "success")
     class TestResults(_message.Message):
-        __slots__ = ["results"]
+        __slots__ = ("results",)
         RESULTS_FIELD_NUMBER: _ClassVar[int]
         results: _policy_pb2.TestResults
         def __init__(self, results: _Optional[_Union[_policy_pb2.TestResults, _Mapping]] = ...) -> None: ...
@@ -252,9 +253,9 @@ class PlaygroundTestResponse(_message.Message):
     def __init__(self, playground_id: _Optional[str] = ..., failure: _Optional[_Union[PlaygroundFailure, _Mapping]] = ..., success: _Optional[_Union[PlaygroundTestResponse.TestResults, _Mapping]] = ...) -> None: ...
 
 class PlaygroundEvaluateResponse(_message.Message):
-    __slots__ = ["playground_id", "failure", "success"]
+    __slots__ = ("playground_id", "failure", "success")
     class EvalResult(_message.Message):
-        __slots__ = ["action", "effect", "policy", "effective_derived_roles", "validation_errors"]
+        __slots__ = ("action", "effect", "policy", "effective_derived_roles", "validation_errors")
         ACTION_FIELD_NUMBER: _ClassVar[int]
         EFFECT_FIELD_NUMBER: _ClassVar[int]
         POLICY_FIELD_NUMBER: _ClassVar[int]
@@ -267,7 +268,7 @@ class PlaygroundEvaluateResponse(_message.Message):
         validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
         def __init__(self, action: _Optional[str] = ..., effect: _Optional[_Union[_effect_pb2.Effect, str]] = ..., policy: _Optional[str] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ...) -> None: ...
     class EvalResultList(_message.Message):
-        __slots__ = ["results", "effective_derived_roles", "validation_errors", "outputs"]
+        __slots__ = ("results", "effective_derived_roles", "validation_errors", "outputs")
         RESULTS_FIELD_NUMBER: _ClassVar[int]
         EFFECTIVE_DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
         VALIDATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
@@ -286,7 +287,7 @@ class PlaygroundEvaluateResponse(_message.Message):
     def __init__(self, playground_id: _Optional[str] = ..., failure: _Optional[_Union[PlaygroundFailure, _Mapping]] = ..., success: _Optional[_Union[PlaygroundEvaluateResponse.EvalResultList, _Mapping]] = ...) -> None: ...
 
 class PlaygroundProxyResponse(_message.Message):
-    __slots__ = ["playground_id", "failure", "check_resource_set", "check_resource_batch", "plan_resources", "check_resources"]
+    __slots__ = ("playground_id", "failure", "check_resource_set", "check_resource_batch", "plan_resources", "check_resources")
     PLAYGROUND_ID_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     CHECK_RESOURCE_SET_FIELD_NUMBER: _ClassVar[int]
@@ -302,13 +303,13 @@ class PlaygroundProxyResponse(_message.Message):
     def __init__(self, playground_id: _Optional[str] = ..., failure: _Optional[_Union[PlaygroundFailure, _Mapping]] = ..., check_resource_set: _Optional[_Union[CheckResourceSetResponse, _Mapping]] = ..., check_resource_batch: _Optional[_Union[CheckResourceBatchResponse, _Mapping]] = ..., plan_resources: _Optional[_Union[PlanResourcesResponse, _Mapping]] = ..., check_resources: _Optional[_Union[CheckResourcesResponse, _Mapping]] = ...) -> None: ...
 
 class AddOrUpdatePolicyResponse(_message.Message):
-    __slots__ = ["success"]
+    __slots__ = ("success",)
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     success: _empty_pb2.Empty
     def __init__(self, success: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
 
 class ListAuditLogEntriesResponse(_message.Message):
-    __slots__ = ["access_log_entry", "decision_log_entry"]
+    __slots__ = ("access_log_entry", "decision_log_entry")
     ACCESS_LOG_ENTRY_FIELD_NUMBER: _ClassVar[int]
     DECISION_LOG_ENTRY_FIELD_NUMBER: _ClassVar[int]
     access_log_entry: _audit_pb2.AccessLogEntry
@@ -316,7 +317,7 @@ class ListAuditLogEntriesResponse(_message.Message):
     def __init__(self, access_log_entry: _Optional[_Union[_audit_pb2.AccessLogEntry, _Mapping]] = ..., decision_log_entry: _Optional[_Union[_audit_pb2.DecisionLogEntry, _Mapping]] = ...) -> None: ...
 
 class ServerInfoResponse(_message.Message):
-    __slots__ = ["version", "commit", "build_date"]
+    __slots__ = ("version", "commit", "build_date")
     VERSION_FIELD_NUMBER: _ClassVar[int]
     COMMIT_FIELD_NUMBER: _ClassVar[int]
     BUILD_DATE_FIELD_NUMBER: _ClassVar[int]
@@ -326,35 +327,85 @@ class ServerInfoResponse(_message.Message):
     def __init__(self, version: _Optional[str] = ..., commit: _Optional[str] = ..., build_date: _Optional[str] = ...) -> None: ...
 
 class ListPoliciesResponse(_message.Message):
-    __slots__ = ["policy_ids"]
+    __slots__ = ("policy_ids",)
     POLICY_IDS_FIELD_NUMBER: _ClassVar[int]
     policy_ids: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, policy_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GetPolicyResponse(_message.Message):
-    __slots__ = ["policies"]
+    __slots__ = ("policies",)
     POLICIES_FIELD_NUMBER: _ClassVar[int]
     policies: _containers.RepeatedCompositeFieldContainer[_policy_pb2.Policy]
     def __init__(self, policies: _Optional[_Iterable[_Union[_policy_pb2.Policy, _Mapping]]] = ...) -> None: ...
 
+class DeletePolicyResponse(_message.Message):
+    __slots__ = ("deleted_policies",)
+    DELETED_POLICIES_FIELD_NUMBER: _ClassVar[int]
+    deleted_policies: int
+    def __init__(self, deleted_policies: _Optional[int] = ...) -> None: ...
+
+class DeletePolicyErrorDetails(_message.Message):
+    __slots__ = ("errors",)
+    class ErrorsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: IntegrityErrors
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[IntegrityErrors, _Mapping]] = ...) -> None: ...
+    ERRORS_FIELD_NUMBER: _ClassVar[int]
+    errors: _containers.MessageMap[str, IntegrityErrors]
+    def __init__(self, errors: _Optional[_Mapping[str, IntegrityErrors]] = ...) -> None: ...
+
 class DisablePolicyResponse(_message.Message):
-    __slots__ = ["disabled_policies"]
+    __slots__ = ("disabled_policies",)
     DISABLED_POLICIES_FIELD_NUMBER: _ClassVar[int]
     disabled_policies: int
     def __init__(self, disabled_policies: _Optional[int] = ...) -> None: ...
 
+class DisablePolicyErrorDetails(_message.Message):
+    __slots__ = ("errors",)
+    class ErrorsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: IntegrityErrors
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[IntegrityErrors, _Mapping]] = ...) -> None: ...
+    ERRORS_FIELD_NUMBER: _ClassVar[int]
+    errors: _containers.MessageMap[str, IntegrityErrors]
+    def __init__(self, errors: _Optional[_Mapping[str, IntegrityErrors]] = ...) -> None: ...
+
+class IntegrityErrors(_message.Message):
+    __slots__ = ("breaks_scope_chain", "required_by_other_policies")
+    class BreaksScopeChain(_message.Message):
+        __slots__ = ("descendants",)
+        DESCENDANTS_FIELD_NUMBER: _ClassVar[int]
+        descendants: _containers.RepeatedScalarFieldContainer[str]
+        def __init__(self, descendants: _Optional[_Iterable[str]] = ...) -> None: ...
+    class RequiredByOtherPolicies(_message.Message):
+        __slots__ = ("dependents",)
+        DEPENDENTS_FIELD_NUMBER: _ClassVar[int]
+        dependents: _containers.RepeatedScalarFieldContainer[str]
+        def __init__(self, dependents: _Optional[_Iterable[str]] = ...) -> None: ...
+    BREAKS_SCOPE_CHAIN_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_BY_OTHER_POLICIES_FIELD_NUMBER: _ClassVar[int]
+    breaks_scope_chain: IntegrityErrors.BreaksScopeChain
+    required_by_other_policies: IntegrityErrors.RequiredByOtherPolicies
+    def __init__(self, breaks_scope_chain: _Optional[_Union[IntegrityErrors.BreaksScopeChain, _Mapping]] = ..., required_by_other_policies: _Optional[_Union[IntegrityErrors.RequiredByOtherPolicies, _Mapping]] = ...) -> None: ...
+
 class EnablePolicyResponse(_message.Message):
-    __slots__ = ["enabled_policies"]
+    __slots__ = ("enabled_policies",)
     ENABLED_POLICIES_FIELD_NUMBER: _ClassVar[int]
     enabled_policies: int
     def __init__(self, enabled_policies: _Optional[int] = ...) -> None: ...
 
 class InspectPoliciesResponse(_message.Message):
-    __slots__ = ["results"]
+    __slots__ = ("results",)
     class Attribute(_message.Message):
-        __slots__ = ["kind", "name"]
+        __slots__ = ("kind", "name")
         class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
             KIND_PRINCIPAL_ATTRIBUTE: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
             KIND_RESOURCE_ATTRIBUTE: _ClassVar[InspectPoliciesResponse.Attribute.Kind]
@@ -367,9 +418,9 @@ class InspectPoliciesResponse(_message.Message):
         name: str
         def __init__(self, kind: _Optional[_Union[InspectPoliciesResponse.Attribute.Kind, str]] = ..., name: _Optional[str] = ...) -> None: ...
     class DerivedRole(_message.Message):
-        __slots__ = ["name", "kind", "source"]
+        __slots__ = ("name", "kind", "source")
         class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
             KIND_UNDEFINED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
             KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.DerivedRole.Kind]
@@ -386,9 +437,9 @@ class InspectPoliciesResponse(_message.Message):
         source: str
         def __init__(self, name: _Optional[str] = ..., kind: _Optional[_Union[InspectPoliciesResponse.DerivedRole.Kind, str]] = ..., source: _Optional[str] = ...) -> None: ...
     class Constant(_message.Message):
-        __slots__ = ["name", "value", "kind", "source", "used"]
+        __slots__ = ("name", "value", "kind", "source", "used")
         class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
             KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
             KIND_IMPORTED: _ClassVar[InspectPoliciesResponse.Constant.Kind]
@@ -411,11 +462,11 @@ class InspectPoliciesResponse(_message.Message):
         kind: InspectPoliciesResponse.Constant.Kind
         source: str
         used: bool
-        def __init__(self, name: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Constant.Kind, str]] = ..., source: _Optional[str] = ..., used: bool = ...) -> None: ...
+        def __init__(self, name: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Constant.Kind, str]] = ..., source: _Optional[str] = ..., used: _Optional[bool] = ...) -> None: ...
     class Variable(_message.Message):
-        __slots__ = ["name", "value", "kind", "source", "used"]
+        __slots__ = ("name", "value", "kind", "source", "used")
         class Kind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-            __slots__ = []
+            __slots__ = ()
             KIND_UNSPECIFIED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
             KIND_EXPORTED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
             KIND_IMPORTED: _ClassVar[InspectPoliciesResponse.Variable.Kind]
@@ -438,9 +489,9 @@ class InspectPoliciesResponse(_message.Message):
         kind: InspectPoliciesResponse.Variable.Kind
         source: str
         used: bool
-        def __init__(self, name: _Optional[str] = ..., value: _Optional[str] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Variable.Kind, str]] = ..., source: _Optional[str] = ..., used: bool = ...) -> None: ...
+        def __init__(self, name: _Optional[str] = ..., value: _Optional[str] = ..., kind: _Optional[_Union[InspectPoliciesResponse.Variable.Kind, str]] = ..., source: _Optional[str] = ..., used: _Optional[bool] = ...) -> None: ...
     class Result(_message.Message):
-        __slots__ = ["actions", "variables", "policy_id", "derived_roles", "attributes", "constants"]
+        __slots__ = ("actions", "variables", "policy_id", "derived_roles", "attributes", "constants")
         ACTIONS_FIELD_NUMBER: _ClassVar[int]
         VARIABLES_FIELD_NUMBER: _ClassVar[int]
         POLICY_ID_FIELD_NUMBER: _ClassVar[int]
@@ -455,7 +506,7 @@ class InspectPoliciesResponse(_message.Message):
         constants: _containers.RepeatedCompositeFieldContainer[InspectPoliciesResponse.Constant]
         def __init__(self, actions: _Optional[_Iterable[str]] = ..., variables: _Optional[_Iterable[_Union[InspectPoliciesResponse.Variable, _Mapping]]] = ..., policy_id: _Optional[str] = ..., derived_roles: _Optional[_Iterable[_Union[InspectPoliciesResponse.DerivedRole, _Mapping]]] = ..., attributes: _Optional[_Iterable[_Union[InspectPoliciesResponse.Attribute, _Mapping]]] = ..., constants: _Optional[_Iterable[_Union[InspectPoliciesResponse.Constant, _Mapping]]] = ...) -> None: ...
     class ResultsEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -466,27 +517,33 @@ class InspectPoliciesResponse(_message.Message):
     def __init__(self, results: _Optional[_Mapping[str, InspectPoliciesResponse.Result]] = ...) -> None: ...
 
 class AddOrUpdateSchemaResponse(_message.Message):
-    __slots__ = []
+    __slots__ = ()
     def __init__(self) -> None: ...
 
 class ListSchemasResponse(_message.Message):
-    __slots__ = ["schema_ids"]
+    __slots__ = ("schema_ids",)
     SCHEMA_IDS_FIELD_NUMBER: _ClassVar[int]
     schema_ids: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, schema_ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class GetSchemaResponse(_message.Message):
-    __slots__ = ["schemas"]
+    __slots__ = ("schemas",)
     SCHEMAS_FIELD_NUMBER: _ClassVar[int]
     schemas: _containers.RepeatedCompositeFieldContainer[_schema_pb2.Schema]
     def __init__(self, schemas: _Optional[_Iterable[_Union[_schema_pb2.Schema, _Mapping]]] = ...) -> None: ...
 
 class DeleteSchemaResponse(_message.Message):
-    __slots__ = ["deleted_schemas"]
+    __slots__ = ("deleted_schemas",)
     DELETED_SCHEMAS_FIELD_NUMBER: _ClassVar[int]
     deleted_schemas: int
     def __init__(self, deleted_schemas: _Optional[int] = ...) -> None: ...
 
 class ReloadStoreResponse(_message.Message):
-    __slots__ = []
+    __slots__ = ()
     def __init__(self) -> None: ...
+
+class PurgeStoreRevisionsResponse(_message.Message):
+    __slots__ = ("affected_rows",)
+    AFFECTED_ROWS_FIELD_NUMBER: _ClassVar[int]
+    affected_rows: int
+    def __init__(self, affected_rows: _Optional[int] = ...) -> None: ...

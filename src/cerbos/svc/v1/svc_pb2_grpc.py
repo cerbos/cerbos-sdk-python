@@ -6,7 +6,7 @@ from cerbos.request.v1 import request_pb2 as cerbos_dot_request_dot_v1_dot_reque
 from cerbos.response.v1 import response_pb2 as cerbos_dot_response_dot_v1_dot_response__pb2
 
 
-class CerbosServiceStub(object):
+class CerbosServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -42,7 +42,7 @@ class CerbosServiceStub(object):
                 _registered_method=True)
 
 
-class CerbosServiceServicer(object):
+class CerbosServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def CheckResourceSet(self, request, context):
@@ -111,7 +111,7 @@ def add_CerbosServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosService(object):
+class CerbosService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -250,7 +250,7 @@ class CerbosService(object):
             _registered_method=True)
 
 
-class CerbosAdminServiceStub(object):
+class CerbosAdminServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -278,6 +278,11 @@ class CerbosAdminServiceStub(object):
                 '/cerbos.svc.v1.CerbosAdminService/GetPolicy',
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.GetPolicyRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.GetPolicyResponse.FromString,
+                _registered_method=True)
+        self.DeletePolicy = channel.unary_unary(
+                '/cerbos.svc.v1.CerbosAdminService/DeletePolicy',
+                request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.DeletePolicyRequest.SerializeToString,
+                response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.DeletePolicyResponse.FromString,
                 _registered_method=True)
         self.DisablePolicy = channel.unary_unary(
                 '/cerbos.svc.v1.CerbosAdminService/DisablePolicy',
@@ -319,9 +324,14 @@ class CerbosAdminServiceStub(object):
                 request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.ReloadStoreRequest.SerializeToString,
                 response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.ReloadStoreResponse.FromString,
                 _registered_method=True)
+        self.PurgeStoreRevisions = channel.unary_unary(
+                '/cerbos.svc.v1.CerbosAdminService/PurgeStoreRevisions',
+                request_serializer=cerbos_dot_request_dot_v1_dot_request__pb2.PurgeStoreRevisionsRequest.SerializeToString,
+                response_deserializer=cerbos_dot_response_dot_v1_dot_response__pb2.PurgeStoreRevisionsResponse.FromString,
+                _registered_method=True)
 
 
-class CerbosAdminServiceServicer(object):
+class CerbosAdminServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def AddOrUpdatePolicy(self, request, context):
@@ -343,6 +353,12 @@ class CerbosAdminServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetPolicy(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeletePolicy(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -396,6 +412,12 @@ class CerbosAdminServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def PurgeStoreRevisions(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CerbosAdminServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -418,6 +440,11 @@ def add_CerbosAdminServiceServicer_to_server(servicer, server):
                     servicer.GetPolicy,
                     request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.GetPolicyRequest.FromString,
                     response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.GetPolicyResponse.SerializeToString,
+            ),
+            'DeletePolicy': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeletePolicy,
+                    request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.DeletePolicyRequest.FromString,
+                    response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.DeletePolicyResponse.SerializeToString,
             ),
             'DisablePolicy': grpc.unary_unary_rpc_method_handler(
                     servicer.DisablePolicy,
@@ -459,6 +486,11 @@ def add_CerbosAdminServiceServicer_to_server(servicer, server):
                     request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.ReloadStoreRequest.FromString,
                     response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.ReloadStoreResponse.SerializeToString,
             ),
+            'PurgeStoreRevisions': grpc.unary_unary_rpc_method_handler(
+                    servicer.PurgeStoreRevisions,
+                    request_deserializer=cerbos_dot_request_dot_v1_dot_request__pb2.PurgeStoreRevisionsRequest.FromString,
+                    response_serializer=cerbos_dot_response_dot_v1_dot_response__pb2.PurgeStoreRevisionsResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'cerbos.svc.v1.CerbosAdminService', rpc_method_handlers)
@@ -467,7 +499,7 @@ def add_CerbosAdminServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosAdminService(object):
+class CerbosAdminService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -568,6 +600,33 @@ class CerbosAdminService(object):
             '/cerbos.svc.v1.CerbosAdminService/GetPolicy',
             cerbos_dot_request_dot_v1_dot_request__pb2.GetPolicyRequest.SerializeToString,
             cerbos_dot_response_dot_v1_dot_response__pb2.GetPolicyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeletePolicy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/DeletePolicy',
+            cerbos_dot_request_dot_v1_dot_request__pb2.DeletePolicyRequest.SerializeToString,
+            cerbos_dot_response_dot_v1_dot_response__pb2.DeletePolicyResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -794,8 +853,35 @@ class CerbosAdminService(object):
             metadata,
             _registered_method=True)
 
+    @staticmethod
+    def PurgeStoreRevisions(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cerbos.svc.v1.CerbosAdminService/PurgeStoreRevisions',
+            cerbos_dot_request_dot_v1_dot_request__pb2.PurgeStoreRevisionsRequest.SerializeToString,
+            cerbos_dot_response_dot_v1_dot_response__pb2.PurgeStoreRevisionsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
-class CerbosPlaygroundServiceStub(object):
+
+class CerbosPlaygroundServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -826,7 +912,7 @@ class CerbosPlaygroundServiceStub(object):
                 _registered_method=True)
 
 
-class CerbosPlaygroundServiceServicer(object):
+class CerbosPlaygroundServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def PlaygroundValidate(self, request, context):
@@ -884,7 +970,7 @@ def add_CerbosPlaygroundServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosPlaygroundService(object):
+class CerbosPlaygroundService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod

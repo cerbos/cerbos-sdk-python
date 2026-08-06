@@ -5,7 +5,7 @@ import grpc
 from cerbos.cloud.bundle.v2 import bundle_pb2 as cerbos_dot_cloud_dot_bundle_dot_v2_dot_bundle__pb2
 
 
-class CerbosBundleServiceStub(object):
+class CerbosBundleServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -26,7 +26,7 @@ class CerbosBundleServiceStub(object):
                 _registered_method=True)
 
 
-class CerbosBundleServiceServicer(object):
+class CerbosBundleServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
     def GetBundle(self, request, context):
@@ -62,7 +62,7 @@ def add_CerbosBundleServiceServicer_to_server(servicer, server):
 
 
  # This class is part of an EXPERIMENTAL API.
-class CerbosBundleService(object):
+class CerbosBundleService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod

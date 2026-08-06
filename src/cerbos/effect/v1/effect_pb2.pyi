@@ -5,7 +5,7 @@ from typing import ClassVar as _ClassVar
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Effect(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = []
+    __slots__ = ()
     EFFECT_UNSPECIFIED: _ClassVar[Effect]
     EFFECT_ALLOW: _ClassVar[Effect]
     EFFECT_DENY: _ClassVar[Effect]

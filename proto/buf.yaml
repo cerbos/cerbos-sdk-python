@@ -1,10 +1,17 @@
-version: v1
+version: v2
 name: buf.build/cerbos/cerbos-python
 deps:
-  - "buf.build/cerbos/cerbos-api"
-breaking:
-  use:
-    - FILE
+  - buf.build/cerbos/cerbos-api
 lint:
   use:
     - DEFAULT
+  except:
+    - FIELD_NOT_REQUIRED
+    - PACKAGE_NO_IMPORT_CYCLE
+  disallow_comment_ignores: true
+breaking:
+  use:
+    - FILE
+  except:
+    - EXTENSION_NO_DELETE
+    - FIELD_SAME_DEFAULT

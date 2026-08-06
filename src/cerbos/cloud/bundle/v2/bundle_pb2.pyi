@@ -1,17 +1,30 @@
+import datetime
+
 from buf.validate import validate_pb2 as _validate_pb2
 from cerbos.cloud.pdp.v1 import pdp_pb2 as _pdp_pb2
 from google.api import visibility_pb2 as _visibility_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class BundleType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    BUNDLE_TYPE_UNSPECIFIED: _ClassVar[BundleType]
+    BUNDLE_TYPE_LEGACY: _ClassVar[BundleType]
+    BUNDLE_TYPE_RULE_TABLE: _ClassVar[BundleType]
+BUNDLE_TYPE_UNSPECIFIED: BundleType
+BUNDLE_TYPE_LEGACY: BundleType
+BUNDLE_TYPE_RULE_TABLE: BundleType
+
 class Source(_message.Message):
-    __slots__ = ["deployment_id", "playground_id"]
+    __slots__ = ("deployment_id", "playground_id")
     DEPLOYMENT_ID_FIELD_NUMBER: _ClassVar[int]
     PLAYGROUND_ID_FIELD_NUMBER: _ClassVar[int]
     deployment_id: str
@@ -19,9 +32,9 @@ class Source(_message.Message):
     def __init__(self, deployment_id: _Optional[str] = ..., playground_id: _Optional[str] = ...) -> None: ...
 
 class BundleInfo(_message.Message):
-    __slots__ = ["source", "input_hash", "output_hash", "encryption_key", "segments"]
+    __slots__ = ("source", "input_hash", "output_hash", "encryption_key", "segments", "bundle_type")
     class Segment(_message.Message):
-        __slots__ = ["segment_id", "checksum", "download_urls"]
+        __slots__ = ("segment_id", "checksum", "download_urls")
         SEGMENT_ID_FIELD_NUMBER: _ClassVar[int]
         CHECKSUM_FIELD_NUMBER: _ClassVar[int]
         DOWNLOAD_URLS_FIELD_NUMBER: _ClassVar[int]
@@ -34,15 +47,17 @@ class BundleInfo(_message.Message):
     OUTPUT_HASH_FIELD_NUMBER: _ClassVar[int]
     ENCRYPTION_KEY_FIELD_NUMBER: _ClassVar[int]
     SEGMENTS_FIELD_NUMBER: _ClassVar[int]
+    BUNDLE_TYPE_FIELD_NUMBER: _ClassVar[int]
     source: Source
     input_hash: bytes
     output_hash: bytes
     encryption_key: bytes
     segments: _containers.RepeatedCompositeFieldContainer[BundleInfo.Segment]
-    def __init__(self, source: _Optional[_Union[Source, _Mapping]] = ..., input_hash: _Optional[bytes] = ..., output_hash: _Optional[bytes] = ..., encryption_key: _Optional[bytes] = ..., segments: _Optional[_Iterable[_Union[BundleInfo.Segment, _Mapping]]] = ...) -> None: ...
+    bundle_type: BundleType
+    def __init__(self, source: _Optional[_Union[Source, _Mapping]] = ..., input_hash: _Optional[bytes] = ..., output_hash: _Optional[bytes] = ..., encryption_key: _Optional[bytes] = ..., segments: _Optional[_Iterable[_Union[BundleInfo.Segment, _Mapping]]] = ..., bundle_type: _Optional[_Union[BundleType, str]] = ...) -> None: ...
 
 class Meta(_message.Message):
-    __slots__ = ["bundle_id", "source"]
+    __slots__ = ("bundle_id", "source")
     BUNDLE_ID_FIELD_NUMBER: _ClassVar[int]
     SOURCE_FIELD_NUMBER: _ClassVar[int]
     bundle_id: str
@@ -50,9 +65,9 @@ class Meta(_message.Message):
     def __init__(self, bundle_id: _Optional[str] = ..., source: _Optional[str] = ...) -> None: ...
 
 class Manifest(_message.Message):
-    __slots__ = ["api_version", "policy_index", "schemas", "meta"]
+    __slots__ = ("api_version", "policy_index", "schemas", "meta")
     class PolicyIndexEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -69,33 +84,39 @@ class Manifest(_message.Message):
     def __init__(self, api_version: _Optional[str] = ..., policy_index: _Optional[_Mapping[str, str]] = ..., schemas: _Optional[_Iterable[str]] = ..., meta: _Optional[_Union[Meta, _Mapping]] = ...) -> None: ...
 
 class GetBundleRequest(_message.Message):
-    __slots__ = ["pdp_id", "source"]
+    __slots__ = ("pdp_id", "source", "bundle_type")
     PDP_ID_FIELD_NUMBER: _ClassVar[int]
     SOURCE_FIELD_NUMBER: _ClassVar[int]
+    BUNDLE_TYPE_FIELD_NUMBER: _ClassVar[int]
     pdp_id: _pdp_pb2.Identifier
     source: Source
-    def __init__(self, pdp_id: _Optional[_Union[_pdp_pb2.Identifier, _Mapping]] = ..., source: _Optional[_Union[Source, _Mapping]] = ...) -> None: ...
+    bundle_type: BundleType
+    def __init__(self, pdp_id: _Optional[_Union[_pdp_pb2.Identifier, _Mapping]] = ..., source: _Optional[_Union[Source, _Mapping]] = ..., bundle_type: _Optional[_Union[BundleType, str]] = ...) -> None: ...
 
 class GetBundleResponse(_message.Message):
-    __slots__ = ["bundle_info"]
+    __slots__ = ("bundle_info",)
     BUNDLE_INFO_FIELD_NUMBER: _ClassVar[int]
     bundle_info: BundleInfo
     def __init__(self, bundle_info: _Optional[_Union[BundleInfo, _Mapping]] = ...) -> None: ...
 
 class WatchBundleRequest(_message.Message):
-    __slots__ = ["pdp_id", "start", "heartbeat"]
+    __slots__ = ("pdp_id", "start", "heartbeat")
     class Start(_message.Message):
-        __slots__ = ["source"]
+        __slots__ = ("source", "bundle_type")
         SOURCE_FIELD_NUMBER: _ClassVar[int]
+        BUNDLE_TYPE_FIELD_NUMBER: _ClassVar[int]
         source: Source
-        def __init__(self, source: _Optional[_Union[Source, _Mapping]] = ...) -> None: ...
+        bundle_type: BundleType
+        def __init__(self, source: _Optional[_Union[Source, _Mapping]] = ..., bundle_type: _Optional[_Union[BundleType, str]] = ...) -> None: ...
     class Heartbeat(_message.Message):
-        __slots__ = ["timestamp", "active_bundle_id"]
+        __slots__ = ("timestamp", "active_bundle_id", "bundle_type")
         TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
         ACTIVE_BUNDLE_ID_FIELD_NUMBER: _ClassVar[int]
+        BUNDLE_TYPE_FIELD_NUMBER: _ClassVar[int]
         timestamp: _timestamp_pb2.Timestamp
         active_bundle_id: str
-        def __init__(self, timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., active_bundle_id: _Optional[str] = ...) -> None: ...
+        bundle_type: BundleType
+        def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., active_bundle_id: _Optional[str] = ..., bundle_type: _Optional[_Union[BundleType, str]] = ...) -> None: ...
     PDP_ID_FIELD_NUMBER: _ClassVar[int]
     START_FIELD_NUMBER: _ClassVar[int]
     HEARTBEAT_FIELD_NUMBER: _ClassVar[int]
@@ -105,16 +126,16 @@ class WatchBundleRequest(_message.Message):
     def __init__(self, pdp_id: _Optional[_Union[_pdp_pb2.Identifier, _Mapping]] = ..., start: _Optional[_Union[WatchBundleRequest.Start, _Mapping]] = ..., heartbeat: _Optional[_Union[WatchBundleRequest.Heartbeat, _Mapping]] = ...) -> None: ...
 
 class WatchBundleResponse(_message.Message):
-    __slots__ = ["bundle_update", "reconnect", "bundle_removed"]
+    __slots__ = ("bundle_update", "reconnect", "bundle_removed")
     class Reconnect(_message.Message):
-        __slots__ = ["backoff", "reason"]
+        __slots__ = ("backoff", "reason")
         BACKOFF_FIELD_NUMBER: _ClassVar[int]
         REASON_FIELD_NUMBER: _ClassVar[int]
         backoff: _duration_pb2.Duration
         reason: str
-        def __init__(self, backoff: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., reason: _Optional[str] = ...) -> None: ...
+        def __init__(self, backoff: _Optional[_Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]] = ..., reason: _Optional[str] = ...) -> None: ...
     class BundleRemoved(_message.Message):
-        __slots__ = []
+        __slots__ = ()
         def __init__(self) -> None: ...
     BUNDLE_UPDATE_FIELD_NUMBER: _ClassVar[int]
     RECONNECT_FIELD_NUMBER: _ClassVar[int]

@@ -1,17 +1,20 @@
+import datetime
+
 from cerbos.engine.v1 import engine_pb2 as _engine_pb2
 from cerbos.policy.v1 import policy_pb2 as _policy_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class AccessLogEntry(_message.Message):
-    __slots__ = ["call_id", "timestamp", "peer", "metadata", "method", "status_code"]
+    __slots__ = ("call_id", "timestamp", "peer", "metadata", "method", "status_code")
     class MetadataEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -29,12 +32,12 @@ class AccessLogEntry(_message.Message):
     metadata: _containers.MessageMap[str, MetaValues]
     method: str
     status_code: int
-    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., method: _Optional[str] = ..., status_code: _Optional[int] = ...) -> None: ...
+    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., method: _Optional[str] = ..., status_code: _Optional[int] = ...) -> None: ...
 
 class DecisionLogEntry(_message.Message):
-    __slots__ = ["call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata", "audit_trail"]
+    __slots__ = ("call_id", "timestamp", "peer", "inputs", "outputs", "error", "check_resources", "plan_resources", "metadata", "audit_trail")
     class CheckResources(_message.Message):
-        __slots__ = ["inputs", "outputs", "error"]
+        __slots__ = ("inputs", "outputs", "error")
         INPUTS_FIELD_NUMBER: _ClassVar[int]
         OUTPUTS_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
@@ -43,7 +46,7 @@ class DecisionLogEntry(_message.Message):
         error: str
         def __init__(self, inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ...) -> None: ...
     class PlanResources(_message.Message):
-        __slots__ = ["input", "output", "error"]
+        __slots__ = ("input", "output", "error")
         INPUT_FIELD_NUMBER: _ClassVar[int]
         OUTPUT_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
@@ -52,7 +55,7 @@ class DecisionLogEntry(_message.Message):
         error: str
         def __init__(self, input: _Optional[_Union[_engine_pb2.PlanResourcesInput, _Mapping]] = ..., output: _Optional[_Union[_engine_pb2.PlanResourcesOutput, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
     class MetadataEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -78,16 +81,16 @@ class DecisionLogEntry(_message.Message):
     plan_resources: DecisionLogEntry.PlanResources
     metadata: _containers.MessageMap[str, MetaValues]
     audit_trail: AuditTrail
-    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., audit_trail: _Optional[_Union[AuditTrail, _Mapping]] = ...) -> None: ...
+    def __init__(self, call_id: _Optional[str] = ..., timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., peer: _Optional[_Union[Peer, _Mapping]] = ..., inputs: _Optional[_Iterable[_Union[_engine_pb2.CheckInput, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[_engine_pb2.CheckOutput, _Mapping]]] = ..., error: _Optional[str] = ..., check_resources: _Optional[_Union[DecisionLogEntry.CheckResources, _Mapping]] = ..., plan_resources: _Optional[_Union[DecisionLogEntry.PlanResources, _Mapping]] = ..., metadata: _Optional[_Mapping[str, MetaValues]] = ..., audit_trail: _Optional[_Union[AuditTrail, _Mapping]] = ...) -> None: ...
 
 class MetaValues(_message.Message):
-    __slots__ = ["values"]
+    __slots__ = ("values",)
     VALUES_FIELD_NUMBER: _ClassVar[int]
     values: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, values: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Peer(_message.Message):
-    __slots__ = ["address", "auth_info", "user_agent", "forwarded_for"]
+    __slots__ = ("address", "auth_info", "user_agent", "forwarded_for")
     ADDRESS_FIELD_NUMBER: _ClassVar[int]
     AUTH_INFO_FIELD_NUMBER: _ClassVar[int]
     USER_AGENT_FIELD_NUMBER: _ClassVar[int]
@@ -99,9 +102,9 @@ class Peer(_message.Message):
     def __init__(self, address: _Optional[str] = ..., auth_info: _Optional[str] = ..., user_agent: _Optional[str] = ..., forwarded_for: _Optional[str] = ...) -> None: ...
 
 class AuditTrail(_message.Message):
-    __slots__ = ["effective_policies"]
+    __slots__ = ("effective_policies",)
     class EffectivePoliciesEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str

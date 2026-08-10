@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 import pytest
 from cerbos.sdk.hub import util
 from cerbos.sdk.hub.store import CerbosHubStoreClient
@@ -111,7 +111,7 @@ class TestCerbosHubStoreClient:
             haveFiles = have.files()
             assert len(haveFiles) == 0
 
-def assert_store_contents(hub_store_client: CerbosHubStoreClient, store_id: str, additional: Optional[List[str]]=None):
+def assert_store_contents(hub_store_client: CerbosHubStoreClient, store_id: str, additional: list[str] | None=None):
     have = hub_store_client.list_files(store_id)
     assert len(have.files()) > 0
     want = _WANT_FILES.copy()

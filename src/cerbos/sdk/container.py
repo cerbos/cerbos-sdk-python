@@ -11,7 +11,7 @@ class CerbosContainer(DockerContainer):
     GRPC_PORT = 3593
 
     def __init__(self, image: str = "ghcr.io/cerbos/cerbos:latest"):
-        super(CerbosContainer, self).__init__(image)
+        super().__init__(image)
         self.with_exposed_ports(self.HTTP_PORT, self.GRPC_PORT)
 
     def http_host(self, protocol: str = "http") -> str:

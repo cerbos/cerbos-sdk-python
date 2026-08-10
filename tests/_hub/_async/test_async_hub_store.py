@@ -3,7 +3,7 @@
 
 import os
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 
 import pytest
 
@@ -339,7 +339,7 @@ class TestAsyncCerbosHubStoreClient:
 async def assert_store_contents(
     hub_store_client: AsyncCerbosHubStoreClient,
     store_id: str,
-    additional: Optional[List[str]] = None,
+    additional: list[str] | None = None,
 ):
     have = await hub_store_client.list_files(store_id)
     assert len(have.files()) > 0

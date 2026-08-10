@@ -1,7 +1,6 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List
 
 import grpc
 import pytest
@@ -48,7 +47,7 @@ class TestCerbosClient:
         self,
         cerbos_grpc_client: CerbosClient,
         principal_john: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = cerbos_grpc_client.check_resources(principal_john, resource_list)
         _assert_check_resources(have)
@@ -66,7 +65,7 @@ class TestCerbosClient:
         self,
         cerbos_grpc_client: CerbosClient,
         principal_invalid_john: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = cerbos_grpc_client.check_resources(principal_invalid_john, resource_list)
         _assert_check_resources_validation(have)
@@ -108,7 +107,7 @@ class TestCerbosClient:
         self,
         cerbos_grpc_client: CerbosClient,
         principal_john: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = cerbos_grpc_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
@@ -178,7 +177,7 @@ class TestPrincipalContext:
     def test_check_resources(
         self,
         principal_ctx: PrincipalContext,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = principal_ctx.check_resources(resource_list)
         _assert_check_resources(have)
@@ -187,7 +186,7 @@ class TestPrincipalContext:
         self,
         cerbos_grpc_client: CerbosClient,
         principal_donald: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         principal_ctx_override = cerbos_grpc_client.with_principal(principal_donald)
         have = principal_ctx_override.check_resources(resource_list)
@@ -228,7 +227,7 @@ class TestAsyncCerbosClient:
         self,
         cerbos_async_grpc_client: AsyncCerbosClient,
         principal_john: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = await cerbos_async_grpc_client.check_resources(
             principal_john, resource_list
@@ -272,7 +271,7 @@ class TestAsyncCerbosClient:
         self,
         cerbos_async_grpc_client: AsyncCerbosClient,
         principal_john: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = await cerbos_async_grpc_client.check_resources(
             principal_john, resource_list
@@ -322,7 +321,7 @@ class TestAsyncAsyncPrincipalContext:
     async def test_check_resources(
         self,
         async_principal_ctx: AsyncPrincipalContext,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         have = await async_principal_ctx.check_resources(resource_list)
         _assert_check_resources(have)
@@ -331,7 +330,7 @@ class TestAsyncAsyncPrincipalContext:
         self,
         cerbos_async_grpc_client: AsyncCerbosClient,
         principal_donald: engine_pb2.Principal,
-        resource_list: List[request_pb2.CheckResourcesRequest.ResourceEntry],
+        resource_list: list[request_pb2.CheckResourcesRequest.ResourceEntry],
     ):
         async_principal_ctx_override = cerbos_async_grpc_client.with_principal(
             principal_donald

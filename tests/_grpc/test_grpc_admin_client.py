@@ -31,9 +31,7 @@ class TestCerbosAdminClient:
     def test_admin_credentials_metadata(self, cerbos_admin_client: CerbosAdminClient):
         admin_credentials = AdminCredentials(username="user", password="password")
         metadata = admin_credentials.metadata()
-        encoded_credentials = base64.b64encode("user:password".encode("utf-8")).decode(
-            "utf-8"
-        )
+        encoded_credentials = base64.b64encode(b"user:password").decode("utf-8")
         expected_metadata = (("authorization", f"Basic {encoded_credentials}"),)
         assert metadata == expected_metadata
 

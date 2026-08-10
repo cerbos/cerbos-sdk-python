@@ -9,9 +9,12 @@ import pytest
 
 from cerbos.sdk.client import AsyncCerbosClient, CerbosClient
 from cerbos.sdk.container import CerbosContainer
-from cerbos.sdk.grpc.client import AdminCredentials, AsyncCerbosAdminClient
+from cerbos.sdk.grpc.client import (
+    AdminCredentials,
+    AsyncCerbosAdminClient,
+    CerbosAdminClient,
+)
 from cerbos.sdk.grpc.client import AsyncCerbosClient as AsyncGrpcCerbosClient
-from cerbos.sdk.grpc.client import CerbosAdminClient
 from cerbos.sdk.grpc.client import CerbosClient as GrpcCerbosClient
 from cerbos.sdk.model import *
 
@@ -146,5 +149,5 @@ def start_container(client_type, listener, tmp_path_factory, with_admin=False):
 
         host = f"unix:{sock_dir}/cerbos.{client_type}"
 
-    logging.info(f"Cerbos Address: {host}")
+    logging.info(f"Cerbos Address: {host}")  # noqa: LOG015
     return container, host

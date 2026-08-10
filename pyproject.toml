@@ -110,7 +110,7 @@ pre_build = { composite = ["unasync", "format", "lint"] }
 pre_test = { composite = ["unasync", "format", "lint"] }
 
 [tool.ruff.lint]
-ignore = ["F403", "F405"]
+ignore = ["B008", "F403", "F405"]
 
 
 [dependency-groups]

@@ -1,17 +1,17 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
+from collections.abc import Iterable
 from functools import wraps
-from typing import Iterable, List, Optional, Union
 import circuitbreaker
 import grpc
 from google.protobuf import json_format
-from google.rpc import code_pb2
 from grpc_status import rpc_status
 from cerbos.cloud.store.v1 import store_pb2, store_pb2_grpc
 from cerbos.sdk._sync._hub._auth import InvalidCredentialsError
 from cerbos.sdk._sync._hub._client import _CerbosHubClientBase
 from cerbos.sdk.hub.model import Credentials
 from cerbos.sdk.hub.store_model import AbortedError, AuthenticationFailedError, CannotModifyGitConnectedStoreError, ChangeDetails, ConditionUnsatisfiedError, File, FileOps, FilterPathContains, FilterPathEqual, FilterPathIn, GetFilesResponse, InvalidRequestError, ListFilesResponse, ModifyFilesResponse, NoUsableFilesError, OperationDiscardedError, PermissionDeniedError, ReplaceFilesResponse, StoreNotFoundError, TooManyFailuresError, UnknownError, ValidationFailureError
+from google.rpc import code_pb2
 _MAX_FILE_SIZE = 5 * 1024 * 1024
 _MAX_UPLOAD_SIZE = 50 * 1024 * 1024
 _MAX_ZIP_SIZE = 15 * 1024 * 1024
@@ -54,9 +54,7 @@ def handle_store_errors(method):
                         detail.Unpack(info)
                         raise OperationDiscardedError(e, info)
                 raise OperationDiscardedError(e)
-            elif status.code == code_pb2.CANCELLED:
-                raise AbortedError(e)
-            elif status.code == code_pb2.DEADLINE_EXCEEDED:
+            elif status.code == code_pb2.CANCELLED or status.code == code_pb2.DEADLINE_EXCEEDED:
                 raise AbortedError(e)
             elif status.code == code_pb2.FAILED_PRECONDITION:
                 for detail in status.details:
@@ -106,25 +104,25 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
     """
     _store_stub: store_pb2_grpc.CerbosStoreServiceStub
 
-    def __init__(self, credentials: Optional[Credentials]=None, api_endpoint: Optional[str]=None, timeout_secs: Optional[float]=None):
-        super(CerbosHubStoreClient, self).__init__(credentials, api_endpoint, timeout_secs)
+    def __init__(self, credentials: Credentials | None=None, api_endpoint: str | None=None, timeout_secs: float | None=None):
+        super().__init__(credentials, api_endpoint, timeout_secs)
         self._store_stub = store_pb2_grpc.CerbosStoreServiceStub(self._channel)
 
     @handle_store_errors
     @_CIRCUIT_BREAKER
-    def replace_files(self, store_id: str, message: str, contents: Union[bytes, Iterable[File]], version_must_equal: Optional[int]=None, change_details: Optional[ChangeDetails]=None) -> ReplaceFilesResponse:
+    def replace_files(self, store_id: str, message: str, contents: bytes | Iterable[File], version_must_equal: int | None=None, change_details: ChangeDetails | None=None) -> ReplaceFilesResponse:
         """
         Overwrite the store such that it only contains the files included in this request.
         Raises OperationDiscardedError if the store is already at the desired state.
         """
         if not (store_id and store_id.strip()):
             raise InvalidRequestError(ValueError('store_id is required'))
-        _change_details: Optional[store_pb2.ChangeDetails] = None
+        _change_details: store_pb2.ChangeDetails | None = None
         if change_details is None:
             _change_details = store_pb2.ChangeDetails(description=message, uploader=store_pb2.ChangeDetails.Uploader(name='cerbos-sdk-python'))
         else:
             _change_details = change_details.raw
-        _condition: Optional[store_pb2.ReplaceFilesRequest.Condition] = None
+        _condition: store_pb2.ReplaceFilesRequest.Condition | None = None
         if version_must_equal:
             _condition = store_pb2.ReplaceFilesRequest.Condition(store_version_must_equal=version_must_equal)
         req = store_pb2.ReplaceFilesRequest(store_id=store_id, condition=_condition, change_details=_change_details)
@@ -152,7 +150,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
 
     @handle_store_errors
     @_CIRCUIT_BREAKER
-    def replace_files_lenient(self, store_id: str, message: str, contents: Union[bytes, Iterable[File]], version_must_equal: Optional[int]=None, change_details: Optional[ChangeDetails]=None) -> ReplaceFilesResponse:
+    def replace_files_lenient(self, store_id: str, message: str, contents: bytes | Iterable[File], version_must_equal: int | None=None, change_details: ChangeDetails | None=None) -> ReplaceFilesResponse:
         """
         Overwrite the store such that it only contains the files included in this request.
         Does not raise OperationDiscardedError if the store is already at the desired state.
@@ -164,22 +162,22 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
 
     @handle_store_errors
     @_CIRCUIT_BREAKER
-    def modify_files(self, store_id: str, message: str, file_ops: FileOps, version_must_equal: Optional[int]=None, change_details: Optional[ChangeDetails]=None) -> ModifyFilesResponse:
+    def modify_files(self, store_id: str, message: str, file_ops: FileOps, version_must_equal: int | None=None, change_details: ChangeDetails | None=None) -> ModifyFilesResponse:
         """
         Add or delete files.
         Raises OperationDiscardedError if the operation does not change store state.
         """
         if not (store_id and store_id.strip()):
             raise InvalidRequestError(ValueError('store_id is required'))
-        _change_details: Optional[store_pb2.ChangeDetails] = None
+        _change_details: store_pb2.ChangeDetails | None = None
         if change_details is None:
             _change_details = store_pb2.ChangeDetails(description=message, uploader=store_pb2.ChangeDetails.Uploader(name='cerbos-sdk-python'))
         else:
             _change_details = change_details.raw
-        _condition: Optional[store_pb2.ModifyFilesRequest.Condition] = None
+        _condition: store_pb2.ModifyFilesRequest.Condition | None = None
         if version_must_equal:
             _condition = store_pb2.ModifyFilesRequest.Condition(store_version_must_equal=version_must_equal)
-        ops: List[store_pb2.FileOp] = []
+        ops: list[store_pb2.FileOp] = []
         if file_ops.add:
             total_size = 0
             for f in file_ops.add:
@@ -201,7 +199,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
 
     @handle_store_errors
     @_CIRCUIT_BREAKER
-    def modify_files_lenient(self, store_id: str, message: str, file_ops: FileOps, version_must_equal: Optional[int]=None, change_details: Optional[ChangeDetails]=None) -> ModifyFilesResponse:
+    def modify_files_lenient(self, store_id: str, message: str, file_ops: FileOps, version_must_equal: int | None=None, change_details: ChangeDetails | None=None) -> ModifyFilesResponse:
         """
         Add or delete files.
         Does not raise OperationDiscardedError if the operation does not change store state.
@@ -225,7 +223,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
 
     @handle_store_errors
     @circuitbreaker.circuit(cls=CircuitBreaker)
-    def list_files(self, store_id: str, filter: Optional[Union[FilterPathEqual, FilterPathContains, FilterPathIn]]=None) -> ListFilesResponse:
+    def list_files(self, store_id: str, filter: FilterPathEqual | FilterPathContains | FilterPathIn | None=None) -> ListFilesResponse:
         """
         List the files available on the remote store.
         The listing can be filtered by providing an optional `filter` argument which can be one of the following types.
@@ -233,7 +231,7 @@ class CerbosHubStoreClient(_CerbosHubClientBase):
           - FilterPathLike: Match a path partially
           - FilterPathIn: Match any or all of the paths in the given list
         """
-        path_filter: Optional[store_pb2.FileFilter] = None
+        path_filter: store_pb2.FileFilter | None = None
         if filter:
             if isinstance(filter, FilterPathEqual):
                 path_filter = store_pb2.FileFilter(path=store_pb2.StringMatch(equals=filter.path))

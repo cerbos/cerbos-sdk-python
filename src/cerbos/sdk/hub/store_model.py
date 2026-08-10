@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Iterable, List, Mapping, Optional, Self
+from typing import Self
 
 from google.protobuf import json_format, struct_pb2, timestamp_pb2
 
@@ -34,79 +35,67 @@ class RpcError(Exception):
     underlying: Exception
 
     def __init__(self, cause: RpcErrorCause, underlying: Exception):
-        msg = "RPC error: {0}".format(cause)
-        super(RpcError, self).__init__(msg)
+        msg = f"RPC error: {cause}"
+        super().__init__(msg)
         self.cause = cause
         self.underlying = underlying
 
 
 class AbortedError(RpcError):
     def __init__(self, underlying: Exception):
-        super(AbortedError, self).__init__(RpcErrorCause.ABORTED, underlying)
+        super().__init__(RpcErrorCause.ABORTED, underlying)
 
 
 class AuthenticationFailedError(RpcError):
     def __init__(self, underlying: Exception):
-        super(AuthenticationFailedError, self).__init__(
-            RpcErrorCause.AUTHENTICATION_FAILED, underlying
-        )
+        super().__init__(RpcErrorCause.AUTHENTICATION_FAILED, underlying)
 
 
 class CannotModifyGitConnectedStoreError(RpcError):
     def __init__(self, underlying: Exception):
-        super(CannotModifyGitConnectedStoreError, self).__init__(
-            RpcErrorCause.CANNOT_MODIFY_GIT_CONNECTED_STORE, underlying
-        )
+        super().__init__(RpcErrorCause.CANNOT_MODIFY_GIT_CONNECTED_STORE, underlying)
 
 
 class ConditionUnsatisfiedError(RpcError):
-    current_store_version: Optional[int] = None
+    current_store_version: int | None = None
 
     def __init__(
         self,
         underlying: Exception,
-        details: Optional[store_pb2.ErrDetailConditionUnsatisfied] = None,
+        details: store_pb2.ErrDetailConditionUnsatisfied | None = None,
     ):
-        super(ConditionUnsatisfiedError, self).__init__(
-            RpcErrorCause.CONDITION_UNSATISFIED, underlying
-        )
+        super().__init__(RpcErrorCause.CONDITION_UNSATISFIED, underlying)
         if details:
             self.current_store_version = details.current_store_version
 
 
 class InvalidRequestError(RpcError):
     def __init__(self, underlying: Exception):
-        super(InvalidRequestError, self).__init__(
-            RpcErrorCause.INVALID_REQUEST, underlying
-        )
+        super().__init__(RpcErrorCause.INVALID_REQUEST, underlying)
 
 
 class NoUsableFilesError(RpcError):
-    ignored_files: Optional[Iterable[str]]
+    ignored_files: Iterable[str] | None
 
     def __init__(
         self, underlying: Exception, details: store_pb2.ErrDetailNoUsableFiles
     ):
-        super(NoUsableFilesError, self).__init__(
-            RpcErrorCause.NO_USABLE_FILES, underlying
-        )
+        super().__init__(RpcErrorCause.NO_USABLE_FILES, underlying)
 
         if details.ignored_files:
             self.ignored_files = details.ignored_files
 
 
 class OperationDiscardedError(RpcError):
-    current_store_version: Optional[int] = None
-    ignored_files: Optional[Iterable[str]] = None
+    current_store_version: int | None = None
+    ignored_files: Iterable[str] | None = None
 
     def __init__(
         self,
         underlying: Exception,
-        details: Optional[store_pb2.ErrDetailOperationDiscarded] = None,
+        details: store_pb2.ErrDetailOperationDiscarded | None = None,
     ):
-        super(OperationDiscardedError, self).__init__(
-            RpcErrorCause.OPERATION_DISCARDED, underlying
-        )
+        super().__init__(RpcErrorCause.OPERATION_DISCARDED, underlying)
         if details:
             self.current_store_version = details.current_store_version
             self.ignored_files = details.ignored_files
@@ -114,39 +103,31 @@ class OperationDiscardedError(RpcError):
 
 class PermissionDeniedError(RpcError):
     def __init__(self, underlying: Exception):
-        super(PermissionDeniedError, self).__init__(
-            RpcErrorCause.PERMISSION_DENIED, underlying
-        )
+        super().__init__(RpcErrorCause.PERMISSION_DENIED, underlying)
 
 
 class StoreNotFoundError(RpcError):
     def __init__(self, underlying: Exception):
-        super(StoreNotFoundError, self).__init__(
-            RpcErrorCause.STORE_NOT_FOUND, underlying
-        )
+        super().__init__(RpcErrorCause.STORE_NOT_FOUND, underlying)
 
 
 class TooManyFailuresError(RpcError):
     def __init__(self, underlying: Exception):
-        super(TooManyFailuresError, self).__init__(
-            RpcErrorCause.TOO_MANY_FAILURES, underlying
-        )
+        super().__init__(RpcErrorCause.TOO_MANY_FAILURES, underlying)
 
 
 class UnknownError(RpcError):
     def __init__(self, underlying: Exception):
-        super(UnknownError, self).__init__(RpcErrorCause.UNKNOWN, underlying)
+        super().__init__(RpcErrorCause.UNKNOWN, underlying)
 
 
 class ValidationFailureError(RpcError):
-    errors: Optional[Iterable[store_pb2.FileError]]
+    errors: Iterable[store_pb2.FileError] | None
 
     def __init__(
         self, underlying: Exception, details: store_pb2.ErrDetailValidationFailure
     ):
-        super(ValidationFailureError, self).__init__(
-            RpcErrorCause.VALIDATION_FAILURE, underlying
-        )
+        super().__init__(RpcErrorCause.VALIDATION_FAILURE, underlying)
 
         if details.errors:
             self.errors = details.errors
@@ -163,7 +144,7 @@ class ChangeDetails:
         self.raw = store_pb2.ChangeDetails(description=description)
 
     def with_uploader(
-        self, name: str, metadata: Optional[Mapping[str, struct_pb2.Value]] = None
+        self, name: str, metadata: Mapping[str, struct_pb2.Value] | None = None
     ) -> Self:
         """
         Set the name and any custom metadata about the uploader.
@@ -189,23 +170,23 @@ class ChangeDetails:
         self,
         repo: str,
         hash: str,
-        ref: Optional[str] = None,
-        message: Optional[str] = None,
-        committer: Optional[str] = None,
-        commit_date: Optional[datetime.datetime] = None,
-        author: Optional[str] = None,
-        author_date: Optional[datetime.datetime] = None,
+        ref: str | None = None,
+        message: str | None = None,
+        committer: str | None = None,
+        commit_date: datetime.datetime | None = None,
+        author: str | None = None,
+        author_date: datetime.datetime | None = None,
     ) -> Self:
         """
         Attach information about the underlying git commit.
         Mutually exclusive with internal source.
         """
-        _commit_date: Optional[timestamp_pb2.Timestamp] = None
+        _commit_date: timestamp_pb2.Timestamp | None = None
         if commit_date:
             _commit_date = timestamp_pb2.Timestamp()
             _commit_date.FromDatetime(commit_date)
 
-        _author_date: Optional[timestamp_pb2.Timestamp] = None
+        _author_date: timestamp_pb2.Timestamp | None = None
         if author_date:
             _author_date = timestamp_pb2.Timestamp()
             _author_date.FromDatetime(author_date)
@@ -228,7 +209,7 @@ class ChangeDetails:
         return self
 
     def with_internal_source(
-        self, source: str, metadata: Optional[Mapping[str, struct_pb2.Value]] = None
+        self, source: str, metadata: Mapping[str, struct_pb2.Value] | None = None
     ) -> Self:
         """
         Attach information about the internal data source for this change.
@@ -252,8 +233,8 @@ class File:
 
 @dataclass
 class FileOps:
-    add: Optional[Iterable[File]] = None
-    delete: Optional[Iterable[str]] = None
+    add: Iterable[File] | None = None
+    delete: Iterable[str] | None = None
 
 
 @dataclass
@@ -278,7 +259,7 @@ class ListFilesResponse:
     def store_version(self) -> int:
         return self.raw.store_version
 
-    def files(self) -> List[str]:
+    def files(self) -> list[str]:
         return [f for f in self.raw.files]
 
     def __str__(self):
@@ -292,7 +273,7 @@ class ReplaceFilesResponse:
     def new_store_version(self) -> int:
         return self.raw.new_store_version
 
-    def ignored_files(self) -> Optional[List[str]]:
+    def ignored_files(self) -> list[str] | None:
         if self.raw.ignored_files:
             return [f for f in self.raw.ignored_files]
 

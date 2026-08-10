@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import zipfile
+from collections.abc import Iterable
 from io import BytesIO
 from pathlib import Path
-from typing import Iterable
 
 from cerbos.sdk.hub.store_model import File
 

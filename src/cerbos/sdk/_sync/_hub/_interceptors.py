@@ -1,17 +1,18 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
-from typing import Any, Callable, List, NamedTuple, Optional, Union
+from collections.abc import Callable
+from typing import Any, NamedTuple
 import grpc
 from cerbos.sdk._sync._hub._auth import _AuthClient
 # grpc.aio classes are annoyingly different from the non-async version so we need a second, slightly-different non-async implementation.
 
 class _ClientCallDetails(NamedTuple):
     method: str
-    timeout: Optional[float]
-    metadata: Optional[List]
-    credentials: Optional[grpc.CallCredentials]
-    wait_for_ready: Optional[bool]
-    compression: Optional[grpc.Compression]
+    timeout: float | None
+    metadata: list | None
+    credentials: grpc.CallCredentials | None
+    wait_for_ready: bool | None
+    compression: grpc.Compression | None
 # Dummy placeholder so that the non-async interceptor type-checks.
 
 class _ClientCallDetailsWrapper(_ClientCallDetails, grpc.ClientCallDetails):

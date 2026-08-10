@@ -3,7 +3,7 @@
 
 import json
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 import grpc
 
@@ -11,7 +11,7 @@ from cerbos.sdk._async._hub._auth import _AsyncAuthClient
 from cerbos.sdk._async._hub._interceptors import _AsyncAuthInterceptor
 from cerbos.sdk.hub.model import Credentials
 
-_METHOD_CONFIG: Dict[str, Any] = {
+_METHOD_CONFIG: dict[str, Any] = {
     "methodConfig": [
         {
             "name": [{}],
@@ -50,9 +50,9 @@ class _AsyncCerbosHubClientBase:
 
     def __init__(
         self,
-        credentials: Optional[Credentials] = None,
-        api_endpoint: Optional[str] = None,
-        timeout_secs: Optional[float] = None,
+        credentials: Credentials | None = None,
+        api_endpoint: str | None = None,
+        timeout_secs: float | None = None,
     ):
         target = os.getenv("CERBOS_HUB_API_ENDPOINT", "dns:///api.cerbos.cloud")
         if api_endpoint:
@@ -103,9 +103,9 @@ class _CerbosHubClientBase:
 
     def __init__(
         self,
-        credentials: Optional[Credentials] = None,
-        api_endpoint: Optional[str] = None,
-        timeout_secs: Optional[float] = None,
+        credentials: Credentials | None = None,
+        api_endpoint: str | None = None,
+        timeout_secs: float | None = None,
     ):
         target = os.getenv("CERBOS_HUB_API_ENDPOINT", "dns:///api.cerbos.cloud")
         if api_endpoint:

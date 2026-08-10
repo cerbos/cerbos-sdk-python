@@ -444,7 +444,7 @@ class TestFixtureGroup(_message.Message):
     def __init__(self) -> None: ...
 
 class TestOptions(_message.Message):
-    __slots__ = ("now", "lenient_scope_search", "globals", "default_policy_version", "default_scope")
+    __slots__ = ("now", "lenient_scope_search", "globals", "default_policy_version", "default_scope", "strict_evaluation")
     class GlobalsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -457,12 +457,14 @@ class TestOptions(_message.Message):
     GLOBALS_FIELD_NUMBER: _ClassVar[int]
     DEFAULT_POLICY_VERSION_FIELD_NUMBER: _ClassVar[int]
     DEFAULT_SCOPE_FIELD_NUMBER: _ClassVar[int]
+    STRICT_EVALUATION_FIELD_NUMBER: _ClassVar[int]
     now: _timestamp_pb2.Timestamp
     lenient_scope_search: bool
     globals: _containers.MessageMap[str, _struct_pb2.Value]
     default_policy_version: str
     default_scope: str
-    def __init__(self, now: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., lenient_scope_search: _Optional[bool] = ..., globals: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., default_policy_version: _Optional[str] = ..., default_scope: _Optional[str] = ...) -> None: ...
+    strict_evaluation: bool
+    def __init__(self, now: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., lenient_scope_search: _Optional[bool] = ..., globals: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., default_policy_version: _Optional[str] = ..., default_scope: _Optional[str] = ..., strict_evaluation: _Optional[bool] = ...) -> None: ...
 
 class TestSuite(_message.Message):
     __slots__ = ("name", "description", "skip", "skip_reason", "tests", "principals", "resources", "aux_data", "options", "json_schema", "principal_groups", "resource_groups")

@@ -1,7 +1,8 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Callable, List, NamedTuple, Optional, Union
+from collections.abc import Callable
+from typing import Any, NamedTuple
 
 import grpc
 
@@ -10,10 +11,10 @@ from cerbos.sdk._async._hub._auth import _AsyncAuthClient
 
 class _AsyncClientCallDetails(NamedTuple):
     method: str
-    timeout: Optional[float]
-    metadata: Optional[grpc.aio.Metadata]
-    credentials: Optional[grpc.CallCredentials]
-    wait_for_ready: Optional[bool]
+    timeout: float | None
+    metadata: grpc.aio.Metadata | None
+    credentials: grpc.CallCredentials | None
+    wait_for_ready: bool | None
 
 
 class _AsyncClientCallDetailsWrapper(
@@ -62,7 +63,7 @@ class _AsyncAuthInterceptor(
         ],
         client_call_details: grpc.aio.ClientCallDetails,
         request: grpc.aio._typing.RequestType,
-    ) -> Union[grpc.aio.UnaryUnaryCall, object]:
+    ) -> grpc.aio.UnaryUnaryCall | object:
         return await self._intercept(continuation, client_call_details, request)
 
     async def intercept_unary_stream(
@@ -73,7 +74,7 @@ class _AsyncAuthInterceptor(
         ],
         client_call_details: grpc.aio.ClientCallDetails,
         request: grpc.aio._typing.RequestType,
-    ) -> Union[grpc.aio._typing.ResponseIterableType, grpc.aio.UnaryStreamCall]:
+    ) -> grpc.aio._typing.ResponseIterableType | grpc.aio.UnaryStreamCall:
         return await self._intercept(continuation, client_call_details, request)
 
     async def intercept_stream_unary(
@@ -97,7 +98,7 @@ class _AsyncAuthInterceptor(
         ],
         client_call_details: grpc.aio.ClientCallDetails,
         request_iterator: grpc.aio._typing.RequestIterableType,
-    ) -> Union[grpc.aio._typing.ResponseIterableType, grpc.aio.StreamStreamCall]:
+    ) -> grpc.aio._typing.ResponseIterableType | grpc.aio.StreamStreamCall:
         return await self._intercept(
             continuation, client_call_details, request_iterator
         )
@@ -108,11 +109,11 @@ class _AsyncAuthInterceptor(
 
 class _ClientCallDetails(NamedTuple):
     method: str
-    timeout: Optional[float]
-    metadata: Optional[List]
-    credentials: Optional[grpc.CallCredentials]
-    wait_for_ready: Optional[bool]
-    compression: Optional[grpc.Compression]
+    timeout: float | None
+    metadata: list | None
+    credentials: grpc.CallCredentials | None
+    wait_for_ready: bool | None
+    compression: grpc.Compression | None
 
 
 # Dummy placeholder so that the non-async interceptor type-checks.

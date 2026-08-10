@@ -3,14 +3,13 @@
 import logging
 import ssl
 import uuid
-from typing import List, Optional, Union
 from urllib.parse import urlparse
 import httpx
 from requests_toolbelt import user_agent
 from tenacity import retry, stop_after_attempt, wait_exponential
 import cerbos
 from cerbos.sdk.model import *
-TLSVerify = Union[str, bool, ssl.SSLContext]
+TLSVerify = str | bool | ssl.SSLContext
 
 class RetryClient(httpx.Client):
 
@@ -57,7 +56,7 @@ class CerbosClient:
     _logger: logging.Logger
     _raise_on_error: bool
 
-    def __init__(self, host: str, *, timeout_secs: float=2.0, tls_verify: TLSVerify=True, playground_instance: Optional[str]=None, raise_on_error: bool=False, request_retries: int=0, connection_retries: int=0, debug: bool=False, logger: logging.Logger=logging.getLogger(__name__)):
+    def __init__(self, host: str, *, timeout_secs: float=2.0, tls_verify: TLSVerify=True, playground_instance: str | None=None, raise_on_error: bool=False, request_retries: int=0, connection_retries: int=0, debug: bool=False, logger: logging.Logger=logging.getLogger(__name__)):
         self._logger = logger
         self._raise_on_error = raise_on_error
         ua = user_agent('cerbos-python', cerbos.__version__)
@@ -121,7 +120,7 @@ class CerbosClient:
     def __exit__(self, *args):
         self.close()
 
-    def check_resources(self, principal: Principal, resources: ResourceList, request_id: Optional[str]=None, aux_data: Optional[AuxData]=None) -> CheckResourcesResponse:
+    def check_resources(self, principal: Principal, resources: ResourceList, request_id: str | None=None, aux_data: AuxData | None=None) -> CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
@@ -140,7 +139,7 @@ class CerbosClient:
             return CheckResourcesResponse(request_id=req_id, status_code=resp.status_code, status_msg=APIError.from_dict(resp.json()))
         return CheckResourcesResponse.from_dict(resp.json())
 
-    def is_allowed(self, action: str, principal: Principal, resource: Resource, request_id: Optional[str]=None, aux_data: Optional[AuxData]=None) -> bool:
+    def is_allowed(self, action: str, principal: Principal, resource: Resource, request_id: str | None=None, aux_data: AuxData | None=None) -> bool:
         """Check permission for a single action
 
         Args:
@@ -155,7 +154,7 @@ class CerbosClient:
             return r.is_allowed(action)
         return False
 
-    def plan_resources(self, actions: Union[str, List[str]], principal: Principal, resource: ResourceDesc, request_id: Optional[str]=None, aux_data: Optional[AuxData]=None) -> PlanResourcesResponse:
+    def plan_resources(self, actions: str | list[str], principal: Principal, resource: ResourceDesc, request_id: str | None=None, aux_data: AuxData | None=None) -> PlanResourcesResponse:
         """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
@@ -177,16 +176,16 @@ class CerbosClient:
             data['action'] = data['actions']
         return PlanResourcesResponse.from_dict(data)
 
-    def is_healthy(self, svc: Optional[str]=None) -> bool:
+    def is_healthy(self, svc: str | None=None) -> bool:
         """Checks the health of the Cerbos endpoint"""
         params = None if svc is None else {'service': svc}
         try:
             resp = self._http.get('/_cerbos/health', params=params)
             return resp.is_success
-        except Exception:
+        except Exception:  # noqa: BLE001
             return False
 
-    def with_principal(self, principal: Principal, aux_data: Optional[AuxData]=None) -> 'PrincipalContext':
+    def with_principal(self, principal: Principal, aux_data: AuxData | None=None) -> 'PrincipalContext':
         """Fixes the principal for subsequent requests"""
         return PrincipalContext(self, principal, aux_data)
 
@@ -197,14 +196,14 @@ class PrincipalContext:
     """A special Cerbos client where the principal and auxData are fixed"""
     _client: CerbosClient
     _principal: Principal
-    _aux_data: Optional[AuxData]
+    _aux_data: AuxData | None
 
-    def __init__(self, client: CerbosClient, principal: Principal, aux_data: Optional[AuxData]=None):
+    def __init__(self, client: CerbosClient, principal: Principal, aux_data: AuxData | None=None):
         self._client = client
         self._principal = principal
         self._aux_data = aux_data
 
-    def check_resources(self, resources: ResourceList, request_id: Optional[str]=None) -> CheckResourcesResponse:
+    def check_resources(self, resources: ResourceList, request_id: str | None=None) -> CheckResourcesResponse:
         """Check permissions for a list of resources
 
         Args:
@@ -213,7 +212,7 @@ class PrincipalContext:
         """
         return self._client.check_resources(principal=self._principal, resources=resources, request_id=request_id, aux_data=self._aux_data)
 
-    def plan_resources(self, actions: Union[str, List[str]], resource: ResourceDesc, request_id: Optional[str]=None, aux_data: Optional[AuxData]=None) -> PlanResourcesResponse:
+    def plan_resources(self, actions: str | list[str], resource: ResourceDesc, request_id: str | None=None, aux_data: AuxData | None=None) -> PlanResourcesResponse:
         """Create a query plan for performing the given action(s) on resources of the given kind
 
         Args:
@@ -224,7 +223,7 @@ class PrincipalContext:
         """
         return self._client.plan_resources(actions=actions, principal=self._principal, resource=resource, request_id=request_id, aux_data=aux_data)
 
-    def is_allowed(self, action: str, resource: Resource, request_id: Optional[str]=None) -> bool:
+    def is_allowed(self, action: str, resource: Resource, request_id: str | None=None) -> bool:
         """Check permission for a single action
 
         Args:
@@ -234,7 +233,7 @@ class PrincipalContext:
         """
         return self._client.is_allowed(action=action, principal=self._principal, resource=resource, request_id=request_id, aux_data=self._aux_data)
 
-def _get_request_id(request_id: Optional[str]) -> str:
+def _get_request_id(request_id: str | None) -> str:
     if request_id is None:
         return str(uuid.uuid4())
     return request_id

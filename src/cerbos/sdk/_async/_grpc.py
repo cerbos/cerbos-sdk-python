@@ -6,7 +6,7 @@ import os
 import ssl
 import uuid
 from functools import wraps
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import grpc
 
@@ -22,7 +22,7 @@ from cerbos.svc.v1 import svc_pb2_grpc
 _PLAYGROUND_INSTANCE_KEY = "playground-instance"
 
 _default_paths = ssl.get_default_verify_paths()
-TLSVerify = Union[str, bool]
+TLSVerify = str | bool
 
 
 # TODO(saml) type errors generated from passing incorrect types to proto generated code currently
@@ -40,7 +40,7 @@ def handle_errors(method):
     return wrapper
 
 
-def get_cert(c: TLSVerify) -> Union[bytes, None]:
+def get_cert(c: TLSVerify) -> bytes | None:
     try:
         if isinstance(c, str):
             with open(c, "rb") as f:
@@ -53,12 +53,10 @@ def get_cert(c: TLSVerify) -> Union[bytes, None]:
                 filename = cf
             with open(filename, "rb") as f:
                 return f.read()
-    except IOError:
+    except OSError:
         raise CerbosTLSError(f"Error reading certificate from file: {c}")
-    except Exception:
+    except Exception:  # noqa: BLE001
         raise CerbosTLSError("Error retrieving certificate")
-
-    raise TypeError("TLSVerify should be a string or boolean")
 
 
 class PlaygroundInstanceCredentials(grpc.AuthMetadataPlugin):
@@ -79,13 +77,13 @@ class AsyncClientBase:
     def __init__(
         self,
         host: str,
-        creds: Optional[grpc.ChannelCredentials],
-        methods: Optional[List[Dict[str, str]]] = None,
+        creds: grpc.ChannelCredentials | None,
+        methods: list[dict[str, str]] | None = None,
         tls_verify: TLSVerify = False,
-        timeout_secs: Union[float, None] = None,
+        timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
+        channel_options: dict[str, Any] | None = None,
     ):
         if timeout_secs and not isinstance(timeout_secs, (int, float)):
             raise TypeError("timeout_secs must be a number type")
@@ -98,7 +96,7 @@ class AsyncClientBase:
         if request_retries < 2:
             request_retries = 0
 
-        method_config: Dict[str, Any] = {}
+        method_config: dict[str, Any] = {}
 
         if methods:
             method_config["name"] = methods
@@ -174,12 +172,12 @@ class AsyncCerbosClient(AsyncClientBase):
         host: str,
         tls_verify: TLSVerify = False,
         playground_instance: str = "",
-        timeout_secs: Union[float, None] = None,
+        timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
+        channel_options: dict[str, Any] | None = None,
     ):
-        creds: Optional[grpc.ChannelCredentials] = None
+        creds: grpc.ChannelCredentials | None = None
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
@@ -215,9 +213,9 @@ class AsyncCerbosClient(AsyncClientBase):
     async def check_resources(
         self,
         principal: engine_pb2.Principal,
-        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        resources: list[request_pb2.CheckResourcesRequest.ResourceEntry],
+        request_id: str | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -243,8 +241,8 @@ class AsyncCerbosClient(AsyncClientBase):
         action: str,
         principal: engine_pb2.Principal,
         resource: engine_pb2.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        request_id: str | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -273,11 +271,11 @@ class AsyncCerbosClient(AsyncClientBase):
     @handle_errors
     async def plan_resources(
         self,
-        action: Union[str, List[str]],
+        action: str | list[str],
         principal: engine_pb2.Principal,
         resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        request_id: str | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -320,7 +318,7 @@ class AsyncCerbosClient(AsyncClientBase):
     def with_principal(
         self,
         principal: engine_pb2.Principal,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> "AsyncPrincipalContext":
         """Fixes the principal for subsequent requests"""
 
@@ -336,13 +334,13 @@ class AsyncPrincipalContext:
 
     _client: AsyncCerbosClient
     _principal: engine_pb2.Principal
-    _aux_data: Union[request_pb2.AuxData, None]
+    _aux_data: request_pb2.AuxData | None
 
     def __init__(
         self,
         client: AsyncCerbosClient,
         principal: engine_pb2.Principal,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        aux_data: request_pb2.AuxData | None = None,
     ):
         self._client = client
         self._principal = principal
@@ -350,8 +348,8 @@ class AsyncPrincipalContext:
 
     async def check_resources(
         self,
-        resources: List[request_pb2.CheckResourcesRequest.ResourceEntry],
-        request_id: Union[str, None] = None,
+        resources: list[request_pb2.CheckResourcesRequest.ResourceEntry],
+        request_id: str | None = None,
     ) -> response_pb2.CheckResourcesResponse:
         """Check permissions for a list of resources
 
@@ -369,10 +367,10 @@ class AsyncPrincipalContext:
 
     async def plan_resources(
         self,
-        action: Union[str, List[str]],
+        action: str | list[str],
         resource: engine_pb2.PlanResourcesInput.Resource,
-        request_id: Union[str, None] = None,
-        aux_data: Union[request_pb2.AuxData, None] = None,
+        request_id: str | None = None,
+        aux_data: request_pb2.AuxData | None = None,
     ) -> response_pb2.PlanResourcesResponse:
         """Create a query plan for performing the given action on resources of the given kind
 
@@ -395,7 +393,7 @@ class AsyncPrincipalContext:
         self,
         action: str,
         resource: engine_pb2.Resource,
-        request_id: Union[str, None] = None,
+        request_id: str | None = None,
     ) -> bool:
         """Check permission for a single action
 
@@ -414,7 +412,7 @@ class AsyncPrincipalContext:
         )
 
 
-def _get_request_id(request_id: Union[str, None]) -> str:
+def _get_request_id(request_id: str | None) -> str:
     if request_id is None:
         return str(uuid.uuid4())
 
@@ -444,22 +442,22 @@ class AsyncCerbosAdminClient(AsyncClientBase):
     """
 
     _client: svc_pb2_grpc.CerbosAdminServiceStub
-    _creds_metadata: Tuple[Tuple[str, str]]
+    _creds_metadata: tuple[tuple[str, str]]
 
     def __init__(
         self,
         host: str,
-        admin_credentials: Union[AdminCredentials, None] = None,
+        admin_credentials: AdminCredentials | None = None,
         tls_verify: TLSVerify = False,
-        timeout_secs: Union[float, None] = None,
+        timeout_secs: float | None = None,
         request_retries: int = 0,
         wait_for_ready: bool = False,
-        channel_options: Union[Dict[str, Any], None] = None,
+        channel_options: dict[str, Any] | None = None,
     ):
         admin_credentials = admin_credentials or AdminCredentials()
         self._creds_metadata = admin_credentials.metadata()
 
-        creds: Optional[grpc.ChannelCredentials] = None
+        creds: grpc.ChannelCredentials | None = None
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
@@ -504,7 +502,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
 
     @handle_errors
     async def add_or_update_policy(
-        self, policies: List[policy_pb2.Policy]
+        self, policies: list[policy_pb2.Policy]
     ) -> response_pb2.AddOrUpdatePolicyResponse:
         """Add or update a set of policies in the mutable store
 
@@ -539,7 +537,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         return await self._call(self._client.ListPolicies, req)
 
     @handle_errors
-    async def get_policy(self, ids: List[str]) -> response_pb2.GetPolicyResponse:
+    async def get_policy(self, ids: list[str]) -> response_pb2.GetPolicyResponse:
         """Retrieve policy details for each given id
 
         Args:
@@ -550,7 +548,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
 
     @handle_errors
     async def disable_policy(
-        self, ids: List[str]
+        self, ids: list[str]
     ) -> response_pb2.DisablePolicyResponse:
         """Disable a set of policies by id
 
@@ -561,7 +559,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         return await self._call(self._client.DisablePolicy, req)
 
     @handle_errors
-    async def enable_policy(self, ids: List[str]) -> response_pb2.EnablePolicyResponse:
+    async def enable_policy(self, ids: list[str]) -> response_pb2.EnablePolicyResponse:
         """Enable a set of policies by id
 
         Args:
@@ -572,7 +570,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
 
     @handle_errors
     async def add_or_update_schema(
-        self, schemas: List[schema_pb2.Schema]
+        self, schemas: list[schema_pb2.Schema]
     ) -> response_pb2.AddOrUpdateSchemaResponse:
         """Add or update a set of schemas in the mutable store
 
@@ -583,7 +581,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         return await self._call(self._client.AddOrUpdateSchema, req)
 
     @handle_errors
-    async def delete_schema(self, ids: List[str]) -> response_pb2.DeleteSchemaResponse:
+    async def delete_schema(self, ids: list[str]) -> response_pb2.DeleteSchemaResponse:
         """Delete a set of schemas by id
 
         Args:
@@ -601,7 +599,7 @@ class AsyncCerbosAdminClient(AsyncClientBase):
         return await self._call(self._client.ListSchemas, req)
 
     @handle_errors
-    async def get_schema(self, ids: List[str]) -> response_pb2.GetSchemaResponse:
+    async def get_schema(self, ids: list[str]) -> response_pb2.GetSchemaResponse:
         """Retrieve schema details for each given id
 
         Args:

@@ -4,14 +4,13 @@
 import asyncio
 import os
 from datetime import datetime, timedelta
-from typing import Optional
 
 import grpc
-from google.rpc import code_pb2
 from grpc_status import rpc_status
 
 from cerbos.cloud.apikey.v1 import apikey_pb2, apikey_pb2_grpc
 from cerbos.sdk.hub.model import Credentials
+from google.rpc import code_pb2
 
 
 class InvalidCredentialsError(Exception):
@@ -26,14 +25,14 @@ class _AsyncAuthClient:
     _timeout_secs: float
     _expiry: datetime
     _lock: asyncio.Lock
-    _token: Optional[str] = None
+    _token: str | None = None
     _invalid_credentials: bool = False
 
     def __init__(
         self,
         channel: grpc.aio.Channel,
         timeout_secs: float,
-        credentials: Optional[Credentials] = None,
+        credentials: Credentials | None = None,
     ):
         self._client_id = os.environ["CERBOS_HUB_CLIENT_ID"]
         self._client_secret = os.environ["CERBOS_HUB_CLIENT_SECRET"]
@@ -53,7 +52,7 @@ class _AsyncAuthClient:
             if self._invalid_credentials:
                 raise InvalidCredentialsError("Invalid credentials")
 
-            if self._token and self._expiry > datetime.now():
+            if self._token and self._expiry > datetime.now():  # noqa: DTZ005
                 return self._token
 
             req = apikey_pb2.IssueAccessTokenRequest(
@@ -68,7 +67,7 @@ class _AsyncAuthClient:
                 if expires_in > self._EARLY_EXPIRY:
                     expires_in = expires_in - self._EARLY_EXPIRY
 
-                self._expiry = datetime.now() + expires_in
+                self._expiry = datetime.now() + expires_in  # noqa: DTZ005
                 return self._token
             except grpc.aio.AioRpcError as rpc_error:
                 status = rpc_status.from_call(rpc_error)
@@ -76,4 +75,4 @@ class _AsyncAuthClient:
                     self._invalid_credentials = True
                     raise InvalidCredentialsError("Invalid credentials")
 
-                raise rpc_error
+                raise rpc_error  # noqa: TRY201

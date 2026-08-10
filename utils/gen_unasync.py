@@ -2,16 +2,15 @@
 # MIT Licence: https://github.com/python-trio/unasync/blob/3d7a3695099f8e5772631025c0b32909527437fb/LICENSE.MIT
 
 import ast
-import ast_comments
-import glob
-from pathlib import Path
 import collections
+import glob
 import os
 import tokenize as std_tokenize
+from pathlib import Path
 
+import ast_comments
 import tokenize_rt
 from setuptools.command import build_py as orig
-
 
 _ASYNC_TO_SYNC = {
     "__aenter__": "__enter__",
@@ -33,7 +32,7 @@ _ASYNC_TO_SYNC = {
 
 class _TransformAST(ast.NodeTransformer):
     def __init__(self, ignore_classes):
-        super(_TransformAST, self).__init__()
+        super().__init__()
         self.ignore_classes = ignore_classes
 
     def visit_ClassDef(self, node):

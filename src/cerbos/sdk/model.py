@@ -1,9 +1,10 @@
 # Copyright 2021-2025 Zenauth Ltd.
 # SPDX-License-Identifier: Apache-2.0
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Union, Mapping
+from typing import Any, Union
 
 import httpx
 from dataclasses_json import LetterCase, config, dataclass_json
@@ -23,8 +24,8 @@ class Source(str, Enum):
 @dataclass
 class Principal:
     id: str
-    roles: Set[str]
-    attr: Dict[str, Any] = field(default_factory=dict)
+    roles: set[str]
+    attr: dict[str, Any] = field(default_factory=dict)
     policy_version: str = "default"
     scope: str = ""
 
@@ -38,7 +39,7 @@ class Principal:
 class Resource:
     id: str
     kind: str
-    attr: Dict[str, Any] = field(default_factory=dict)
+    attr: dict[str, Any] = field(default_factory=dict)
     policy_version: str = "default"
     scope: str = ""
 
@@ -51,15 +52,15 @@ class Resource:
 @dataclass
 class ResourceAction:
     resource: Resource
-    actions: Set[str]
+    actions: set[str]
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class ResourceList:
-    resources: List[ResourceAction] = field(default_factory=list)
+    resources: list[ResourceAction] = field(default_factory=list)
 
-    def add(self, resource: Resource, actions: Set[str]) -> "ResourceList":
+    def add(self, resource: Resource, actions: set[str]) -> "ResourceList":
         self.resources.append(ResourceAction(resource=resource, actions=actions))
         return self
 
@@ -68,14 +69,14 @@ class ResourceList:
 @dataclass
 class JWT:
     token: str
-    key_set_id: Optional[str] = None
+    key_set_id: str | None = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class AuxData:
-    jwt: Optional[JWT] = None
-    jwts: Optional[Mapping[str, JWT]] = None
+    jwt: JWT | None = None
+    jwts: Mapping[str, JWT] | None = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -84,7 +85,7 @@ class CheckResourcesRequest:
     request_id: str
     principal: Principal
     resources: ResourceList
-    aux_data: Optional[AuxData] = None
+    aux_data: AuxData | None = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -92,7 +93,7 @@ class CheckResourcesRequest:
 class ValidationError:
     message: str
     source: Source
-    path: Optional[str] = None
+    path: str | None = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -101,7 +102,7 @@ class OutputEntry:
     src: str
     val: Any
     action: str
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -115,9 +116,9 @@ class APIError:
 @dataclass
 class CheckResourcesResult:
     resource: Resource
-    actions: Dict[str, Effect]
-    validation_errors: Optional[List[ValidationError]] = None
-    outputs: Optional[List[OutputEntry]] = None
+    actions: dict[str, Effect]
+    validation_errors: list[ValidationError] | None = None
+    outputs: list[OutputEntry] | None = None
 
     def is_allowed(self, action: str) -> bool:
         if action in self.actions:
@@ -130,9 +131,9 @@ class CheckResourcesResult:
 @dataclass
 class CheckResourcesResponse:
     request_id: str
-    results: Optional[List[CheckResourcesResult]] = None
+    results: list[CheckResourcesResult] | None = None
     status_code: int = httpx.codes.OK
-    status_msg: Optional[APIError] = None
+    status_msg: APIError | None = None
 
     def failed(self) -> bool:
         return self.status_code != httpx.codes.OK
@@ -145,7 +146,7 @@ class CheckResourcesResponse:
 
     def get_resource(
         self, id: str, predicate: Callable[[Resource], bool] = lambda _: True
-    ) -> Optional[CheckResourcesResult]:
+    ) -> CheckResourcesResult | None:
         if self.failed():
             return None
 
@@ -159,7 +160,7 @@ class CheckResourcesResponse:
 @dataclass
 class ResourceDesc:
     kind: str
-    attr: Dict[str, Any] = field(default_factory=dict)
+    attr: dict[str, Any] = field(default_factory=dict)
     policy_version: str = "default"
     scope: str = ""
 
@@ -172,10 +173,10 @@ class ResourceDesc:
 @dataclass
 class PlanResourcesRequest:
     request_id: str
-    actions: List[str]
+    actions: list[str]
     principal: Principal
     resource: ResourceDesc
-    aux_data: Optional[AuxData] = None
+    aux_data: AuxData | None = None
 
 
 Operand = Union[
@@ -215,7 +216,7 @@ class PlanResourcesExpression:
     @dataclass
     class Expr:
         operator: str
-        operands: List[Operand] = field(metadata=config(decoder=decode_operand_list))
+        operands: list[Operand] = field(metadata=config(decoder=decode_operand_list))
 
     expression: Expr
 
@@ -240,7 +241,7 @@ def decode_operand(val):
 @dataclass
 class PlanResourcesFilter:
     kind: PlanResourcesFilterKind
-    condition: Optional[Operand] = field(
+    condition: Operand | None = field(
         default=None, metadata=config(decoder=decode_operand)
     )
 
@@ -250,13 +251,13 @@ class PlanResourcesFilter:
 class PlanResourcesResponse:
     request_id: str
     # `action` can be a list of strings, but we maintain the singular name for backwards compatibility
-    action: Union[str, List[str]]
+    action: str | list[str]
     resource_kind: str
     policy_version: str
-    filter: Optional[PlanResourcesFilter] = None
-    validation_errors: Optional[List[ValidationError]] = None
+    filter: PlanResourcesFilter | None = None
+    validation_errors: list[ValidationError] | None = None
     status_code: int = httpx.codes.OK
-    status_msg: Optional[APIError] = None
+    status_msg: APIError | None = None
 
     def failed(self) -> bool:
         return self.status_code != httpx.codes.OK
@@ -269,9 +270,9 @@ class PlanResourcesResponse:
 
 
 class CerbosRequestException(Exception):
-    def __init__(self, error: Optional[APIError]):
+    def __init__(self, error: APIError | None):
         msg = "unexpected error" if error is None else error.message
-        super(CerbosRequestException, self).__init__(msg)
+        super().__init__(msg)
 
         self.error = error
 

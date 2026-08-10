@@ -102,7 +102,7 @@ class TestCerbosClient:
         status_code = 200
 
         post_mock.side_effect = [
-            IOError(),
+            OSError(),
             httpx.Response(
                 status_code=status_code,
                 text=json.dumps(
@@ -132,7 +132,7 @@ class TestCerbosClient:
         status_code = 400
 
         post_mock.side_effect = [
-            IOError(),
+            OSError(),
             httpx.Response(
                 status_code=status_code,
                 text=json.dumps(
@@ -343,7 +343,7 @@ class TestAsyncCerbosClient:
     ):
         status_code = 200
         post_mock.side_effect = [
-            IOError(),
+            OSError(),
             httpx.Response(
                 status_code=status_code,
                 text=json.dumps(
@@ -377,7 +377,7 @@ class TestAsyncCerbosClient:
         status_code = 400
 
         post_mock.side_effect = [
-            IOError(),
+            OSError(),
             httpx.Response(
                 status_code=status_code,
                 text=json.dumps(

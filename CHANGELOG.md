@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Enhancements
+
+- Support multiple JWTs
+
 ## v0.15.1 (2026-01-12)
 
 ## v0.14.0 (2025-09-04)

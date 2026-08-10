@@ -16,8 +16,7 @@ DESCRIPTOR: _descriptor.FileDescriptor
 class Ignore(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     IGNORE_UNSPECIFIED: _ClassVar[Ignore]
-    IGNORE_IF_UNPOPULATED: _ClassVar[Ignore]
-    IGNORE_IF_DEFAULT_VALUE: _ClassVar[Ignore]
+    IGNORE_IF_ZERO_VALUE: _ClassVar[Ignore]
     IGNORE_ALWAYS: _ClassVar[Ignore]
 
 class KnownRegex(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -26,8 +25,7 @@ class KnownRegex(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     KNOWN_REGEX_HTTP_HEADER_NAME: _ClassVar[KnownRegex]
     KNOWN_REGEX_HTTP_HEADER_VALUE: _ClassVar[KnownRegex]
 IGNORE_UNSPECIFIED: Ignore
-IGNORE_IF_UNPOPULATED: Ignore
-IGNORE_IF_DEFAULT_VALUE: Ignore
+IGNORE_IF_ZERO_VALUE: Ignore
 IGNORE_ALWAYS: Ignore
 KNOWN_REGEX_UNSPECIFIED: KnownRegex
 KNOWN_REGEX_HTTP_HEADER_NAME: KnownRegex
@@ -52,12 +50,20 @@ class Rule(_message.Message):
     def __init__(self, id: _Optional[str] = ..., message: _Optional[str] = ..., expression: _Optional[str] = ...) -> None: ...
 
 class MessageRules(_message.Message):
-    __slots__ = ("disabled", "cel")
-    DISABLED_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("cel", "oneof")
     CEL_FIELD_NUMBER: _ClassVar[int]
-    disabled: bool
+    ONEOF_FIELD_NUMBER: _ClassVar[int]
     cel: _containers.RepeatedCompositeFieldContainer[Rule]
-    def __init__(self, disabled: _Optional[bool] = ..., cel: _Optional[_Iterable[_Union[Rule, _Mapping]]] = ...) -> None: ...
+    oneof: _containers.RepeatedCompositeFieldContainer[MessageOneofRule]
+    def __init__(self, cel: _Optional[_Iterable[_Union[Rule, _Mapping]]] = ..., oneof: _Optional[_Iterable[_Union[MessageOneofRule, _Mapping]]] = ...) -> None: ...
+
+class MessageOneofRule(_message.Message):
+    __slots__ = ("fields", "required")
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_FIELD_NUMBER: _ClassVar[int]
+    fields: _containers.RepeatedScalarFieldContainer[str]
+    required: bool
+    def __init__(self, fields: _Optional[_Iterable[str]] = ..., required: _Optional[bool] = ...) -> None: ...
 
 class OneofRules(_message.Message):
     __slots__ = ("required",)

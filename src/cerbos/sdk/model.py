@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Union, Mapping
 
 import httpx
 from dataclasses_json import LetterCase, config, dataclass_json
@@ -74,7 +74,8 @@ class JWT:
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class AuxData:
-    jwt: JWT
+    jwt: Optional[JWT] = None
+    jwts: Optional[Mapping[str, JWT]] = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -99,6 +100,8 @@ class ValidationError:
 class OutputEntry:
     src: str
     val: Any
+    action: str
+    error: Optional[str] = None
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

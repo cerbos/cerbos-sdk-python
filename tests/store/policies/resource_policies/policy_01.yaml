@@ -16,7 +16,7 @@ resourcePolicy:
       ref: cerbos:///leave_request.json
   resource: leave_request
   rules:
-    - actions: ['*']
+    - actions: ["*"]
       effect: EFFECT_ALLOW
       roles:
         - admin
@@ -79,3 +79,15 @@ resourcePolicy:
             of:
               - expr: '"cerbos-jwt-tests" in request.aux_data.jwt.aud'
               - expr: '"A" in request.aux_data.jwt.customArray'
+
+    - actions: ["frobnicate"]
+      effect: EFFECT_ALLOW
+      roles: ["employee"]
+      condition:
+        match:
+          all:
+            of:
+              - expr: |-
+                  "cerbos-jwt-tests" in request.auxData.jwts.token_a.claims.aud
+              - expr: |-
+                  "A" in request.auxData.jwts.token_b.claims.customArray

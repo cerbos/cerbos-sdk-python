@@ -255,6 +255,35 @@ class Schema(_message.Message):
     example: str
     def __init__(self, json_schema: _Optional[_Union[JSONSchema, _Mapping]] = ..., discriminator: _Optional[str] = ..., read_only: _Optional[bool] = ..., external_docs: _Optional[_Union[ExternalDocumentation, _Mapping]] = ..., example: _Optional[str] = ...) -> None: ...
 
+class EnumSchema(_message.Message):
+    __slots__ = ("description", "default", "title", "required", "read_only", "external_docs", "example", "ref", "extensions")
+    class ExtensionsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: _struct_pb2.Value
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    DEFAULT_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    REQUIRED_FIELD_NUMBER: _ClassVar[int]
+    READ_ONLY_FIELD_NUMBER: _ClassVar[int]
+    EXTERNAL_DOCS_FIELD_NUMBER: _ClassVar[int]
+    EXAMPLE_FIELD_NUMBER: _ClassVar[int]
+    REF_FIELD_NUMBER: _ClassVar[int]
+    EXTENSIONS_FIELD_NUMBER: _ClassVar[int]
+    description: str
+    default: str
+    title: str
+    required: bool
+    read_only: bool
+    external_docs: ExternalDocumentation
+    example: str
+    ref: str
+    extensions: _containers.MessageMap[str, _struct_pb2.Value]
+    def __init__(self, description: _Optional[str] = ..., default: _Optional[str] = ..., title: _Optional[str] = ..., required: _Optional[bool] = ..., read_only: _Optional[bool] = ..., external_docs: _Optional[_Union[ExternalDocumentation, _Mapping]] = ..., example: _Optional[str] = ..., ref: _Optional[str] = ..., extensions: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+
 class JSONSchema(_message.Message):
     __slots__ = ("ref", "title", "description", "default", "read_only", "example", "multiple_of", "maximum", "exclusive_maximum", "minimum", "exclusive_minimum", "max_length", "min_length", "pattern", "max_items", "min_items", "unique_items", "max_properties", "min_properties", "required", "array", "type", "format", "enum", "field_configuration", "extensions")
     class JSONSchemaSimpleTypes(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):

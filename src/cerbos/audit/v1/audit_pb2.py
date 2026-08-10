@@ -22,12 +22,15 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from buf.validate import validate_pb2 as buf_dot_validate_dot_validate__pb2
 from cerbos.engine.v1 import engine_pb2 as cerbos_dot_engine_dot_v1_dot_engine__pb2
 from cerbos.policy.v1 import policy_pb2 as cerbos_dot_policy_dot_v1_dot_policy__pb2
+from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from protoc_gen_openapiv2.options import annotations_pb2 as protoc__gen__openapiv2_dot_options_dot_annotations__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63\x65rbos/audit/v1/audit.proto\x12\x0f\x63\x65rbos.audit.v1\x1a\x1d\x63\x65rbos/engine/v1/engine.proto\x1a\x1d\x63\x65rbos/policy/v1/policy.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xec\x02\n\x0e\x41\x63\x63\x65ssLogEntry\x12\x17\n\x07\x63\x61ll_id\x18\x01 \x01(\tR\x06\x63\x61llId\x12\x38\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ttimestamp\x12)\n\x04peer\x18\x03 \x01(\x0b\x32\x15.cerbos.audit.v1.PeerR\x04peer\x12I\n\x08metadata\x18\x04 \x03(\x0b\x32-.cerbos.audit.v1.AccessLogEntry.MetadataEntryR\x08metadata\x12\x16\n\x06method\x18\x05 \x01(\tR\x06method\x12\x1f\n\x0bstatus_code\x18\x06 \x01(\rR\nstatusCode\x1aX\n\rMetadataEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x31\n\x05value\x18\x02 \x01(\x0b\x32\x1b.cerbos.audit.v1.MetaValuesR\x05value:\x02\x38\x01\"\x82\x08\n\x10\x44\x65\x63isionLogEntry\x12\x17\n\x07\x63\x61ll_id\x18\x01 \x01(\tR\x06\x63\x61llId\x12\x38\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ttimestamp\x12)\n\x04peer\x18\x03 \x01(\x0b\x32\x15.cerbos.audit.v1.PeerR\x04peer\x12\x38\n\x06inputs\x18\x04 \x03(\x0b\x32\x1c.cerbos.engine.v1.CheckInputB\x02\x18\x01R\x06inputs\x12;\n\x07outputs\x18\x05 \x03(\x0b\x32\x1d.cerbos.engine.v1.CheckOutputB\x02\x18\x01R\x07outputs\x12\x18\n\x05\x65rror\x18\x06 \x01(\tB\x02\x18\x01R\x05\x65rror\x12[\n\x0f\x63heck_resources\x18\x07 \x01(\x0b\x32\x30.cerbos.audit.v1.DecisionLogEntry.CheckResourcesH\x00R\x0e\x63heckResources\x12X\n\x0eplan_resources\x18\x08 \x01(\x0b\x32/.cerbos.audit.v1.DecisionLogEntry.PlanResourcesH\x00R\rplanResources\x12K\n\x08metadata\x18\x0f \x03(\x0b\x32/.cerbos.audit.v1.DecisionLogEntry.MetadataEntryR\x08metadata\x12<\n\x0b\x61udit_trail\x18\x10 \x01(\x0b\x32\x1b.cerbos.audit.v1.AuditTrailR\nauditTrail\x1a\x95\x01\n\x0e\x43heckResources\x12\x34\n\x06inputs\x18\x01 \x03(\x0b\x32\x1c.cerbos.engine.v1.CheckInputR\x06inputs\x12\x37\n\x07outputs\x18\x02 \x03(\x0b\x32\x1d.cerbos.engine.v1.CheckOutputR\x07outputs\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\x1a\xa0\x01\n\rPlanResources\x12:\n\x05input\x18\x01 \x01(\x0b\x32$.cerbos.engine.v1.PlanResourcesInputR\x05input\x12=\n\x06output\x18\x02 \x01(\x0b\x32%.cerbos.engine.v1.PlanResourcesOutputR\x06output\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\x1aX\n\rMetadataEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x31\n\x05value\x18\x02 \x01(\x0b\x32\x1b.cerbos.audit.v1.MetaValuesR\x05value:\x02\x38\x01\x42\x08\n\x06method\"$\n\nMetaValues\x12\x16\n\x06values\x18\x01 \x03(\tR\x06values\"\x81\x01\n\x04Peer\x12\x18\n\x07\x61\x64\x64ress\x18\x01 \x01(\tR\x07\x61\x64\x64ress\x12\x1b\n\tauth_info\x18\x02 \x01(\tR\x08\x61uthInfo\x12\x1d\n\nuser_agent\x18\x03 \x01(\tR\tuserAgent\x12#\n\rforwarded_for\x18\x04 \x01(\tR\x0c\x66orwardedFor\"\xd9\x01\n\nAuditTrail\x12\x61\n\x12\x65\x66\x66\x65\x63tive_policies\x18\x01 \x03(\x0b\x32\x32.cerbos.audit.v1.AuditTrail.EffectivePoliciesEntryR\x11\x65\x66\x66\x65\x63tivePolicies\x1ah\n\x16\x45\x66\x66\x65\x63tivePoliciesEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x38\n\x05value\x18\x02 \x01(\x0b\x32\".cerbos.policy.v1.SourceAttributesR\x05value:\x02\x38\x01\x42k\n\x17\x64\x65v.cerbos.api.v1.auditZ:github.com/cerbos/cerbos/api/genpb/cerbos/audit/v1;auditv1\xaa\x02\x13\x43\x65rbos.Api.V1.Auditb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1b\x63\x65rbos/audit/v1/audit.proto\x12\x0f\x63\x65rbos.audit.v1\x1a\x1b\x62uf/validate/validate.proto\x1a\x1d\x63\x65rbos/engine/v1/engine.proto\x1a\x1d\x63\x65rbos/policy/v1/policy.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb1\x04\n\x0e\x41\x63\x63\x65ssLogEntry\x12\x17\n\x07\x63\x61ll_id\x18\x01 \x01(\tR\x06\x63\x61llId\x12\x38\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ttimestamp\x12)\n\x04peer\x18\x03 \x01(\x0b\x32\x15.cerbos.audit.v1.PeerR\x04peer\x12I\n\x08metadata\x18\x04 \x03(\x0b\x32-.cerbos.audit.v1.AccessLogEntry.MetadataEntryR\x08metadata\x12\x16\n\x06method\x18\x05 \x01(\tR\x06method\x12\x1f\n\x0bstatus_code\x18\x06 \x01(\rR\nstatusCode\x12\x1c\n\toversized\x18\x07 \x01(\x08R\toversized\x12\x42\n\rpolicy_source\x18\x08 \x01(\x0b\x32\x1d.cerbos.audit.v1.PolicySourceR\x0cpolicySource\x12M\n\x0frequest_context\x18\t \x01(\x0b\x32\x1f.cerbos.audit.v1.RequestContextH\x00R\x0erequestContext\x88\x01\x01\x1aX\n\rMetadataEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x31\n\x05value\x18\x02 \x01(\x0b\x32\x1b.cerbos.audit.v1.MetaValuesR\x05value:\x02\x38\x01\x42\x12\n\x10_request_context\"\xc7\t\n\x10\x44\x65\x63isionLogEntry\x12\x17\n\x07\x63\x61ll_id\x18\x01 \x01(\tR\x06\x63\x61llId\x12\x38\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\ttimestamp\x12)\n\x04peer\x18\x03 \x01(\x0b\x32\x15.cerbos.audit.v1.PeerR\x04peer\x12\x38\n\x06inputs\x18\x04 \x03(\x0b\x32\x1c.cerbos.engine.v1.CheckInputB\x02\x18\x01R\x06inputs\x12;\n\x07outputs\x18\x05 \x03(\x0b\x32\x1d.cerbos.engine.v1.CheckOutputB\x02\x18\x01R\x07outputs\x12\x18\n\x05\x65rror\x18\x06 \x01(\tB\x02\x18\x01R\x05\x65rror\x12[\n\x0f\x63heck_resources\x18\x07 \x01(\x0b\x32\x30.cerbos.audit.v1.DecisionLogEntry.CheckResourcesH\x00R\x0e\x63heckResources\x12X\n\x0eplan_resources\x18\x08 \x01(\x0b\x32/.cerbos.audit.v1.DecisionLogEntry.PlanResourcesH\x00R\rplanResources\x12K\n\x08metadata\x18\x0f \x03(\x0b\x32/.cerbos.audit.v1.DecisionLogEntry.MetadataEntryR\x08metadata\x12<\n\x0b\x61udit_trail\x18\x10 \x01(\x0b\x32\x1b.cerbos.audit.v1.AuditTrailR\nauditTrail\x12\x1c\n\toversized\x18\x11 \x01(\x08R\toversized\x12\x42\n\rpolicy_source\x18\x12 \x01(\x0b\x32\x1d.cerbos.audit.v1.PolicySourceR\x0cpolicySource\x12M\n\x0frequest_context\x18\x13 \x01(\x0b\x32\x1f.cerbos.audit.v1.RequestContextH\x01R\x0erequestContext\x88\x01\x01\x1a\x95\x01\n\x0e\x43heckResources\x12\x34\n\x06inputs\x18\x01 \x03(\x0b\x32\x1c.cerbos.engine.v1.CheckInputR\x06inputs\x12\x37\n\x07outputs\x18\x02 \x03(\x0b\x32\x1d.cerbos.engine.v1.CheckOutputR\x07outputs\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\x1a\xa0\x01\n\rPlanResources\x12:\n\x05input\x18\x01 \x01(\x0b\x32$.cerbos.engine.v1.PlanResourcesInputR\x05input\x12=\n\x06output\x18\x02 \x01(\x0b\x32%.cerbos.engine.v1.PlanResourcesOutputR\x06output\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\x1aX\n\rMetadataEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x31\n\x05value\x18\x02 \x01(\x0b\x32\x1b.cerbos.audit.v1.MetaValuesR\x05value:\x02\x38\x01\x42\x08\n\x06methodB\x12\n\x10_request_context\"$\n\nMetaValues\x12\x16\n\x06values\x18\x01 \x03(\tR\x06values\"\x81\x01\n\x04Peer\x12\x18\n\x07\x61\x64\x64ress\x18\x01 \x01(\tR\x07\x61\x64\x64ress\x12\x1b\n\tauth_info\x18\x02 \x01(\tR\x08\x61uthInfo\x12\x1d\n\nuser_agent\x18\x03 \x01(\tR\tuserAgent\x12#\n\rforwarded_for\x18\x04 \x01(\tR\x0c\x66orwardedFor\"\xd9\x01\n\nAuditTrail\x12\x61\n\x12\x65\x66\x66\x65\x63tive_policies\x18\x01 \x03(\x0b\x32\x32.cerbos.audit.v1.AuditTrail.EffectivePoliciesEntryR\x11\x65\x66\x66\x65\x63tivePolicies\x1ah\n\x16\x45\x66\x66\x65\x63tivePoliciesEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x38\n\x05value\x18\x02 \x01(\x0b\x32\".cerbos.policy.v1.SourceAttributesR\x05value:\x02\x38\x01\"\x9b\x0c\n\x0cPolicySource\x12\x38\n\x04\x62lob\x18\x01 \x01(\x0b\x32\".cerbos.audit.v1.PolicySource.BlobH\x00R\x04\x62lob\x12\x44\n\x08\x64\x61tabase\x18\x02 \x01(\x0b\x32&.cerbos.audit.v1.PolicySource.DatabaseH\x00R\x08\x64\x61tabase\x12\x38\n\x04\x64isk\x18\x03 \x01(\x0b\x32\".cerbos.audit.v1.PolicySource.DiskH\x00R\x04\x64isk\x12\x35\n\x03git\x18\x04 \x01(\x0b\x32!.cerbos.audit.v1.PolicySource.GitH\x00R\x03git\x12\x35\n\x03hub\x18\x05 \x01(\x0b\x32!.cerbos.audit.v1.PolicySource.HubH\x00R\x03hub\x12R\n\x0c\x65mbedded_pdp\x18\x06 \x01(\x0b\x32).cerbos.audit.v1.PolicySource.EmbeddedPDPB\x02\x18\x01H\x00R\x0b\x65mbeddedPdp\x1a=\n\x04\x42lob\x12\x1d\n\nbucket_url\x18\x01 \x01(\tR\tbucketUrl\x12\x16\n\x06prefix\x18\x02 \x01(\tR\x06prefix\x1a\xae\x01\n\x08\x44\x61tabase\x12\x45\n\x06\x64river\x18\x01 \x01(\x0e\x32-.cerbos.audit.v1.PolicySource.Database.DriverR\x06\x64river\"[\n\x06\x44river\x12\x16\n\x12\x44RIVER_UNSPECIFIED\x10\x00\x12\x10\n\x0c\x44RIVER_MYSQL\x10\x01\x12\x13\n\x0f\x44RIVER_POSTGRES\x10\x02\x12\x12\n\x0e\x44RIVER_SQLITE3\x10\x03\x1a$\n\x04\x44isk\x12\x1c\n\tdirectory\x18\x01 \x01(\tR\tdirectory\x1aw\n\x0b\x45mbeddedPDP\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x1f\n\x0b\x63ommit_hash\x18\x02 \x01(\tR\ncommitHash\x12\x35\n\x08\x62uilt_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x07\x62uiltAt\x1a|\n\x03Git\x12%\n\x0erepository_url\x18\x01 \x01(\tR\rrepositoryUrl\x12\x16\n\x06\x62ranch\x18\x02 \x01(\tR\x06\x62ranch\x12\"\n\x0csubdirectory\x18\x03 \x01(\tR\x0csubdirectory\x12\x12\n\x04hash\x18\x04 \x01(\tR\x04hash\x1a\xf7\x04\n\x03Hub\x12\x1a\n\x05label\x18\x01 \x01(\tB\x02\x18\x01H\x00R\x05label\x12)\n\rdeployment_id\x18\x02 \x01(\tB\x02\x18\x01H\x00R\x0c\x64\x65ploymentId\x12%\n\rplayground_id\x18\x03 \x01(\tH\x00R\x0cplaygroundId\x12R\n\x0clocal_bundle\x18\x04 \x01(\x0b\x32-.cerbos.audit.v1.PolicySource.Hub.LocalBundleH\x00R\x0blocalBundle\x12[\n\x0f\x65mbedded_bundle\x18\x05 \x01(\x0b\x32\x30.cerbos.audit.v1.PolicySource.Hub.EmbeddedBundleH\x00R\x0e\x65mbeddedBundle\x12U\n\rremote_bundle\x18\x06 \x01(\x0b\x32..cerbos.audit.v1.PolicySource.Hub.RemoteBundleH\x00R\x0cremoteBundle\x1a^\n\x0e\x45mbeddedBundle\x12\x17\n\x07rule_id\x18\x01 \x01(\tR\x06ruleId\x12\x16\n\x06scopes\x18\x02 \x03(\tR\x06scopes\x12\x1b\n\tbundle_id\x18\x03 \x01(\tR\x08\x62undleId\x1a>\n\x0bLocalBundle\x12\x12\n\x04path\x18\x01 \x01(\tR\x04path\x12\x1b\n\tbundle_id\x18\x02 \x01(\tR\x08\x62undleId\x1aP\n\x0cRemoteBundle\x12#\n\rdeployment_id\x18\x01 \x01(\tR\x0c\x64\x65ploymentId\x12\x1b\n\tbundle_id\x18\x02 \x01(\tR\x08\x62undleIdB\x08\n\x06sourceB\x08\n\x06source\"\xae\x03\n\x0eRequestContext\x12\xbc\x01\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32\x30.cerbos.audit.v1.RequestContext.AnnotationsEntryBh\x92\x41Y2\x1fKey-value pairs of annotations.J3{\"app-name\": \"awesome-app\", \"app-version\": \"1.2.3\"}\xc8\x01\x01\xbaH\t\x9a\x01\x06\"\x04r\x02\x10\x01R\x0b\x61nnotations\x1aV\n\x10\x41nnotationsEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x16.google.protobuf.ValueR\x05value:\x02\x38\x01:\x84\x01\x92\x41\x80\x01\n~2|Optional metadata to attach to the request. This information will be captured in the audit logs if audit logging is enabled.Bk\n\x17\x64\x65v.cerbos.api.v1.auditZ:github.com/cerbos/cerbos/api/genpb/cerbos/audit/v1;auditv1\xaa\x02\x13\x43\x65rbos.Api.V1.Auditb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -47,24 +50,62 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DECISIONLOGENTRY'].fields_by_name['error']._serialized_options = b'\030\001'
   _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._loaded_options = None
   _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._serialized_options = b'8\001'
-  _globals['_ACCESSLOGENTRY']._serialized_start=144
-  _globals['_ACCESSLOGENTRY']._serialized_end=508
-  _globals['_ACCESSLOGENTRY_METADATAENTRY']._serialized_start=420
-  _globals['_ACCESSLOGENTRY_METADATAENTRY']._serialized_end=508
-  _globals['_DECISIONLOGENTRY']._serialized_start=511
-  _globals['_DECISIONLOGENTRY']._serialized_end=1537
-  _globals['_DECISIONLOGENTRY_CHECKRESOURCES']._serialized_start=1125
-  _globals['_DECISIONLOGENTRY_CHECKRESOURCES']._serialized_end=1274
-  _globals['_DECISIONLOGENTRY_PLANRESOURCES']._serialized_start=1277
-  _globals['_DECISIONLOGENTRY_PLANRESOURCES']._serialized_end=1437
-  _globals['_DECISIONLOGENTRY_METADATAENTRY']._serialized_start=420
-  _globals['_DECISIONLOGENTRY_METADATAENTRY']._serialized_end=508
-  _globals['_METAVALUES']._serialized_start=1539
-  _globals['_METAVALUES']._serialized_end=1575
-  _globals['_PEER']._serialized_start=1578
-  _globals['_PEER']._serialized_end=1707
-  _globals['_AUDITTRAIL']._serialized_start=1710
-  _globals['_AUDITTRAIL']._serialized_end=1927
-  _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._serialized_start=1823
-  _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._serialized_end=1927
+  _globals['_POLICYSOURCE_HUB'].fields_by_name['label']._loaded_options = None
+  _globals['_POLICYSOURCE_HUB'].fields_by_name['label']._serialized_options = b'\030\001'
+  _globals['_POLICYSOURCE_HUB'].fields_by_name['deployment_id']._loaded_options = None
+  _globals['_POLICYSOURCE_HUB'].fields_by_name['deployment_id']._serialized_options = b'\030\001'
+  _globals['_POLICYSOURCE'].fields_by_name['embedded_pdp']._loaded_options = None
+  _globals['_POLICYSOURCE'].fields_by_name['embedded_pdp']._serialized_options = b'\030\001'
+  _globals['_REQUESTCONTEXT_ANNOTATIONSENTRY']._loaded_options = None
+  _globals['_REQUESTCONTEXT_ANNOTATIONSENTRY']._serialized_options = b'8\001'
+  _globals['_REQUESTCONTEXT'].fields_by_name['annotations']._loaded_options = None
+  _globals['_REQUESTCONTEXT'].fields_by_name['annotations']._serialized_options = b'\222AY2\037Key-value pairs of annotations.J3{\"app-name\": \"awesome-app\", \"app-version\": \"1.2.3\"}\310\001\001\272H\t\232\001\006\"\004r\002\020\001'
+  _globals['_REQUESTCONTEXT']._loaded_options = None
+  _globals['_REQUESTCONTEXT']._serialized_options = b'\222A\200\001\n~2|Optional metadata to attach to the request. This information will be captured in the audit logs if audit logging is enabled.'
+  _globals['_ACCESSLOGENTRY']._serialized_start=251
+  _globals['_ACCESSLOGENTRY']._serialized_end=812
+  _globals['_ACCESSLOGENTRY_METADATAENTRY']._serialized_start=704
+  _globals['_ACCESSLOGENTRY_METADATAENTRY']._serialized_end=792
+  _globals['_DECISIONLOGENTRY']._serialized_start=815
+  _globals['_DECISIONLOGENTRY']._serialized_end=2038
+  _globals['_DECISIONLOGENTRY_CHECKRESOURCES']._serialized_start=1606
+  _globals['_DECISIONLOGENTRY_CHECKRESOURCES']._serialized_end=1755
+  _globals['_DECISIONLOGENTRY_PLANRESOURCES']._serialized_start=1758
+  _globals['_DECISIONLOGENTRY_PLANRESOURCES']._serialized_end=1918
+  _globals['_DECISIONLOGENTRY_METADATAENTRY']._serialized_start=704
+  _globals['_DECISIONLOGENTRY_METADATAENTRY']._serialized_end=792
+  _globals['_METAVALUES']._serialized_start=2040
+  _globals['_METAVALUES']._serialized_end=2076
+  _globals['_PEER']._serialized_start=2079
+  _globals['_PEER']._serialized_end=2208
+  _globals['_AUDITTRAIL']._serialized_start=2211
+  _globals['_AUDITTRAIL']._serialized_end=2428
+  _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._serialized_start=2324
+  _globals['_AUDITTRAIL_EFFECTIVEPOLICIESENTRY']._serialized_end=2428
+  _globals['_POLICYSOURCE']._serialized_start=2431
+  _globals['_POLICYSOURCE']._serialized_end=3994
+  _globals['_POLICYSOURCE_BLOB']._serialized_start=2827
+  _globals['_POLICYSOURCE_BLOB']._serialized_end=2888
+  _globals['_POLICYSOURCE_DATABASE']._serialized_start=2891
+  _globals['_POLICYSOURCE_DATABASE']._serialized_end=3065
+  _globals['_POLICYSOURCE_DATABASE_DRIVER']._serialized_start=2974
+  _globals['_POLICYSOURCE_DATABASE_DRIVER']._serialized_end=3065
+  _globals['_POLICYSOURCE_DISK']._serialized_start=3067
+  _globals['_POLICYSOURCE_DISK']._serialized_end=3103
+  _globals['_POLICYSOURCE_EMBEDDEDPDP']._serialized_start=3105
+  _globals['_POLICYSOURCE_EMBEDDEDPDP']._serialized_end=3224
+  _globals['_POLICYSOURCE_GIT']._serialized_start=3226
+  _globals['_POLICYSOURCE_GIT']._serialized_end=3350
+  _globals['_POLICYSOURCE_HUB']._serialized_start=3353
+  _globals['_POLICYSOURCE_HUB']._serialized_end=3984
+  _globals['_POLICYSOURCE_HUB_EMBEDDEDBUNDLE']._serialized_start=3734
+  _globals['_POLICYSOURCE_HUB_EMBEDDEDBUNDLE']._serialized_end=3828
+  _globals['_POLICYSOURCE_HUB_LOCALBUNDLE']._serialized_start=3830
+  _globals['_POLICYSOURCE_HUB_LOCALBUNDLE']._serialized_end=3892
+  _globals['_POLICYSOURCE_HUB_REMOTEBUNDLE']._serialized_start=3894
+  _globals['_POLICYSOURCE_HUB_REMOTEBUNDLE']._serialized_end=3974
+  _globals['_REQUESTCONTEXT']._serialized_start=3997
+  _globals['_REQUESTCONTEXT']._serialized_end=4427
+  _globals['_REQUESTCONTEXT_ANNOTATIONSENTRY']._serialized_start=4206
+  _globals['_REQUESTCONTEXT_ANNOTATIONSENTRY']._serialized_end=4292
 # @@protoc_insertion_point(module_scope)

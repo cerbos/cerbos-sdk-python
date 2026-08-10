@@ -1,8 +1,8 @@
 version: v2
 clean: false
 inputs:
-  - module: buf.build/cerbos/cerbos-api
   - module: buf.build/cerbos/cloud-api
+  - module: buf.build/cerbos/cerbos-api
 plugins:
   - remote: buf.build/protocolbuffers/python
     out: ../src

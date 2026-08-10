@@ -11,6 +11,10 @@ storage:
   disk:
     directory: ./store/policies
 
+auxData:
+  jwt:
+    disableVerification: true
+
 # audit:
 #   enabled: true # Set to false to completely disable audit logging.
 #   accessLogsEnabled: true # Log API access attempts

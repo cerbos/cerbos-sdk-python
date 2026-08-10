@@ -10,6 +10,8 @@ OPENAPIV2_OPERATION_FIELD_NUMBER: _ClassVar[int]
 openapiv2_operation: _descriptor.FieldDescriptor
 OPENAPIV2_SCHEMA_FIELD_NUMBER: _ClassVar[int]
 openapiv2_schema: _descriptor.FieldDescriptor
+OPENAPIV2_ENUM_FIELD_NUMBER: _ClassVar[int]
+openapiv2_enum: _descriptor.FieldDescriptor
 OPENAPIV2_TAG_FIELD_NUMBER: _ClassVar[int]
 openapiv2_tag: _descriptor.FieldDescriptor
 OPENAPIV2_FIELD_FIELD_NUMBER: _ClassVar[int]

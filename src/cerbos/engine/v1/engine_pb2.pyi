@@ -115,7 +115,7 @@ class PlanResourcesFilter(_message.Message):
     def __init__(self, kind: _Optional[_Union[PlanResourcesFilter.Kind, str]] = ..., condition: _Optional[_Union[PlanResourcesFilter.Expression.Operand, _Mapping]] = ...) -> None: ...
 
 class PlanResourcesOutput(_message.Message):
-    __slots__ = ("request_id", "action", "kind", "policy_version", "scope", "filter", "filter_debug", "validation_errors", "actions", "matched_scopes")
+    __slots__ = ("request_id", "action", "kind", "policy_version", "scope", "filter", "filter_debug", "validation_errors", "actions", "matched_scopes", "evaluation_errors")
     class MatchedScopesEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -133,6 +133,7 @@ class PlanResourcesOutput(_message.Message):
     VALIDATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
     ACTIONS_FIELD_NUMBER: _ClassVar[int]
     MATCHED_SCOPES_FIELD_NUMBER: _ClassVar[int]
+    EVALUATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     action: str
     kind: str
@@ -143,7 +144,8 @@ class PlanResourcesOutput(_message.Message):
     validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
     actions: _containers.RepeatedScalarFieldContainer[str]
     matched_scopes: _containers.ScalarMap[str, str]
-    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., scope: _Optional[str] = ..., filter: _Optional[_Union[PlanResourcesFilter, _Mapping]] = ..., filter_debug: _Optional[str] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., actions: _Optional[_Iterable[str]] = ..., matched_scopes: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    evaluation_errors: _containers.RepeatedCompositeFieldContainer[EvaluationError]
+    def __init__(self, request_id: _Optional[str] = ..., action: _Optional[str] = ..., kind: _Optional[str] = ..., policy_version: _Optional[str] = ..., scope: _Optional[str] = ..., filter: _Optional[_Union[PlanResourcesFilter, _Mapping]] = ..., filter_debug: _Optional[str] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., actions: _Optional[_Iterable[str]] = ..., matched_scopes: _Optional[_Mapping[str, str]] = ..., evaluation_errors: _Optional[_Iterable[_Union[EvaluationError, _Mapping]]] = ...) -> None: ...
 
 class CheckInput(_message.Message):
     __slots__ = ("request_id", "resource", "principal", "actions", "aux_data")
@@ -160,7 +162,7 @@ class CheckInput(_message.Message):
     def __init__(self, request_id: _Optional[str] = ..., resource: _Optional[_Union[Resource, _Mapping]] = ..., principal: _Optional[_Union[Principal, _Mapping]] = ..., actions: _Optional[_Iterable[str]] = ..., aux_data: _Optional[_Union[AuxData, _Mapping]] = ...) -> None: ...
 
 class CheckOutput(_message.Message):
-    __slots__ = ("request_id", "resource_id", "actions", "effective_derived_roles", "validation_errors", "outputs")
+    __slots__ = ("request_id", "resource_id", "actions", "effective_derived_roles", "validation_errors", "outputs", "evaluation_errors")
     class ActionEffect(_message.Message):
         __slots__ = ("effect", "policy", "scope")
         EFFECT_FIELD_NUMBER: _ClassVar[int]
@@ -183,21 +185,40 @@ class CheckOutput(_message.Message):
     EFFECTIVE_DERIVED_ROLES_FIELD_NUMBER: _ClassVar[int]
     VALIDATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
     OUTPUTS_FIELD_NUMBER: _ClassVar[int]
+    EVALUATION_ERRORS_FIELD_NUMBER: _ClassVar[int]
     request_id: str
     resource_id: str
     actions: _containers.MessageMap[str, CheckOutput.ActionEffect]
     effective_derived_roles: _containers.RepeatedScalarFieldContainer[str]
     validation_errors: _containers.RepeatedCompositeFieldContainer[_schema_pb2.ValidationError]
     outputs: _containers.RepeatedCompositeFieldContainer[OutputEntry]
-    def __init__(self, request_id: _Optional[str] = ..., resource_id: _Optional[str] = ..., actions: _Optional[_Mapping[str, CheckOutput.ActionEffect]] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[OutputEntry, _Mapping]]] = ...) -> None: ...
+    evaluation_errors: _containers.RepeatedCompositeFieldContainer[EvaluationError]
+    def __init__(self, request_id: _Optional[str] = ..., resource_id: _Optional[str] = ..., actions: _Optional[_Mapping[str, CheckOutput.ActionEffect]] = ..., effective_derived_roles: _Optional[_Iterable[str]] = ..., validation_errors: _Optional[_Iterable[_Union[_schema_pb2.ValidationError, _Mapping]]] = ..., outputs: _Optional[_Iterable[_Union[OutputEntry, _Mapping]]] = ..., evaluation_errors: _Optional[_Iterable[_Union[EvaluationError, _Mapping]]] = ...) -> None: ...
+
+class EvaluationError(_message.Message):
+    __slots__ = ("cel_error",)
+    class CELError(_message.Message):
+        __slots__ = ("expression", "message")
+        EXPRESSION_FIELD_NUMBER: _ClassVar[int]
+        MESSAGE_FIELD_NUMBER: _ClassVar[int]
+        expression: str
+        message: str
+        def __init__(self, expression: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
+    CEL_ERROR_FIELD_NUMBER: _ClassVar[int]
+    cel_error: EvaluationError.CELError
+    def __init__(self, cel_error: _Optional[_Union[EvaluationError.CELError, _Mapping]] = ...) -> None: ...
 
 class OutputEntry(_message.Message):
-    __slots__ = ("src", "val")
+    __slots__ = ("src", "val", "action", "error")
     SRC_FIELD_NUMBER: _ClassVar[int]
     VAL_FIELD_NUMBER: _ClassVar[int]
+    ACTION_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
     src: str
     val: _struct_pb2.Value
-    def __init__(self, src: _Optional[str] = ..., val: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+    action: str
+    error: str
+    def __init__(self, src: _Optional[str] = ..., val: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ..., action: _Optional[str] = ..., error: _Optional[str] = ...) -> None: ...
 
 class Resource(_message.Message):
     __slots__ = ("kind", "policy_version", "id", "attr", "scope")
@@ -242,7 +263,19 @@ class Principal(_message.Message):
     def __init__(self, id: _Optional[str] = ..., policy_version: _Optional[str] = ..., roles: _Optional[_Iterable[str]] = ..., attr: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., scope: _Optional[str] = ...) -> None: ...
 
 class AuxData(_message.Message):
-    __slots__ = ("jwt",)
+    __slots__ = ("jwt", "jwts")
+    class JWT(_message.Message):
+        __slots__ = ("claims",)
+        class ClaimsEntry(_message.Message):
+            __slots__ = ("key", "value")
+            KEY_FIELD_NUMBER: _ClassVar[int]
+            VALUE_FIELD_NUMBER: _ClassVar[int]
+            key: str
+            value: _struct_pb2.Value
+            def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+        CLAIMS_FIELD_NUMBER: _ClassVar[int]
+        claims: _containers.MessageMap[str, _struct_pb2.Value]
+        def __init__(self, claims: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
     class JwtEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -250,9 +283,18 @@ class AuxData(_message.Message):
         key: str
         value: _struct_pb2.Value
         def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+    class JwtsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: AuxData.JWT
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[AuxData.JWT, _Mapping]] = ...) -> None: ...
     JWT_FIELD_NUMBER: _ClassVar[int]
+    JWTS_FIELD_NUMBER: _ClassVar[int]
     jwt: _containers.MessageMap[str, _struct_pb2.Value]
-    def __init__(self, jwt: _Optional[_Mapping[str, _struct_pb2.Value]] = ...) -> None: ...
+    jwts: _containers.MessageMap[str, AuxData.JWT]
+    def __init__(self, jwt: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., jwts: _Optional[_Mapping[str, AuxData.JWT]] = ...) -> None: ...
 
 class Trace(_message.Message):
     __slots__ = ("components", "event")
@@ -354,6 +396,22 @@ class Trace(_message.Message):
     components: _containers.RepeatedCompositeFieldContainer[Trace.Component]
     event: Trace.Event
     def __init__(self, components: _Optional[_Iterable[_Union[Trace.Component, _Mapping]]] = ..., event: _Optional[_Union[Trace.Event, _Mapping]] = ...) -> None: ...
+
+class TraceEntry(_message.Message):
+    __slots__ = ("component_indices", "event")
+    COMPONENT_INDICES_FIELD_NUMBER: _ClassVar[int]
+    EVENT_FIELD_NUMBER: _ClassVar[int]
+    component_indices: _containers.RepeatedScalarFieldContainer[int]
+    event: Trace.Event
+    def __init__(self, component_indices: _Optional[_Iterable[int]] = ..., event: _Optional[_Union[Trace.Event, _Mapping]] = ...) -> None: ...
+
+class TraceBatch(_message.Message):
+    __slots__ = ("definitions", "entries")
+    DEFINITIONS_FIELD_NUMBER: _ClassVar[int]
+    ENTRIES_FIELD_NUMBER: _ClassVar[int]
+    definitions: _containers.RepeatedCompositeFieldContainer[Trace.Component]
+    entries: _containers.RepeatedCompositeFieldContainer[TraceEntry]
+    def __init__(self, definitions: _Optional[_Iterable[_Union[Trace.Component, _Mapping]]] = ..., entries: _Optional[_Iterable[_Union[TraceEntry, _Mapping]]] = ...) -> None: ...
 
 class Request(_message.Message):
     __slots__ = ("principal", "resource", "aux_data")

@@ -12,6 +12,8 @@ from cerbos.sdk.model import *
 
 pytestmark = pytest.mark.anyio
 
+test_token = "eyJhbGciOiJFUzM4NCIsImtpZCI6IjE5TGZaYXRFZGc4M1lOYzVyMjNndU1KcXJuND0iLCJ0eXAiOiJKV1QifQ.eyJhdWQiOlsiY2VyYm9zLWp3dC10ZXN0cyJdLCJjdXN0b21BcnJheSI6WyJBIiwiQiIsIkMiXSwiY3VzdG9tSW50Ijo0MiwiY3VzdG9tTWFwIjp7IkEiOiJBQSIsIkIiOiJCQiIsIkMiOiJDQyJ9LCJjdXN0b21TdHJpbmciOiJmb29iYXIiLCJleHAiOjE5NTAyNzc5MjYsImlzcyI6ImNlcmJvcy10ZXN0LXN1aXRlIn0._nCHIsuFI3wczeuUv_xjSwaVnIQUdYA9sGf_jVsrsDWloLs3iPWDaA1bXpuIUJVsi8-G6qqdrPI0cOBxEocg1NCm8fyD9T_3hsZV0fYWon_Je6Kl93a3JIW3S6kbvjsL"
+
 
 class TestCerbosClient:
     def test_is_healthy(self, cerbos_client: CerbosClient):
@@ -199,6 +201,35 @@ class TestCerbosClient:
             client.check_resources(principal_john, resource_list)
 
         assert socket_mock.call_count == n_requests
+
+    def test_check_resources_with_auxdata(
+        self,
+        cerbos_client: CerbosClient,
+        principal_john: Principal,
+        resource_john_leave_req: Resource,
+    ):
+        resources = ResourceList(
+            [
+                ResourceAction(
+                    resource=resource_john_leave_req,
+                    actions={"frobnicate"},
+                ),
+            ]
+        )
+        aux_data = AuxData(
+            jwts={"token_a": JWT(token=test_token), "token_b": JWT(token=test_token)}
+        )
+
+        have = cerbos_client.check_resources(
+            principal_john, resources, aux_data=aux_data
+        )
+        assert not have.failed()
+
+        xx125 = have.get_resource(
+            "XX125", predicate=lambda r: r.policy_version == "20210210"
+        )
+        assert xx125 is not None
+        assert xx125.is_allowed("frobnicate")
 
 
 class TestPrincipalContext:
@@ -420,6 +451,35 @@ class TestAsyncCerbosClient:
 
         assert tcp_mock.call_count == n_requests
 
+    async def test_check_resources_with_auxdata(
+        self,
+        cerbos_async_client: AsyncCerbosClient,
+        principal_john: Principal,
+        resource_john_leave_req: Resource,
+    ):
+        resources = ResourceList(
+            [
+                ResourceAction(
+                    resource=resource_john_leave_req,
+                    actions={"frobnicate"},
+                ),
+            ]
+        )
+        aux_data = AuxData(
+            jwts={"token_a": JWT(token=test_token), "token_b": JWT(token=test_token)}
+        )
+
+        have = await cerbos_async_client.check_resources(
+            principal_john, resources, aux_data=aux_data
+        )
+        assert not have.failed()
+
+        xx125 = have.get_resource(
+            "XX125", predicate=lambda r: r.policy_version == "20210210"
+        )
+        assert xx125 is not None
+        assert xx125.is_allowed("frobnicate")
+
 
 class TestAsyncAsyncPrincipalContext:
     async def test_is_allowed(
@@ -551,6 +611,8 @@ def _assert_check_resources_with_output(have: CheckResourcesResponse):
                 "nested_str": "foo",
             },
         },
+        "action": "view:public",
+        "error": None,
     }
 
 
@@ -578,6 +640,8 @@ def _assert_check_resources_principal_override_with_output(
                 "nested_str": "foo",
             },
         },
+        "action": "view:public",
+        "error": None,
     }
 
 

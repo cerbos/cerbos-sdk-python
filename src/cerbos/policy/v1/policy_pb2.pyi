@@ -153,28 +153,38 @@ class ResourceRule(_message.Message):
     def __init__(self, actions: _Optional[_Iterable[str]] = ..., derived_roles: _Optional[_Iterable[str]] = ..., roles: _Optional[_Iterable[str]] = ..., condition: _Optional[_Union[Condition, _Mapping]] = ..., effect: _Optional[_Union[_effect_pb2.Effect, str]] = ..., name: _Optional[str] = ..., output: _Optional[_Union[Output, _Mapping]] = ...) -> None: ...
 
 class RolePolicy(_message.Message):
-    __slots__ = ("role", "parent_roles", "scope", "rules", "scope_permissions")
+    __slots__ = ("role", "version", "parent_roles", "scope", "rules", "scope_permissions", "variables", "constants")
     ROLE_FIELD_NUMBER: _ClassVar[int]
+    VERSION_FIELD_NUMBER: _ClassVar[int]
     PARENT_ROLES_FIELD_NUMBER: _ClassVar[int]
     SCOPE_FIELD_NUMBER: _ClassVar[int]
     RULES_FIELD_NUMBER: _ClassVar[int]
     SCOPE_PERMISSIONS_FIELD_NUMBER: _ClassVar[int]
+    VARIABLES_FIELD_NUMBER: _ClassVar[int]
+    CONSTANTS_FIELD_NUMBER: _ClassVar[int]
     role: str
+    version: str
     parent_roles: _containers.RepeatedScalarFieldContainer[str]
     scope: str
     rules: _containers.RepeatedCompositeFieldContainer[RoleRule]
     scope_permissions: ScopePermissions
-    def __init__(self, role: _Optional[str] = ..., parent_roles: _Optional[_Iterable[str]] = ..., scope: _Optional[str] = ..., rules: _Optional[_Iterable[_Union[RoleRule, _Mapping]]] = ..., scope_permissions: _Optional[_Union[ScopePermissions, str]] = ...) -> None: ...
+    variables: Variables
+    constants: Constants
+    def __init__(self, role: _Optional[str] = ..., version: _Optional[str] = ..., parent_roles: _Optional[_Iterable[str]] = ..., scope: _Optional[str] = ..., rules: _Optional[_Iterable[_Union[RoleRule, _Mapping]]] = ..., scope_permissions: _Optional[_Union[ScopePermissions, str]] = ..., variables: _Optional[_Union[Variables, _Mapping]] = ..., constants: _Optional[_Union[Constants, _Mapping]] = ...) -> None: ...
 
 class RoleRule(_message.Message):
-    __slots__ = ("resource", "allow_actions", "condition")
+    __slots__ = ("resource", "allow_actions", "condition", "name", "output")
     RESOURCE_FIELD_NUMBER: _ClassVar[int]
     ALLOW_ACTIONS_FIELD_NUMBER: _ClassVar[int]
     CONDITION_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    OUTPUT_FIELD_NUMBER: _ClassVar[int]
     resource: str
     allow_actions: _containers.RepeatedScalarFieldContainer[str]
     condition: Condition
-    def __init__(self, resource: _Optional[str] = ..., allow_actions: _Optional[_Iterable[str]] = ..., condition: _Optional[_Union[Condition, _Mapping]] = ...) -> None: ...
+    name: str
+    output: Output
+    def __init__(self, resource: _Optional[str] = ..., allow_actions: _Optional[_Iterable[str]] = ..., condition: _Optional[_Union[Condition, _Mapping]] = ..., name: _Optional[str] = ..., output: _Optional[_Union[Output, _Mapping]] = ...) -> None: ...
 
 class PrincipalPolicy(_message.Message):
     __slots__ = ("principal", "version", "rules", "scope", "variables", "scope_permissions", "constants")
@@ -434,7 +444,7 @@ class TestFixtureGroup(_message.Message):
     def __init__(self) -> None: ...
 
 class TestOptions(_message.Message):
-    __slots__ = ("now", "lenient_scope_search", "globals", "default_policy_version")
+    __slots__ = ("now", "lenient_scope_search", "globals", "default_policy_version", "default_scope")
     class GlobalsEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -446,11 +456,13 @@ class TestOptions(_message.Message):
     LENIENT_SCOPE_SEARCH_FIELD_NUMBER: _ClassVar[int]
     GLOBALS_FIELD_NUMBER: _ClassVar[int]
     DEFAULT_POLICY_VERSION_FIELD_NUMBER: _ClassVar[int]
+    DEFAULT_SCOPE_FIELD_NUMBER: _ClassVar[int]
     now: _timestamp_pb2.Timestamp
     lenient_scope_search: bool
     globals: _containers.MessageMap[str, _struct_pb2.Value]
     default_policy_version: str
-    def __init__(self, now: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., lenient_scope_search: _Optional[bool] = ..., globals: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., default_policy_version: _Optional[str] = ...) -> None: ...
+    default_scope: str
+    def __init__(self, now: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., lenient_scope_search: _Optional[bool] = ..., globals: _Optional[_Mapping[str, _struct_pb2.Value]] = ..., default_policy_version: _Optional[str] = ..., default_scope: _Optional[str] = ...) -> None: ...
 
 class TestSuite(_message.Message):
     __slots__ = ("name", "description", "skip", "skip_reason", "tests", "principals", "resources", "aux_data", "options", "json_schema", "principal_groups", "resource_groups")
@@ -714,22 +726,24 @@ class TestResults(_message.Message):
         details: TestResults.Details
         def __init__(self, name: _Optional[str] = ..., details: _Optional[_Union[TestResults.Details, _Mapping]] = ...) -> None: ...
     class Details(_message.Message):
-        __slots__ = ("result", "failure", "error", "success", "skip_reason", "engine_trace")
+        __slots__ = ("result", "failure", "error", "success", "skip_reason", "engine_trace", "engine_trace_batch")
         RESULT_FIELD_NUMBER: _ClassVar[int]
         FAILURE_FIELD_NUMBER: _ClassVar[int]
         ERROR_FIELD_NUMBER: _ClassVar[int]
         SUCCESS_FIELD_NUMBER: _ClassVar[int]
         SKIP_REASON_FIELD_NUMBER: _ClassVar[int]
         ENGINE_TRACE_FIELD_NUMBER: _ClassVar[int]
+        ENGINE_TRACE_BATCH_FIELD_NUMBER: _ClassVar[int]
         result: TestResults.Result
         failure: TestResults.Failure
         error: str
         success: TestResults.Success
         skip_reason: str
         engine_trace: _containers.RepeatedCompositeFieldContainer[_engine_pb2.Trace]
-        def __init__(self, result: _Optional[_Union[TestResults.Result, str]] = ..., failure: _Optional[_Union[TestResults.Failure, _Mapping]] = ..., error: _Optional[str] = ..., success: _Optional[_Union[TestResults.Success, _Mapping]] = ..., skip_reason: _Optional[str] = ..., engine_trace: _Optional[_Iterable[_Union[_engine_pb2.Trace, _Mapping]]] = ...) -> None: ...
+        engine_trace_batch: _engine_pb2.TraceBatch
+        def __init__(self, result: _Optional[_Union[TestResults.Result, str]] = ..., failure: _Optional[_Union[TestResults.Failure, _Mapping]] = ..., error: _Optional[str] = ..., success: _Optional[_Union[TestResults.Success, _Mapping]] = ..., skip_reason: _Optional[str] = ..., engine_trace: _Optional[_Iterable[_Union[_engine_pb2.Trace, _Mapping]]] = ..., engine_trace_batch: _Optional[_Union[_engine_pb2.TraceBatch, _Mapping]] = ...) -> None: ...
     class OutputFailure(_message.Message):
-        __slots__ = ("src", "mismatched", "missing")
+        __slots__ = ("src", "mismatched", "missing", "errored")
         class MismatchedValue(_message.Message):
             __slots__ = ("expected", "actual")
             EXPECTED_FIELD_NUMBER: _ClassVar[int]
@@ -742,13 +756,22 @@ class TestResults(_message.Message):
             EXPECTED_FIELD_NUMBER: _ClassVar[int]
             expected: _struct_pb2.Value
             def __init__(self, expected: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ...) -> None: ...
+        class EvaluationError(_message.Message):
+            __slots__ = ("expected", "error")
+            EXPECTED_FIELD_NUMBER: _ClassVar[int]
+            ERROR_FIELD_NUMBER: _ClassVar[int]
+            expected: _struct_pb2.Value
+            error: str
+            def __init__(self, expected: _Optional[_Union[_struct_pb2.Value, _Mapping]] = ..., error: _Optional[str] = ...) -> None: ...
         SRC_FIELD_NUMBER: _ClassVar[int]
         MISMATCHED_FIELD_NUMBER: _ClassVar[int]
         MISSING_FIELD_NUMBER: _ClassVar[int]
+        ERRORED_FIELD_NUMBER: _ClassVar[int]
         src: str
         mismatched: TestResults.OutputFailure.MismatchedValue
         missing: TestResults.OutputFailure.MissingValue
-        def __init__(self, src: _Optional[str] = ..., mismatched: _Optional[_Union[TestResults.OutputFailure.MismatchedValue, _Mapping]] = ..., missing: _Optional[_Union[TestResults.OutputFailure.MissingValue, _Mapping]] = ...) -> None: ...
+        errored: TestResults.OutputFailure.EvaluationError
+        def __init__(self, src: _Optional[str] = ..., mismatched: _Optional[_Union[TestResults.OutputFailure.MismatchedValue, _Mapping]] = ..., missing: _Optional[_Union[TestResults.OutputFailure.MissingValue, _Mapping]] = ..., errored: _Optional[_Union[TestResults.OutputFailure.EvaluationError, _Mapping]] = ...) -> None: ...
     class Failure(_message.Message):
         __slots__ = ("expected", "actual", "outputs")
         EXPECTED_FIELD_NUMBER: _ClassVar[int]

@@ -4,8 +4,8 @@
 
 A forked version of [Unasync](https://unasync.readthedocs.io/en/latest/index.html) is used to generate non-async code based on the async implementation. Only make changes to files in `src/cerbos/sdk/_async`. Then run `./pw generate` to re-generate the code in `src/cerbos/sdk/_sync`.
 
-
 ### Package management
+
 This project uses [PDM](https://pdm.fming.dev) with [Pyprojectx](https://pyprojectx.github.io) for package management. The `pw` script should be used when working with this project.
 
 Adding a new dependency
@@ -45,12 +45,10 @@ Running a REPL
 TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix://${XDG_RUNTIME_DIR}/podman/podman.sock" TESTCONTAINERS_RYUK_DISABLED=true ./pw test
 ```
 
-
 ### Releases
 
-- Run `./pw tag_release PATCH` to generate the changelog and tag the release. (Replace `PATCH` with `MINOR` if you are incrementing the minor version.)
-- Push the new tag to GitHub to launch the CI release job
-
+- Run `./pw bump_version PATCH` to generate the changelog and bump the version. (Replace `PATCH` with `MINOR` if you are incrementing the minor version.)
+- Commit the changes, tag, and push the new tag to GitHub to launch the CI release job
 
 #### Publishing to Test PyPI
 
@@ -60,4 +58,3 @@ TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="unix://${XDG_RUNTIME_DIR}/podman/podman.s
 # Test PyPI
 ./pw twine upload -r testpypi dist/*
 ```
-

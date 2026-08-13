@@ -61,7 +61,7 @@ test = "pw@generate && pw@pytest"
 lint = "pdm lint"
 format = "pdm format"
 test_upload = "twine upload -r testpypi dist/*"
-tag_release = "pdm run cz bump --changelog --increment"
+bump_version = "pdm run cz bump --version-files-only --changelog --increment"
 changelog = "pdm run cz changelog"
 
 [tool.pyright]

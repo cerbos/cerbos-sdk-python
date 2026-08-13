@@ -35,9 +35,6 @@ jobs:
       - name: Lint
         run: ./pw lint
 
-      - name: Generate changelog
-        run: ./pw changelog
-
       - name: Check repo status
         uses: cerbos/actions/check-repo-status@db2ff6efa4315796b92eec00847c9257b89fae5c # main
 

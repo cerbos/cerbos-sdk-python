@@ -66,8 +66,7 @@ class _CerbosHubClientBase:
             self._timeout_secs = timeout_secs
         channel = grpc.secure_channel(
             target, credentials=grpc.ssl_channel_credentials(), options=options
-        )  # noqa: F821
-        # noqa: F821
+        )
         auth_interceptor = _AuthInterceptor(
             _AuthClient(channel, self._timeout_secs, credentials)
         )

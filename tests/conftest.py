@@ -12,9 +12,11 @@ from cerbos.sdk.container import CerbosContainer
 from cerbos.sdk.grpc.client import (
     AdminCredentials,
     AsyncCerbosAdminClient,
-    CerbosAdminClient,
 )
 from cerbos.sdk.grpc.client import AsyncCerbosClient as AsyncGrpcCerbosClient
+from cerbos.sdk.grpc.client import (
+    CerbosAdminClient,
+)
 from cerbos.sdk.grpc.client import CerbosClient as GrpcCerbosClient
 from cerbos.sdk.model import *
 

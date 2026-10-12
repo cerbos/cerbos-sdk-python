@@ -173,8 +173,8 @@ class CerbosClient(ClientBase):
             )
             creds = grpc.composite_channel_credentials(creds, call_credentials)
         methods = [
-            {"service": "svc.CerbosService", "method": "CheckResources"},
-            {"service": "svc.CerbosService", "method": "PlanResources"},
+            {"service": "cerbos.svc.v1.CerbosService", "method": "CheckResources"},
+            {"service": "cerbos.svc.v1.CerbosService", "method": "PlanResources"},
         ]
         super().__init__(
             host,
@@ -418,18 +418,23 @@ class CerbosAdminClient(ClientBase):
         if tls_verify:
             cert = get_cert(tls_verify)
             creds = grpc.ssl_channel_credentials(cert)
-        # {"service": "svc.CerbosAdminService", "method": "AuditLogs"},
         methods = [
-            {"service": "svc.CerbosAdminService", "method": "AddOrUpdatePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "ListPolicies"},
-            {"service": "svc.CerbosAdminService", "method": "GetPolicy"},
-            {"service": "svc.CerbosAdminService", "method": "DisablePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "EnablePolicy"},
-            {"service": "svc.CerbosAdminService", "method": "AddOrUpdateSchema"},
-            {"service": "svc.CerbosAdminService", "method": "DeleteSchema"},
-            {"service": "svc.CerbosAdminService", "method": "ListSchemas"},
-            {"service": "svc.CerbosAdminService", "method": "GetSchema"},
-            {"service": "svc.CerbosAdminService", "method": "ReloadStore"},
+            {
+                "service": "cerbos.svc.v1.CerbosAdminService",
+                "method": "AddOrUpdatePolicy",
+            },
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "ListPolicies"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "GetPolicy"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "DisablePolicy"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "EnablePolicy"},
+            {
+                "service": "cerbos.svc.v1.CerbosAdminService",
+                "method": "AddOrUpdateSchema",
+            },
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "DeleteSchema"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "ListSchemas"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "GetSchema"},
+            {"service": "cerbos.svc.v1.CerbosAdminService", "method": "ReloadStore"},
         ]
         super().__init__(
             host,

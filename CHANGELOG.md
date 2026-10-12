@@ -1,3 +1,7 @@
+## Unreleased
+
+Fix gRPC method configuration.
+
 ## v0.16.0 (2026-08-13)
 
 Support multiple JWTs (#127)

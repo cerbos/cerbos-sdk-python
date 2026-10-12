@@ -1,3 +1,7 @@
+## v0.16.1 (2026-10-12)
+
+Fix gRPC service name in method config (#227)
+
 ## v0.16.0 (2026-08-13)
 
 Support multiple JWTs (#127)

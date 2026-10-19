@@ -48,7 +48,7 @@ class _AuthClient:
         with self._lock:
             if self._invalid_credentials:
                 raise InvalidCredentialsError("Invalid credentials")
-            if self._token and self._expiry > datetime.now():  # noqa: DTZ005
+            if self._token and self._expiry > datetime.now():
                 return self._token
             req = apikey_pb2.IssueAccessTokenRequest(
                 client_id=self._client_id, client_secret=self._client_secret
@@ -61,7 +61,7 @@ class _AuthClient:
                 expires_in = resp.expires_in.ToTimedelta()
                 if expires_in > self._EARLY_EXPIRY:
                     expires_in = expires_in - self._EARLY_EXPIRY
-                self._expiry = datetime.now() + expires_in  # noqa: DTZ005
+                self._expiry = datetime.now() + expires_in
                 return self._token
             except grpc.RpcError as rpc_error:
                 status = rpc_status.from_call(rpc_error)

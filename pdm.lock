@@ -4,7 +4,7 @@
 [metadata]
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = []
-lock_version = "4.5.1"
+lock_version = "4.5.0"
 content_hash = "sha256:7db8139aecaeb51034900fc3d92b99f3272cae312980bfb739e802d4b99c1a72"
 
 [[metadata.targets]]

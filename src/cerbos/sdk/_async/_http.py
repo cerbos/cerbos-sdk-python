@@ -103,7 +103,7 @@ class AsyncCerbosClient:
             transport_params["uds"] = url.path
             base_url = "http://cerbos.sock"
         elif url.scheme == "unix+https":
-            transport_params |= {"uds": url.path, "verify": tls_verify}
+            transport_params["uds"] = url.path
             base_url = "https://cerbos.sock"
 
         if connection_retries:
@@ -111,7 +111,7 @@ class AsyncCerbosClient:
 
         transport = None
         if transport_params:
-            transport = httpx.AsyncHTTPTransport(**transport_params)
+            transport = httpx.AsyncHTTPTransport(verify=tls_verify, **transport_params)
 
         self._http = AsyncRetryClient(
             base_url=base_url,

@@ -96,13 +96,13 @@ class CerbosClient:
             transport_params["uds"] = url.path
             base_url = "http://cerbos.sock"
         elif url.scheme == "unix+https":
-            transport_params |= {"uds": url.path, "verify": tls_verify}
+            transport_params["uds"] = url.path
             base_url = "https://cerbos.sock"
         if connection_retries:
             transport_params["retries"] = connection_retries
         transport = None
         if transport_params:
-            transport = httpx.HTTPTransport(**transport_params)
+            transport = httpx.HTTPTransport(verify=tls_verify, **transport_params)
         self._http = RetryClient(
             base_url=base_url,
             headers=headers,

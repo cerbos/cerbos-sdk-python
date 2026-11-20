@@ -5,7 +5,7 @@ import ssl
 import uuid
 from urllib.parse import urlparse
 
-import httpx
+import httpx2
 from requests_toolbelt import user_agent
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -15,9 +15,9 @@ from cerbos.sdk.model import *
 TLSVerify = str | bool | ssl.SSLContext
 
 
-class RetryClient(httpx.Client):
+class RetryClient(httpx2.Client):
     def __init__(self, request_retries: int = 0, *args, **kwargs):
-        self._client = httpx.Client(*args, **kwargs)
+        self._client = httpx2.Client(*args, **kwargs)
         fn = self._client.post
         if request_retries:
             # 1+n because 1 == the initial attempt
@@ -61,7 +61,7 @@ class CerbosClient:
                 do_thing()
     """
 
-    _http: httpx.Client
+    _http: httpx2.Client
     _logger: logging.Logger
     _raise_on_error: bool
 
@@ -102,7 +102,7 @@ class CerbosClient:
             transport_params["retries"] = connection_retries
         transport = None
         if transport_params:
-            transport = httpx.HTTPTransport(**transport_params)
+            transport = httpx2.HTTPTransport(**transport_params)
         self._http = RetryClient(
             base_url=base_url,
             headers=headers,
@@ -113,12 +113,12 @@ class CerbosClient:
             request_retries=request_retries,
         )
 
-    def _raise_on_status(self, response: httpx.Response):
+    def _raise_on_status(self, response: httpx2.Response):
         if response is None:
             return
         response.raise_for_status()
 
-    def _log_response(self, response: httpx.Response):
+    def _log_response(self, response: httpx2.Response):
         if response is None:
             return
         req_prefix = "< "

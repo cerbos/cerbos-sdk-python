@@ -6,7 +6,7 @@ import ssl
 import uuid
 from urllib.parse import urlparse
 
-import httpx
+import httpx2
 from requests_toolbelt import user_agent
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -16,9 +16,9 @@ from cerbos.sdk.model import *
 TLSVerify = str | bool | ssl.SSLContext
 
 
-class AsyncRetryClient(httpx.AsyncClient):
+class AsyncRetryClient(httpx2.AsyncClient):
     def __init__(self, request_retries: int = 0, *args, **kwargs):
-        self._client = httpx.AsyncClient(*args, **kwargs)
+        self._client = httpx2.AsyncClient(*args, **kwargs)
 
         fn = self._client.post
         if request_retries:
@@ -62,7 +62,7 @@ class AsyncCerbosClient:
                 do_thing()
     """
 
-    _http: httpx.AsyncClient
+    _http: httpx2.AsyncClient
     _logger: logging.Logger
     _raise_on_error: bool
 
@@ -111,7 +111,7 @@ class AsyncCerbosClient:
 
         transport = None
         if transport_params:
-            transport = httpx.AsyncHTTPTransport(**transport_params)
+            transport = httpx2.AsyncHTTPTransport(**transport_params)
 
         self._http = AsyncRetryClient(
             base_url=base_url,
@@ -123,13 +123,13 @@ class AsyncCerbosClient:
             request_retries=request_retries,
         )
 
-    async def _raise_on_status(self, response: httpx.Response):
+    async def _raise_on_status(self, response: httpx2.Response):
         if response is None:
             return
 
         response.raise_for_status()
 
-    async def _log_response(self, response: httpx.Response):
+    async def _log_response(self, response: httpx2.Response):
         if response is None:
             return
 

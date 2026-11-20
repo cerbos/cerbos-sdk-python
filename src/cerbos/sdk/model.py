@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Union
 
-import httpx
+import httpx2
 from dataclasses_json import LetterCase, config, dataclass_json
 
 
@@ -132,11 +132,11 @@ class CheckResourcesResult:
 class CheckResourcesResponse:
     request_id: str
     results: list[CheckResourcesResult] | None = None
-    status_code: int = httpx.codes.OK
+    status_code: int = httpx2.codes.OK
     status_msg: APIError | None = None
 
     def failed(self) -> bool:
-        return self.status_code != httpx.codes.OK
+        return self.status_code != httpx2.codes.OK
 
     def raise_if_failed(self) -> "CheckResourcesResponse":
         if not self.failed():
@@ -256,11 +256,11 @@ class PlanResourcesResponse:
     policy_version: str
     filter: PlanResourcesFilter | None = None
     validation_errors: list[ValidationError] | None = None
-    status_code: int = httpx.codes.OK
+    status_code: int = httpx2.codes.OK
     status_msg: APIError | None = None
 
     def failed(self) -> bool:
-        return self.status_code != httpx.codes.OK
+        return self.status_code != httpx2.codes.OK
 
     def raise_if_failed(self) -> "PlanResourcesResponse":
         if not self.failed():

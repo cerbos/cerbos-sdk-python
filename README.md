@@ -5,6 +5,14 @@ Python clients for accessing [Cerbos](https://cerbos.dev).
 
 Cerbos is the open core, language-agnostic, scalable authorization solution that makes user permissions and authorization simple to implement and manage by writing context-aware access control policies for your application resources.
 
+## Upgrading
+
+The HTTP client is now built on [httpx2](https://pypi.org/project/httpx2/), the maintained successor of `httpx`.
+
+- Python 3.11 or later is required.
+- Errors raised by the HTTP client come from `httpx2` rather than `httpx`, so code that catches `httpx.HTTPStatusError` or `httpx.ConnectError` should catch `httpx2.HTTPStatusError` and `httpx2.ConnectError` instead. Errors raised by the SDK itself, such as `CerbosRequestException`, are unchanged.
+- For the HTTP client, when `tls_verify` is left at its default, HTTPS certificates are verified against the operating system trust store instead of the `certifi` bundle. Passing a CA file path, an `ssl.SSLContext` or `False` behaves as before.
+
 ## Usage
 
 This library is available from PyPI as `cerbos`. It supports both async and non-async modes.

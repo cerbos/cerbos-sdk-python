@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "testcontainers", "tools"]
 strategy = []
 lock_version = "4.5.1"
-content_hash = "sha256:5e1fb5e417859a1d51938356420d077eff83c8a25575188ca10d40af484eeabf"
+content_hash = "sha256:63b3893ad5396e45a86c9281187bf89aafac1c398f83d90c258e5f84f7be17af"
 
 [[metadata.targets]]
 requires_python = ">=3.11"
@@ -603,48 +603,60 @@ files = [
 ]
 
 [[package]]
-name = "httpcore"
-version = "1.0.9"
-requires_python = ">=3.8"
+name = "httpcore2"
+version = "2.16.2"
+requires_python = ">=3.11"
 summary = "A minimal low-level HTTP client."
 dependencies = [
-    "certifi",
     "h11>=0.16",
+    "truststore>=0.10",
 ]
 files = [
-    {file = "httpcore-1.0.9-py3-none-any.whl", hash = "sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"},
-    {file = "httpcore-1.0.9.tar.gz", hash = "sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8"},
+    {file = "httpcore2-2.16.2-py3-none-any.whl", hash = "sha256:16051ae2a42f776007543f32de9349a317b23d2cbb4e1456b4bac0e88b87419a"},
+    {file = "httpcore2-2.16.2.tar.gz", hash = "sha256:6c519d0f7b44f7269fa9bbb4d2763db395a4a2370f046d8e8e0a4b38227815d2"},
 ]
 
 [[package]]
-name = "httpx"
-version = "0.28.1"
-requires_python = ">=3.8"
+name = "httpx2"
+version = "2.16.2"
+requires_python = ">=3.11"
 summary = "The next generation HTTP client."
 dependencies = [
-    "anyio",
-    "certifi",
-    "httpcore==1.*",
-    "idna",
+    "anyio>=4.10; sys_platform != \"emscripten\"",
+    "httpcore2==2.16.2; sys_platform != \"emscripten\"",
+    "httpx2-jsfetch; sys_platform == \"emscripten\" and python_version >= \"3.12\"",
+    "idna>=3.18",
+    "truststore>=0.10; sys_platform != \"emscripten\"",
+    "typing-extensions>=4.5.0; python_version < \"3.13\"",
 ]
 files = [
-    {file = "httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"},
-    {file = "httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc"},
+    {file = "httpx2-2.16.2-py3-none-any.whl", hash = "sha256:f05c13aade4c45dbf1c9060647a1058f0acad62398fad96e741269edb33d46f5"},
+    {file = "httpx2-2.16.2.tar.gz", hash = "sha256:748b615678f07d8e3b183efe81ad13b655ca88bfc56ce4589219b2d442860574"},
 ]
 
 [[package]]
-name = "httpx"
-version = "0.28.1"
+name = "httpx2-jsfetch"
+version = "1.0"
+requires_python = ">=3.12"
+summary = "httpx2 transports for Emscripten/Pyodide, backed by the JavaScript fetch API."
+files = [
+    {file = "httpx2_jsfetch-1.0-py3-none-any.whl", hash = "sha256:cb916b707601e69a07721aabc8f3f6659be3a6893bc1ff5c6f9e02241df2da32"},
+    {file = "httpx2_jsfetch-1.0.tar.gz", hash = "sha256:70a0e3eabfef7cce5ad9c629f7d01ca05e418f586646f4ddf14782e4c1454c60"},
+]
+
+[[package]]
+name = "httpx2"
+version = "2.16.2"
 extras = ["http2"]
-requires_python = ">=3.8"
+requires_python = ">=3.11"
 summary = "The next generation HTTP client."
 dependencies = [
     "h2<5,>=3",
-    "httpx==0.28.1",
+    "httpx2==2.16.2",
 ]
 files = [
-    {file = "httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"},
-    {file = "httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc"},
+    {file = "httpx2-2.16.2-py3-none-any.whl", hash = "sha256:f05c13aade4c45dbf1c9060647a1058f0acad62398fad96e741269edb33d46f5"},
+    {file = "httpx2-2.16.2.tar.gz", hash = "sha256:748b615678f07d8e3b183efe81ad13b655ca88bfc56ce4589219b2d442860574"},
 ]
 
 [[package]]
@@ -1503,6 +1515,16 @@ summary = "Style preserving TOML library"
 files = [
     {file = "tomlkit-0.15.2-py3-none-any.whl", hash = "sha256:05562412163a3037b94497385fb7f9204c637bc605af7a48199e41cf2272f437"},
     {file = "tomlkit-0.15.2.tar.gz", hash = "sha256:83e32755ba1d20d9340bd069ee97e9f6232ba2346b63ffcba425de01f7e327a6"},
+]
+
+[[package]]
+name = "truststore"
+version = "0.10.5"
+requires_python = ">=3.10"
+summary = "Verify certificates using native system trust stores"
+files = [
+    {file = "truststore-0.10.5-py3-none-any.whl", hash = "sha256:9aaaedaefaf06d8b206278cf8b5012bc897f485a874503501e12d776df78951c"},
+    {file = "truststore-0.10.5.tar.gz", hash = "sha256:30d36967ccaded5cbb38d602c433f53600036c79d502f4533a49b60a03bbefcd"},
 ]
 
 [[package]]

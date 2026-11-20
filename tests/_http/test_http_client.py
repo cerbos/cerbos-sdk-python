@@ -4,7 +4,7 @@
 import json
 from unittest.mock import patch
 
-import httpcore
+import httpcore2
 import pytest
 
 from cerbos.sdk.client import *
@@ -92,7 +92,7 @@ class TestCerbosClient:
         have = cerbos_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
 
-    @patch("httpx.Client.post")
+    @patch("httpx2.Client.post")
     def test_request_retries_on_failure(
         self,
         post_mock,
@@ -103,7 +103,7 @@ class TestCerbosClient:
 
         post_mock.side_effect = [
             OSError(),
-            httpx.Response(
+            httpx2.Response(
                 status_code=status_code,
                 text=json.dumps(
                     {
@@ -122,7 +122,7 @@ class TestCerbosClient:
         assert resp.status_code == status_code
         assert post_mock.call_count == 2
 
-    @patch("httpx.Client.post")
+    @patch("httpx2.Client.post")
     def test_request_retries_not_if_zero(
         self,
         post_mock,
@@ -133,7 +133,7 @@ class TestCerbosClient:
 
         post_mock.side_effect = [
             OSError(),
-            httpx.Response(
+            httpx2.Response(
                 status_code=status_code,
                 text=json.dumps(
                     {
@@ -154,7 +154,7 @@ class TestCerbosClient:
             assert resp.status_code == status_code
             assert post_mock.call_count == 1
 
-    @patch("httpx.Client.post")
+    @patch("httpx2.Client.post")
     def test_request_retries_not_on_success(
         self,
         post_mock,
@@ -163,7 +163,7 @@ class TestCerbosClient:
     ):
         status_code = 200
 
-        post_mock.return_value = httpx.Response(
+        post_mock.return_value = httpx2.Response(
             status_code=status_code,
             text=json.dumps(
                 {
@@ -197,7 +197,7 @@ class TestCerbosClient:
             "http://localhost:3592", connection_retries=n_retries, debug=True
         )
 
-        with pytest.raises(httpx.ConnectError):
+        with pytest.raises(httpx2.ConnectError):
             client.check_resources(principal_john, resource_list)
 
         assert socket_mock.call_count == n_requests
@@ -334,7 +334,7 @@ class TestAsyncCerbosClient:
         have = await cerbos_async_client.check_resources(principal_john, resource_list)
         _assert_check_resources_with_output(have)
 
-    @patch("httpx.AsyncClient.post")
+    @patch("httpx2.AsyncClient.post")
     async def test_request_retries_on_failure(
         self,
         post_mock,
@@ -344,7 +344,7 @@ class TestAsyncCerbosClient:
         status_code = 200
         post_mock.side_effect = [
             OSError(),
-            httpx.Response(
+            httpx2.Response(
                 status_code=status_code,
                 text=json.dumps(
                     {
@@ -367,7 +367,7 @@ class TestAsyncCerbosClient:
         assert resp.status_code == status_code
         assert post_mock.call_count == 2
 
-    @patch("httpx.AsyncClient.post")
+    @patch("httpx2.AsyncClient.post")
     async def test_request_retries_not_if_zero(
         self,
         post_mock,
@@ -378,7 +378,7 @@ class TestAsyncCerbosClient:
 
         post_mock.side_effect = [
             OSError(),
-            httpx.Response(
+            httpx2.Response(
                 status_code=status_code,
                 text=json.dumps(
                     {
@@ -401,7 +401,7 @@ class TestAsyncCerbosClient:
             assert resp.status_code == status_code
             assert post_mock.call_count == 1
 
-    @patch("httpx.AsyncClient.post")
+    @patch("httpx2.AsyncClient.post")
     async def test_request_retries_not_on_success(
         self,
         post_mock,
@@ -410,7 +410,7 @@ class TestAsyncCerbosClient:
     ):
         status_code = 200
 
-        post_mock.return_value = httpx.Response(
+        post_mock.return_value = httpx2.Response(
             status_code=status_code,
             text=json.dumps(
                 {
@@ -430,7 +430,7 @@ class TestAsyncCerbosClient:
         assert resp.status_code == status_code
         assert post_mock.call_count == 1
 
-    @patch("httpcore._backends.anyio.AnyIOBackend.connect_tcp")
+    @patch("httpcore2._backends.anyio.AnyIOBackend.connect_tcp")
     async def test_connection_retries(
         self,
         tcp_mock,
@@ -440,13 +440,13 @@ class TestAsyncCerbosClient:
         n_retries = 3
         n_requests = n_retries + 1
 
-        tcp_mock.side_effect = [httpcore._exceptions.ConnectError] * n_requests
+        tcp_mock.side_effect = [httpcore2._exceptions.ConnectError] * n_requests
 
         client = AsyncCerbosClient(
             "http://127.0.0.1:3592", connection_retries=n_retries, debug=True
         )
 
-        with pytest.raises(httpx.ConnectError):
+        with pytest.raises(httpx2.ConnectError):
             await client.check_resources(principal_john, resource_list)
 
         assert tcp_mock.call_count == n_requests

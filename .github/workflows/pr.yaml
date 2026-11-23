@@ -36,7 +36,7 @@ jobs:
         run: ./pw lint
 
       - name: Check repo status
-        uses: cerbos/actions/check-repo-status@4155ab4469b7f665dcec04a90af9e40a2234ba42 # main
+        uses: cerbos/actions/check-repo-status@fbb87be09441f0d105713c45366bd81eb125b8c5 # main
 
       - name: Test
         env:
